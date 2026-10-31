@@ -166,7 +166,10 @@ function recCard(r, session) {
       <h3>${esc(L(r.def.title))}${session ? ` <span class="muted small">· ${esc(session)}</span>` : ''}</h3>
       <p>${esc(L(r.def.text))}</p>
       <div class="why">${esc(t('why_triggered', { x: r.why }))}</div>
-      ${r.def.doc ? `<a href="${esc(r.def.doc)}" target="_blank" rel="noopener noreferrer">${t('learn_more')} ↗</a>` : ''}
+      <div class="rec-links">
+        ${REC_GUIDE[r.id] ? guideLink(REC_GUIDE[r.id]) : ''}
+        ${r.def.doc ? `<a href="${esc(r.def.doc)}" target="_blank" rel="noopener noreferrer">${t('official_docs')} ↗</a>` : ''}
+      </div>
     </div>
   </div>`;
 }
@@ -253,6 +256,7 @@ function openDrawer(key, label) {
     <h3>${t('what_is')}</h3>
     <p>${esc(L(c.what))}</p>
     ${c.tips && c.tips.length ? `<h3>${t('how_reduce')}</h3><ul>${c.tips.map((tip) => `<li>${esc(L(tip))}</li>`).join('')}</ul>` : ''}
+    ${CAT_GUIDE[key] && guideMeta(CAT_GUIDE[key]) ? `<h3>${t('guide_in_app')}</h3><p>${guideLink(CAT_GUIDE[key])}</p>` : ''}
     ${c.docs && c.docs.length ? `<h3>${t('official_docs')}</h3><ul>${c.docs.map((x) => `<li><a href="${esc(x.url)}" target="_blank" rel="noopener noreferrer">${esc(x.title)} ↗</a></li>`).join('')}</ul>` : ''}`;
   document.body.classList.add('drawer-open');
   d.setAttribute('aria-hidden', 'false');
@@ -313,7 +317,8 @@ function overviewPage() {
   const topRecs = recs.sort((a, b) => ({ serious: 0, warning: 1, info: 2 }[a.level] - { serious: 0, warning: 1, info: 2 }[b.level]))
     .filter((r) => (seen.has(r.id) ? false : seen.add(r.id))).slice(0, 4);
 
-  const guides = (state.docsIndex[state.lang] || []).slice(0, 4);
+  const allGuides = state.docsIndex[state.lang] || [];
+  const guides = [...allGuides.filter((g) => g.section === 'start'), ...allGuides.filter((g) => g.section !== 'start' && !progress.isRead(g.file)), ...allGuides].filter((g, i, arr) => arr.indexOf(g) === i).slice(0, 4);
 
   return `${banner()}
   <div class="page-head"><div><h1>${t('ov_title')}</h1><p>${t('ov_sub')}</p></div></div>
@@ -355,7 +360,7 @@ function overviewPage() {
       </section>
       <section class="card">
         <div class="card-head"><h2>${t('ov_learn')}</h2><a class="small" href="#/guides">${t('see_all')} →</a></div>
-        <div class="grid grid-2">${guides.map((g, i) => guideCard(g, i)).join('')}</div>
+        <div class="grid grid-2">${guides.map((g) => guideCard(g)).join('')}</div>
       </section>
     </div>
   </div>`;
@@ -492,17 +497,130 @@ function sessionPage(s) {
   </div>`;
 }
 
-function guideCard(g, i) {
-  return `<a class="card guide-card" href="#/guides/${esc(g.file)}">
-    <span class="gi">${icon(g.icon || 'book')}</span>
-    <span class="step">${t('gd_step', { n: i + 1 })}</span>
-    <h3>${esc(g.title)}</h3><p>${esc(g.summary)}</p></a>`;
+// ---------- learning progress (per browser) ----------
+const progress = {
+  read() { try { return JSON.parse(store.get('read', '[]')); } catch { return []; } },
+  isRead(file) { return this.read().includes(file); },
+  markRead(file) { const r = this.read(); if (!r.includes(file)) { r.push(file); store.set('read', JSON.stringify(r)); } },
+  tasks(file) { try { return JSON.parse(store.get('tasks.' + file, '{}')); } catch { return {}; } },
+  setTask(file, n, on) { const t2 = this.tasks(file); if (on) t2[n] = 1; else delete t2[n]; store.set('tasks.' + file, JSON.stringify(t2)); },
+};
+
+// Sections of the Learn page, in order. Each guide's index entry names its section.
+const SECTIONS = ['start', 'concepts', 'habits', 'dashboard'];
+
+// Recommendation → in-app guide that explains the fix.
+const REC_GUIDE = {
+  high_usage: 'compaction.md', frequent_compaction: 'compaction.md', long_session_many_turns: '02-keep-context-lean.md',
+  large_tool_results: '02-keep-context-lean.md', many_file_reads: '02-keep-context-lean.md',
+  model_switch_midsession: 'change-or-restart.md', idle_cache_expired: 'change-or-restart.md', low_cache_hit: 'change-or-restart.md',
+  heavy_thinking: 'change-or-restart.md', big_fixed_overhead: 'optimize-existing-project.md', many_mcp_tools: 'optimize-existing-project.md',
+  many_skills: 'optimize-existing-project.md', big_memory_file: '03-claude-md-memory.md',
+};
+// Context category (drawer) → in-app guide.
+const CAT_GUIDE = {
+  compaction: 'compaction.md', autocompact_buffer: 'compaction.md', free_space: 'compaction.md', cache: 'change-or-restart.md',
+  system_prompt: 'optimize-existing-project.md', system_tools: 'optimize-existing-project.md', mcp_tools: 'optimize-existing-project.md',
+  mcp_instructions: 'optimize-existing-project.md', skills: 'optimize-existing-project.md', deferred_tools: '04-mcp-skills-subagents.md',
+  memory_files: '03-claude-md-memory.md', tool_results: '02-keep-context-lean.md', tool_calls: '02-keep-context-lean.md',
+  thinking: 'change-or-restart.md', messages: '01-what-is-context.md', user_messages: '02-keep-context-lean.md', assistant_text: '01-what-is-context.md',
+};
+const guideMeta = (file) => (state.docsIndex[state.lang] || []).find((g) => g.file === file);
+function guideLink(file) {
+  const g = guideMeta(file);
+  return g ? `<a href="#/guides/${esc(file)}">${icon('book', 'icon icon-sm')} ${esc(g.title)} →</a>` : '';
+}
+
+function guideCard(g, big = false) {
+  const done = progress.isRead(g.file);
+  const tasks = Object.keys(progress.tasks(g.file)).length;
+  return `<a class="card guide-card ${big ? 'big' : ''}" href="#/guides/${esc(g.file)}">
+    <span class="gc-top"><span class="gi">${icon(g.icon || 'book')}</span>
+      <span class="badge ${g.type === 'tutorial' ? 'accent' : ''}">${t('type_' + (g.type || 'guide'))}</span></span>
+    <h3>${esc(g.title)}</h3><p>${esc(g.summary)}</p>
+    <span class="gc-meta">
+      <span>${g.minutes ? t('min_read', { n: g.minutes }) : ''}${g.level ? ' · ' + t('lvl_' + g.level) : ''}</span>
+      ${done ? `<span class="done">${icon('check', 'icon icon-sm')} ${t('read_done')}</span>` : tasks ? `<span class="done">${t('steps_started', { n: tasks })}</span>` : ''}
+    </span></a>`;
 }
 
 function guidesPage() {
   const list = state.docsIndex[state.lang] || [];
-  return `<div class="page-head"><div><h1>${t('gd_title')}</h1><p>${t('gd_sub')}</p></div></div>
-    <div class="grid grid-3">${list.map((g, i) => guideCard(g, i)).join('')}</div>`;
+  const read = list.filter((g) => progress.isRead(g.file)).length;
+  const bySection = SECTIONS.map((id) => ({ id, items: list.filter((g) => (g.section || 'concepts') === id) })).filter((x) => x.items.length);
+  return `<div class="page-head">
+      <div><h1>${t('gd_title')}</h1><p>${t('gd_sub')}</p></div>
+      <div class="learn-progress"><span>${t('progress_read', { n: read, t: list.length })}</span>
+        <span class="track"><span style="width:${list.length ? (read / list.length) * 100 : 0}%"></span></span></div>
+    </div>
+    <div class="stack">${bySection.map((sec) => `<section>
+      <div class="section-head"><h2>${t('sec_' + sec.id)}</h2><p class="muted small">${t('sec_' + sec.id + '_sub')}</p></div>
+      <div class="grid ${sec.id === 'start' ? 'grid-2' : 'grid-3'}">${sec.items.map((g) => guideCard(g, sec.id === 'start')).join('')}</div>
+    </section>`).join('')}</div>`;
+}
+
+// The guide currently open (one shared checkbox listener uses it).
+let openGuide = null;
+document.addEventListener('change', (e) => {
+  const cb = e.target.closest && e.target.closest('input[data-task]');
+  if (!cb || !openGuide) return;
+  progress.setTask(openGuide.file, cb.dataset.task, cb.checked);
+  openGuide.renderToc();
+});
+
+async function guideReader(file) {
+  const list = state.docsIndex[state.lang];
+  const idx = list.findIndex((g) => g.file === file);
+  if (idx < 0) throw new Error('Guide not found');
+  const g = list[idx];
+  const md = await (await fetch(`/docs/${state.lang}/${encodeURIComponent(file)}`)).text();
+  const ctx = { tasks: 0 };
+  const html = renderMarkdown(md, ctx);
+  const prevG = list[idx - 1], nextG = list[idx + 1];
+  app.innerHTML = `<a href="#/guides" class="small no-print">${icon('back')} ${t('gd_all')}</a>
+    <div class="reader">
+      <article class="prose" id="article">
+        <div class="guide-meta"><span class="badge ${g.type === 'tutorial' ? 'accent' : ''}">${t('type_' + (g.type || 'guide'))}</span>
+          <span>${t('sec_' + (g.section || 'concepts'))}</span>${g.minutes ? `<span>· ${t('min_read', { n: g.minutes })}</span>` : ''}${g.level ? `<span>· ${t('lvl_' + g.level)}</span>` : ''}</div>
+        ${html}
+      </article>
+      <aside class="toc no-print" id="toc"></aside>
+    </div>
+    <nav class="guide-nav">
+      ${prevG ? `<a href="#/guides/${esc(prevG.file)}"><small>← ${t('gd_prev')}</small>${esc(prevG.title)}</a>` : '<span></span>'}
+      ${nextG ? `<a class="next" href="#/guides/${esc(nextG.file)}"><small>${t('gd_next')} →</small>${esc(nextG.title)}</a>` : '<span></span>'}
+    </nav>`;
+
+  // Table of contents + step progress.
+  const heads = [...app.querySelectorAll('#article h2')];
+  const total = ctx.tasks;
+  const toc = document.getElementById('toc');
+  const renderToc = () => {
+    const done = Object.keys(progress.tasks(file)).length;
+    toc.innerHTML = `${total ? `<div class="toc-progress"><b>${t('steps_done', { n: done, t: total })}</b>
+        <span class="track"><span style="width:${(done / total) * 100}%"></span></span>
+        ${done ? `<button type="button" class="linkish" id="reset-tasks">${t('reset_progress')}</button>` : ''}</div>` : ''}
+      ${heads.length > 2 ? `<div class="toc-title">${t('on_this_page')}</div>${heads.map((h) => `<button type="button" class="toc-link" data-target="${esc(h.id)}">${esc(h.textContent)}</button>`).join('')}` : ''}`;
+  };
+  const saved = progress.tasks(file);
+  app.querySelectorAll('input[data-task]').forEach((cb) => { cb.checked = !!saved[cb.dataset.task]; });
+  renderToc();
+  openGuide = { file, renderToc };
+  toc.addEventListener('click', (e) => {
+    const l = e.target.closest('.toc-link');
+    if (l) document.getElementById(l.dataset.target).scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (e.target.closest('#reset-tasks')) {
+      store.set('tasks.' + file, '{}');
+      app.querySelectorAll('input[data-task]').forEach((cb) => { cb.checked = false; });
+      renderToc();
+    }
+  });
+  // Mark as read once the reader reaches the end.
+  const end = app.querySelector('.guide-nav');
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => { if (entries.some((x) => x.isIntersecting)) { progress.markRead(file); io.disconnect(); } });
+    io.observe(end);
+  } else progress.markRead(file);
 }
 
 function cheatsheetPage() {
@@ -554,10 +672,10 @@ async function route() {
       await ensure(['guide', 'docs', 'sessions']);
       app.innerHTML = overviewPage();
     } else if (page === 'sessions') {
-      await ensure(['guide', 'sessions']);
+      await ensure(['guide', 'docs', 'sessions']);
       app.innerHTML = sessionsPage();
     } else if (page === 'session') {
-      await ensure(['guide', 'sessions']);
+      await ensure(['guide', 'docs', 'sessions']);
       const s = await getJSON(`/api/sessions/${encodeURIComponent(parts[1])}`);
       app.innerHTML = sessionPage(s);
       const bd = breakdownOf(s);
@@ -567,18 +685,7 @@ async function route() {
       });
     } else if (page === 'guides' && parts[1]) {
       await ensure(['docs']);
-      const list = state.docsIndex[state.lang];
-      const file = decodeURIComponent(parts[1]);
-      const idx = list.findIndex((g) => g.file === file);
-      if (idx < 0) throw new Error('Guide not found');
-      const md = await (await fetch(`/docs/${state.lang}/${encodeURIComponent(file)}`)).text();
-      const prevG = list[idx - 1], nextG = list[idx + 1];
-      app.innerHTML = `<a href="#/guides" class="small no-print">${icon('back')} ${t('gd_all')}</a>
-        <article class="prose">${renderMarkdown(md)}</article>
-        <nav class="guide-nav">
-          ${prevG ? `<a href="#/guides/${esc(prevG.file)}"><small>← ${t('gd_prev')}</small>${esc(prevG.title)}</a>` : '<span></span>'}
-          ${nextG ? `<a class="next" href="#/guides/${esc(nextG.file)}"><small>${t('gd_next')} →</small>${esc(nextG.title)}</a>` : '<span></span>'}
-        </nav>`;
+      await guideReader(decodeURIComponent(parts[1]));
     } else if (page === 'guides') {
       await ensure(['docs']);
       app.innerHTML = guidesPage();

@@ -3,7 +3,7 @@
 
 export const STRINGS = {
   en: {
-    nav_overview: 'Overview', nav_sessions: 'Sessions', nav_guides: 'Guides', nav_cheatsheet: 'Cheatsheet',
+    nav_overview: 'Overview', nav_sessions: 'Sessions', nav_guides: 'Learn', nav_cheatsheet: 'Cheatsheet',
     theme: 'Theme', theme_auto: 'Auto', theme_light: 'Light', theme_dark: 'Dark', settings: 'Settings', language: 'Language',
     set_window: 'Context window size', set_window_auto: 'Auto (detect from usage)',
     set_buffer: 'Autocompact buffer', set_buffer_hint: 'Room Claude Code keeps free so it can summarize before the window is full.',
@@ -56,8 +56,15 @@ export const STRINGS = {
     why_triggered: 'Why you see this: {x}',
     window_auto: 'auto', est: 'estimated', measured: 'measured', turn: 'turn {n}',
 
-    gd_title: 'Guides', gd_sub: 'Short, practical reads on how Claude Code uses context and how to work with it efficiently.',
+    gd_title: 'Learn', gd_sub: 'Tutorials and short guides to get set up, understand context, and build good habits. Start at the top and work your way down.',
     gd_step: 'Guide {n}', gd_prev: 'Previous', gd_next: 'Next', gd_all: 'All guides',
+    sec_start: 'Start here', sec_start_sub: 'Step-by-step tutorials to set up a project the right way.',
+    sec_concepts: 'Core concepts', sec_concepts_sub: 'How context works, and what fills it.',
+    sec_habits: 'Habits & decisions', sec_habits_sub: 'When to compact, clear, switch or start fresh.',
+    sec_dashboard: 'Using this dashboard', sec_dashboard_sub: 'What every screen and number means.',
+    type_tutorial: 'Tutorial', type_guide: 'Guide', lvl_beginner: 'Beginner', lvl_intermediate: 'Intermediate',
+    min_read: '{n} min read', read_done: 'Read', progress_read: '{n} of {t} read', steps_done: '{n} of {t} steps done',
+    steps_started: '{n} steps done', on_this_page: 'On this page', reset_progress: 'Reset steps', guide_in_app: 'Guide in this app',
     cs_title: 'Cheatsheet', cs_sub: 'Handy commands and shortcuts for everyday work. Print it and keep it next to your keyboard.',
     cs_search: 'Filter commands…', cs_print: 'Print', cs_none: 'No commands match.',
     cs_verify: 'Commands change between versions. Type / in Claude Code to see what your version supports.',
@@ -79,7 +86,7 @@ export const STRINGS = {
     ago_now: 'just now', ago_min: '{n} min ago', ago_h: '{n} h ago', ago_d: '{n} d ago',
   },
   es: {
-    nav_overview: 'Resumen', nav_sessions: 'Sesiones', nav_guides: 'Guías', nav_cheatsheet: 'Chuleta',
+    nav_overview: 'Resumen', nav_sessions: 'Sesiones', nav_guides: 'Aprender', nav_cheatsheet: 'Chuleta',
     theme: 'Tema', theme_auto: 'Auto', theme_light: 'Claro', theme_dark: 'Oscuro', settings: 'Ajustes', language: 'Idioma',
     set_window: 'Tamaño de la ventana de contexto', set_window_auto: 'Auto (detectar por uso)',
     set_buffer: 'Reserva para autocompactar', set_buffer_hint: 'Espacio que Claude Code deja libre para resumir antes de llenar la ventana.',
@@ -132,8 +139,15 @@ export const STRINGS = {
     why_triggered: 'Por qué lo ves: {x}',
     window_auto: 'auto', est: 'estimado', measured: 'medido', turn: 'turno {n}',
 
-    gd_title: 'Guías', gd_sub: 'Lecturas cortas y prácticas sobre cómo Claude Code usa el contexto y cómo trabajar de forma eficiente.',
+    gd_title: 'Aprender', gd_sub: 'Tutoriales y guías cortas para configurar tu proyecto, entender el contexto y crear buenos hábitos. Empieza por arriba y sigue bajando.',
     gd_step: 'Guía {n}', gd_prev: 'Anterior', gd_next: 'Siguiente', gd_all: 'Todas las guías',
+    sec_start: 'Empieza aquí', sec_start_sub: 'Tutoriales paso a paso para configurar bien un proyecto.',
+    sec_concepts: 'Conceptos básicos', sec_concepts_sub: 'Cómo funciona el contexto y qué lo ocupa.',
+    sec_habits: 'Hábitos y decisiones', sec_habits_sub: 'Cuándo compactar, limpiar, cambiar o empezar de cero.',
+    sec_dashboard: 'Usar este panel', sec_dashboard_sub: 'Qué significa cada pantalla y cada número.',
+    type_tutorial: 'Tutorial', type_guide: 'Guía', lvl_beginner: 'Principiante', lvl_intermediate: 'Intermedio',
+    min_read: '{n} min de lectura', read_done: 'Leída', progress_read: '{n} de {t} leídas', steps_done: '{n} de {t} pasos hechos',
+    steps_started: '{n} pasos hechos', on_this_page: 'En esta página', reset_progress: 'Reiniciar pasos', guide_in_app: 'Guía en esta app',
     cs_title: 'Chuleta', cs_sub: 'Comandos y atajos útiles para el día a día. Imprímela y tenla junto al teclado.',
     cs_search: 'Filtrar comandos…', cs_print: 'Imprimir', cs_none: 'Ningún comando coincide.',
     cs_verify: 'Los comandos cambian entre versiones. Escribe / en Claude Code para ver los de tu versión.',

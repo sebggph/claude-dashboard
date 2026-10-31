@@ -9,7 +9,7 @@ A small, friendly dashboard that shows **how much context your Claude Code sessi
 - **Explanations with proof**: click any row to see what it is, how to reduce it, and links to the official Claude Code docs.
 - **Recommendations**: simple rules spot big tool outputs, frequent compaction, low cache hits and more.
 - **Charts**: context growth per request with compaction markers, biggest items, tools used, subagents, token totals.
-- **Guides**: six short markdown guides on context, CLAUDE.md, MCP/skills/subagents and workflows.
+- **Learn hub**: step-by-step tutorials (*Start a new project*, *Optimize an existing project*) with tickable checklists, plus guides on context, compaction, CLAUDE.md, MCP/skills/subagents, workflows and *Change mid-session or start fresh?*. Tracks what you've read.
 - **Printable cheatsheet**: 50+ commands and shortcuts with short "why it helps" notes.
 - **Light & dark mode**, **English & Spanish**, works on Mac, Windows and Linux.
 
@@ -69,10 +69,17 @@ For exact numbers inside a session, run `/context` in Claude Code.
 server/        Node server (no dependencies) and the transcript parser
 public/        Dashboard UI: HTML, CSS, vanilla JS modules
 public/data/   Cheatsheet and context explanations (EN + ES, with doc links)
-docs/en|es/    Markdown guides shown in the app
+docs/en|es/    Markdown guides & tutorials shown in the app (+ index.json)
 samples/       Demo sessions (regenerate: npm run make-demo)
 test/          Parser tests (npm test)
 ```
+
+## Adding a guide or tutorial
+
+1. Write `docs/en/<name>.md` and `docs/es/<name>.md` (same structure in both).
+2. Add an entry to both `docs/en/index.json` and `docs/es/index.json`:
+   `{"file": "<name>.md", "title": "…", "summary": "…", "icon": "book", "section": "start|concepts|habits|dashboard", "type": "tutorial|guide", "minutes": 6, "level": "beginner|intermediate"}`
+3. Supported markdown: headings, lists, tables, code, quotes, links. `- [ ] step` becomes a checkbox the app remembers. Link other guides with `[title](#/guides/<name>.md)`.
 
 ## Contributing
 

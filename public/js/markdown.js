@@ -19,7 +19,18 @@ function inline(s) {
   return s;
 }
 
-export function renderMarkdown(md) {
+const slug = (s) => s.toLowerCase().replace(/`|\*/g, '').replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-|-$/g, '');
+
+// Task items ("- [ ] text") become checkboxes numbered in document order,
+// so the app can remember which steps a reader has ticked.
+function listItem(text, ctx) {
+  const m = text.match(/^\[( |x|X)\]\s+(.*)$/);
+  if (!m) return `<li>${inline(text)}`;
+  const n = ctx.tasks++;
+  return `<li class="task"><label><input type="checkbox" data-task="${n}"${m[1] !== ' ' ? ' checked' : ''}> <span>${inline(m[2])}</span></label>`;
+}
+
+export function renderMarkdown(md, ctx = { tasks: 0 }) {
   const lines = md.replace(/\r\n/g, '\n').split('\n');
   const out = [];
   let i = 0;
@@ -35,12 +46,12 @@ export function renderMarkdown(md) {
     }
     if (/^\s*$/.test(line)) { i++; continue; }
     const h = line.match(/^(#{1,4})\s+(.*)$/);
-    if (h) { out.push(`<h${h[1].length}>${inline(h[2])}</h${h[1].length}>`); i++; continue; }
+    if (h) { out.push(`<h${h[1].length} id="${slug(h[2])}">${inline(h[2])}</h${h[1].length}>`); i++; continue; }
     if (/^(-{3,}|\*{3,})\s*$/.test(line)) { out.push('<hr>'); i++; continue; }
     if (/^>\s?/.test(line)) {
       const buf = [];
       while (i < lines.length && /^>\s?/.test(lines[i])) buf.push(lines[i++].replace(/^>\s?/, ''));
-      out.push(`<blockquote>${renderMarkdown(buf.join('\n'))}</blockquote>`);
+      out.push(`<blockquote>${renderMarkdown(buf.join('\n'), ctx)}</blockquote>`);
       continue;
     }
     if (/^\|/.test(line) && i + 1 < lines.length && /^\|?\s*:?-{2,}/.test(lines[i + 1])) {
@@ -65,7 +76,8 @@ export function renderMarkdown(md) {
         i++;
       }
       const tag = ordered ? 'ol' : 'ul';
-      out.push(`<${tag}>${items.map((it) => `<li>${inline(it.text)}${it.kids ? `<ul>${it.kids.map((k) => `<li>${inline(k)}</li>`).join('')}</ul>` : ''}</li>`).join('')}</${tag}>`);
+      const isTasks = items.some((it) => /^\[( |x|X)\]\s/.test(it.text));
+      out.push(`<${tag}${isTasks ? ' class="tasks"' : ''}>${items.map((it) => `${listItem(it.text, ctx)}${it.kids ? `<ul>${it.kids.map((k) => `${listItem(k, ctx)}</li>`).join('')}</ul>` : ''}</li>`).join('')}</${tag}>`);
       continue;
     }
     const buf = [];

@@ -9,7 +9,7 @@ Un panel pequeño y sencillo que muestra **cuánto contexto usan tus sesiones de
 - **Explicaciones con pruebas**: haz clic en cualquier fila para ver qué es, cómo reducirlo y enlaces a la documentación oficial.
 - **Recomendaciones**: reglas sencillas que detectan salidas grandes, compactaciones frecuentes, poca caché y más.
 - **Gráficos**: crecimiento del contexto por petición, elementos más grandes, herramientas, subagentes y totales de tokens.
-- **Guías**: seis guías cortas en markdown sobre contexto, CLAUDE.md, MCP/skills/subagentes y flujos de trabajo.
+- **Sección Aprender**: tutoriales paso a paso (*Empezar un proyecto nuevo*, *Optimizar un proyecto existente*) con listas de pasos marcables, y guías sobre contexto, compactación, CLAUDE.md, MCP/skills/subagentes, flujos de trabajo y *¿Cambiar a mitad de sesión o empezar de cero?*. Recuerda lo que ya leíste.
 - **Chuleta imprimible**: más de 50 comandos y atajos con una nota de por qué ayudan.
 - **Modo claro y oscuro**, **inglés y español**, funciona en Mac, Windows y Linux.
 
@@ -62,6 +62,13 @@ Para cifras exactas dentro de una sesión, usa `/context` en Claude Code.
 - **Linux: "no se puede leer la carpeta".** El contenedor usa un usuario sin privilegios. Añade `UID_GID=1000:1000` (tu `id -u`:`id -g`) a `.env` y vuelve a ejecutar `docker compose up -d`.
 - **Windows con WSL.** Si Claude Code corre dentro de WSL, usa `CLAUDE_HOME=//wsl$/Ubuntu/home/<tu-usuario>/.claude`.
 - **El puerto 3000 está ocupado.** Pon `PORT=3001` en `.env`.
+
+## Añadir una guía o tutorial
+
+1. Escribe `docs/en/<nombre>.md` y `docs/es/<nombre>.md` (misma estructura en ambos).
+2. Añade una entrada en `docs/en/index.json` y `docs/es/index.json`:
+   `{"file": "<nombre>.md", "title": "…", "summary": "…", "icon": "book", "section": "start|concepts|habits|dashboard", "type": "tutorial|guide", "minutes": 6, "level": "beginner|intermediate"}`
+3. Markdown soportado: títulos, listas, tablas, código, citas y enlaces. `- [ ] paso` se convierte en una casilla que la app recuerda. Enlaza otras guías con `[título](#/guides/<nombre>.md)`.
 
 ## Contribuir
 
