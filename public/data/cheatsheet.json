@@ -703,6 +703,123 @@
           "doc": "https://code.claude.com/docs/en/cli-reference"
         }
       ]
+    },
+    {
+      "id": "midsession",
+      "title": {
+        "en": "Change mid-session or start fresh?",
+        "es": "¿Cambiar a mitad de sesión o empezar de cero?"
+      },
+      "items": [
+        {
+          "cmd": "/model",
+          "desc": {
+            "en": "Pick it at the start, or use a subagent.",
+            "es": "Elígelo al inicio o usa un subagente."
+          },
+          "why": {
+            "en": "Each model has its own cache, so the next turn re-reads everything.",
+            "es": "Cada modelo tiene su propia caché, así que el siguiente turno relee todo."
+          },
+          "doc": "https://code.claude.com/docs/en/prompt-caching"
+        },
+        {
+          "cmd": "/effort",
+          "desc": {
+            "en": "Set it at the start; ultrathink for one hard question.",
+            "es": "Fíjalo al inicio; ultrathink para una pregunta difícil."
+          },
+          "why": {
+            "en": "Kept on 5.5 models and Fable 5.1; on most others it breaks the cache.",
+            "es": "Se mantiene en modelos 5.5 y Fable 5.1; en casi todos los demás rompe la caché."
+          },
+          "doc": "https://code.claude.com/docs/en/prompt-caching"
+        },
+        {
+          "cmd": "/fast",
+          "desc": {
+            "en": "Turn it on at the start of a session.",
+            "es": "Actívalo al inicio de la sesión."
+          },
+          "why": {
+            "en": "First enable bills the whole conversation uncached at fast-mode rates.",
+            "es": "La primera vez cobra toda la conversación sin caché a tarifa rápida."
+          },
+          "doc": "https://code.claude.com/docs/en/fast-mode"
+        },
+        {
+          "cmd": "/mcp",
+          "desc": {
+            "en": "Connect servers before your first message.",
+            "es": "Conecta los servidores antes del primer mensaje."
+          },
+          "why": {
+            "en": "Config edits apply after a restart; without tool search, changes break the cache.",
+            "es": "La config aplica tras reiniciar; sin tool search, los cambios rompen la caché."
+          },
+          "doc": "https://code.claude.com/docs/en/prompt-caching"
+        },
+        {
+          "cmd": "Edit CLAUDE.md",
+          "desc": {
+            "en": "Edit, then /clear at a natural break.",
+            "es": "Edítalo y haz /clear en una pausa natural."
+          },
+          "why": {
+            "en": "It is read once at start; edits load after /clear, /compact or restart.",
+            "es": "Se lee al inicio; los cambios cargan tras /clear, /compact o reiniciar."
+          },
+          "doc": "https://code.claude.com/docs/en/prompt-caching"
+        },
+        {
+          "cmd": "Shift+Tab",
+          "desc": {
+            "en": "Change permission or plan mode freely.",
+            "es": "Cambia el modo de permisos o plan sin miedo."
+          },
+          "why": {
+            "en": "Mode changes keep the cache, except with the opusplan model.",
+            "es": "Cambiar de modo mantiene la caché, salvo con el modelo opusplan."
+          },
+          "doc": "https://code.claude.com/docs/en/prompt-caching"
+        },
+        {
+          "cmd": "New task",
+          "desc": {
+            "en": "Run /clear and start clean.",
+            "es": "Ejecuta /clear y empieza limpio."
+          },
+          "why": {
+            "en": "It is free, and the next task stops paying for old history.",
+            "es": "Es gratis y la siguiente tarea deja de pagar el historial viejo."
+          },
+          "doc": "https://code.claude.com/docs/en/best-practices"
+        },
+        {
+          "cmd": "After a long break",
+          "desc": {
+            "en": "/clear if you no longer need the history.",
+            "es": "/clear si ya no necesitas el historial."
+          },
+          "why": {
+            "en": "The cache expired; /compact now reads everything uncached.",
+            "es": "La caché caducó; /compact ahora lee todo sin caché."
+          },
+          "doc": "https://code.claude.com/docs/en/prompt-caching"
+        },
+        {
+          "cmd": "/rewind",
+          "desc": {
+            "en": "Use it to abandon a path instead of /compact.",
+            "es": "Úsalo para abandonar un camino en vez de /compact."
+          },
+          "why": {
+            "en": "It returns to a prefix that is already cached.",
+            "es": "Vuelve a un prefijo que ya está en caché."
+          },
+          "doc": "https://code.claude.com/docs/en/prompt-caching"
+        }
+      ]
     }
   ]
 }
