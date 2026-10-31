@@ -1,0 +1,8 @@
+[
+  {"file": "01-what-is-context.md", "title": "What is the context window?", "summary": "What fills Claude's working memory and how to check it.", "icon": "book"},
+  {"file": "02-keep-context-lean.md", "title": "Keep your context lean", "summary": "Everyday habits that keep sessions small and focused.", "icon": "broom"},
+  {"file": "03-claude-md-memory.md", "title": "CLAUDE.md and memory", "summary": "Where memory files live and what to put in them.", "icon": "brain"},
+  {"file": "04-mcp-skills-subagents.md", "title": "MCP, skills and subagents", "summary": "When to use each one and what it costs in context.", "icon": "plug"},
+  {"file": "05-workflows.md", "title": "Everyday workflows", "summary": "Plan, resume, rewind, script and pick the right model.", "icon": "route"},
+  {"file": "06-reading-the-dashboard.md", "title": "Reading this dashboard", "summary": "What each screen and number in this app means.", "icon": "chart"}
+]

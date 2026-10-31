@@ -1,0 +1,17 @@
+services:
+  dashboard:
+    build: .
+    image: claude-context-dashboard
+    container_name: claude-context-dashboard
+    restart: unless-stopped
+    # Linux only: if the dashboard says your folder "can't be read", run the
+    # container as your own user: set UID_GID=$(id -u):$(id -g) in .env
+    user: "${UID_GID:-node}"
+    ports:
+      # Only reachable from this computer. Your transcripts stay private.
+      - "127.0.0.1:${PORT:-3000}:3000"
+    volumes:
+      # Your Claude Code folder, mounted read-only.
+      # Mac/Linux: ~/.claude    Windows: C:\Users\<you>\.claude
+      # Override with CLAUDE_HOME in a .env file (see .env.example).
+      - "${CLAUDE_HOME:-${HOME:-${USERPROFILE}}/.claude}:/data/claude:ro"

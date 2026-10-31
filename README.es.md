@@ -1,0 +1,68 @@
+# Claude Context Dashboard
+
+[English](README.md) · **Español**
+
+Un panel pequeño y sencillo que muestra **cuánto contexto usan tus sesiones de Claude Code, qué lo ocupa y cómo mantenerlo ligero**. Pensado para ayudar a la gente a aprender a usar Claude de forma optimizada.
+
+- **Resumen de sesiones**: cada sesión local de Claude Code, qué tan lleno está su contexto y cuándo se usó por última vez.
+- **Desglose del contexto**: una lista detallada como `/context`: prompt del sistema, herramientas, skills, MCP, tus mensajes, respuestas de Claude, razonamiento, llamadas y resultados de herramientas, reserva para autocompactar y espacio libre.
+- **Explicaciones con pruebas**: haz clic en cualquier fila para ver qué es, cómo reducirlo y enlaces a la documentación oficial.
+- **Recomendaciones**: reglas sencillas que detectan salidas grandes, compactaciones frecuentes, poca caché y más.
+- **Gráficos**: crecimiento del contexto por petición, elementos más grandes, herramientas, subagentes y totales de tokens.
+- **Guías**: seis guías cortas en markdown sobre contexto, CLAUDE.md, MCP/skills/subagentes y flujos de trabajo.
+- **Chuleta imprimible**: más de 50 comandos y atajos con una nota de por qué ayudan.
+- **Modo claro y oscuro**, **inglés y español**, funciona en Mac, Windows y Linux.
+
+Funciona solo en tu equipo. Tus historiales se montan **en solo lectura** y no se envía nada a ningún sitio.
+
+## Inicio rápido (Docker)
+
+Necesitas [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Mac o Windows) o Docker Engine (Linux).
+
+```bash
+git clone https://github.com/sebggph/claude-dashboard.git
+cd claude-dashboard
+docker compose up -d --build
+```
+
+Abre **http://localhost:3000**.
+
+Lee `~/.claude` en Mac/Linux y `%USERPROFILE%\.claude` en Windows automáticamente. Para usar otra carpeta, copia `.env.example` a `.env` y define `CLAUDE_HOME`.
+
+Para detenerlo: `docker compose down`.
+
+### Sin Docker
+
+Necesita Node.js 18 o superior. No hace falta `npm install`: no tiene dependencias.
+
+```bash
+npm start          # lee ~/.claude
+npm run demo       # solo datos de ejemplo
+```
+
+## De dónde salen los datos
+
+Claude Code guarda cada sesión como un archivo `.jsonl` en `~/.claude/projects/`. Cada respuesta de Claude registra el uso real de tokens que informa la API. El panel lo usa así:
+
+| Dato | Cómo se calcula | Precisión |
+|---|---|---|
+| Contexto usado | `entrada + escritura en caché + lectura de caché` de la última petición (la misma fórmula que la barra de estado de Claude Code) | Medido |
+| Respuestas y razonamiento de Claude | `output_tokens` de cada respuesta | Medido |
+| Tus mensajes, resultados de herramientas, listas | Longitud del texto, calibrada por sesión según cuánto creció el contexto entre peticiones | Estimado |
+| Prompt del sistema, herramientas y memoria | Lo que queda: total menos todos los mensajes | Estimado |
+| Tamaño de la ventana | Según el modelo, como dice la [documentación oficial](https://code.claude.com/docs/en/model-config) (cámbialo en ⚙ Ajustes) | Por reglas |
+
+Para cifras exactas dentro de una sesión, usa `/context` en Claude Code.
+
+**¿Qué sesiones aparecen?** Las que se ejecutaron en este equipo: la CLI, la app de escritorio y las extensiones del IDE. Las sesiones en la nube (claude.ai/code) se ejecutan en servidores de Anthropic, así que sus historiales no están en tu disco.
+
+## Solución de problemas
+
+- **Veo "Modo demo" pero sí uso Claude Code.** Comprueba que `CLAUDE_HOME` apunta a la carpeta que contiene `projects/`.
+- **Linux: "no se puede leer la carpeta".** El contenedor usa un usuario sin privilegios. Añade `UID_GID=1000:1000` (tu `id -u`:`id -g`) a `.env` y vuelve a ejecutar `docker compose up -d`.
+- **Windows con WSL.** Si Claude Code corre dentro de WSL, usa `CLAUDE_HOME=//wsl$/Ubuntu/home/<tu-usuario>/.claude`.
+- **El puerto 3000 está ocupado.** Pon `PORT=3001` en `.env`.
+
+## Contribuir
+
+Mira [ROADMAP.md](ROADMAP.md) para ideas y en qué parte del código iría cada una. Textos cortos y claros, siempre en los dos idiomas, y enlaza las afirmaciones a la documentación oficial.

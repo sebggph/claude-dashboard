@@ -1,0 +1,79 @@
+# Claude Context Dashboard
+
+**English** · [Español](README.es.md)
+
+A small, friendly dashboard that shows **how much context your Claude Code sessions use, what fills it, and how to keep it lean**. Built to help people learn to use Claude in an optimized way.
+
+- **Sessions overview**: every local Claude Code session, how full its context is, and when it was last active.
+- **Context breakdown**: a detailed list like `/context`: system prompt, tools, skills, MCP, your messages, Claude's replies, thinking, tool calls and tool results, plus autocompact buffer and free space.
+- **Explanations with proof**: click any row to see what it is, how to reduce it, and links to the official Claude Code docs.
+- **Recommendations**: simple rules spot big tool outputs, frequent compaction, low cache hits and more.
+- **Charts**: context growth per request with compaction markers, biggest items, tools used, subagents, token totals.
+- **Guides**: six short markdown guides on context, CLAUDE.md, MCP/skills/subagents and workflows.
+- **Printable cheatsheet**: 50+ commands and shortcuts with short "why it helps" notes.
+- **Light & dark mode**, **English & Spanish**, works on Mac, Windows and Linux.
+
+Runs only on your computer. Your transcripts are mounted **read-only** and nothing is sent anywhere.
+
+## Quick start (Docker)
+
+You need [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Mac or Windows) or Docker Engine (Linux).
+
+```bash
+git clone https://github.com/sebggph/claude-dashboard.git
+cd claude-dashboard
+docker compose up -d --build
+```
+
+Open **http://localhost:3000**.
+
+It reads `~/.claude` on Mac/Linux and `%USERPROFILE%\.claude` on Windows automatically. To use another folder, copy `.env.example` to `.env` and set `CLAUDE_HOME`.
+
+Stop it with `docker compose down`.
+
+### Without Docker
+
+Needs Node.js 18 or newer. No `npm install` needed: there are no dependencies.
+
+```bash
+npm start          # reads ~/.claude
+npm run demo       # sample data only
+```
+
+## Where the data comes from
+
+Claude Code saves every session as a `.jsonl` file under `~/.claude/projects/`. Each Claude reply records the real token usage reported by the API. The dashboard uses that to show:
+
+| Number | How it's calculated | Accuracy |
+|---|---|---|
+| Context used | `input + cache write + cache read` of the latest request (same formula as Claude Code's status line) | Measured |
+| Claude's replies & thinking | `output_tokens` per reply | Measured |
+| Your messages, tool results, listings | Text length, calibrated per session from how much context grew between requests | Estimated |
+| System prompt, tools & memory | Whatever is left: total minus all messages | Estimated |
+| Window size | From the model name, per the [official docs](https://code.claude.com/docs/en/model-config) (change it in ⚙ Settings) | Rule-based |
+
+For exact numbers inside a session, run `/context` in Claude Code.
+
+**Which sessions show up?** Sessions that ran on this computer: the CLI, the desktop app and IDE extensions. Cloud sessions (claude.ai/code) run on Anthropic's servers, so their transcripts are not on your disk.
+
+## Troubleshooting
+
+- **"Demo mode" banner, but I do use Claude Code.** Check that `CLAUDE_HOME` points to the folder that contains `projects/`.
+- **Linux: "folder can't be read".** The container runs as an unprivileged user. Add `UID_GID=1000:1000` (your `id -u`:`id -g`) to `.env` and run `docker compose up -d` again.
+- **Windows with WSL.** If Claude Code runs inside WSL, set `CLAUDE_HOME=//wsl$/Ubuntu/home/<you>/.claude`.
+- **Port 3000 is taken.** Set `PORT=3001` in `.env`.
+
+## Project layout
+
+```
+server/        Node server (no dependencies) and the transcript parser
+public/        Dashboard UI: HTML, CSS, vanilla JS modules
+public/data/   Cheatsheet and context explanations (EN + ES, with doc links)
+docs/en|es/    Markdown guides shown in the app
+samples/       Demo sessions (regenerate: npm run make-demo)
+test/          Parser tests (npm test)
+```
+
+## Contributing
+
+See [ROADMAP.md](ROADMAP.md) for ideas and where each one would go in the code. Keep texts short and plain, add both languages, and link claims to the official docs.
