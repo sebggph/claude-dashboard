@@ -2,7 +2,7 @@
 import { STRINGS } from './i18n.js';
 import { icon } from './icons.js';
 import { growthChart, fmtK } from './charts.js';
-import { renderMarkdown } from './markdown.js';
+import { renderMarkdown, inline as mdInline } from './markdown.js';
 
 // ---------- state & helpers ----------
 
@@ -19,6 +19,9 @@ const state = {
   guide: null,
   cheatsheet: null,
   docsIndex: {},
+  news: null,
+  live: null,
+  newsFilter: { source: 'all', context: false },
   sort: { key: 'end', dir: -1 },
   query: '',
 };
@@ -77,12 +80,26 @@ function nativeWindow(model) {
   if (v[1] === 'opus' && ver >= 4.7) return 1000000;
   return 200000;
 }
+// Live model table from the official docs (when available) wins over the rules.
+function liveModel(model) {
+  const list = state.live && state.live.models && state.live.models.list;
+  if (!model || !list) return null;
+  const id = model.toLowerCase().replace(/\[1m\]$/, '').replace(/-\d{8}$/, '');
+  return list.find((m) => m.id === id) || null;
+}
 function windowFor(s) {
   if (state.window !== 'auto') return Number(state.window);
-  const w = nativeWindow(s.model);
+  const lm = liveModel(s.model);
+  const w = (s.model && s.model.includes('[1m]')) ? 1000000 : (lm && lm.contextWindow) || nativeWindow(s.model);
   return s.peakTokens > w ? 1000000 : w;
 }
 const bufferFor = (win) => (win >= 1000000 ? 33000 : 0);
+
+function cmpVersion(a, b) {
+  const pa = String(a).split('.').map(Number), pb = String(b).split('.').map(Number);
+  for (let i = 0; i < 3; i++) if ((pa[i] || 0) !== (pb[i] || 0)) return (pa[i] || 0) - (pb[i] || 0);
+  return 0;
+}
 
 // ---------- context breakdown model ----------
 // Six colored groups (fixed categorical order), each with detail rows.
@@ -145,6 +162,11 @@ function recommendationsFor(s, memoryFiles = []) {
   if (sig.idleRebuilds > 0) add('idle_cache_expired', 'info', t('why_idle_cache_expired', { n: sig.idleRebuilds }));
   if ((cats.skills || 0) > win * 0.01) add('many_skills', 'info', t('why_many_skills', { t: fmtK(cats.skills) }));
 
+  const latest = state.live && state.live.version && state.live.version.latest;
+  if (latest && s.version && cmpVersion(s.version, latest) < 0 && s.end && Date.now() - new Date(s.end) < 7 * 86400000) {
+    add('outdated_version', 'info', t('why_outdated_version', { v: s.version, l: latest }));
+  }
+
   const order = { serious: 0, warning: 1, info: 2 };
   return hits
     .map((h) => ({ ...h, def: guide.recommendations.find((r) => r.id === h.id) }))
@@ -177,10 +199,12 @@ function recCard(r, session) {
 // ---------- shell: nav, language, theme, settings ----------
 
 const ROUTES = [
-  { id: 'overview', hash: '#/', icon: 'overview' },
+  { id: 'home', hash: '#/', icon: 'home' },
+  { id: 'overview', hash: '#/dashboard', icon: 'overview' },
   { id: 'sessions', hash: '#/sessions', icon: 'sessions' },
   { id: 'guides', hash: '#/guides', icon: 'book' },
   { id: 'cheatsheet', hash: '#/cheatsheet', icon: 'sheet' },
+  { id: 'news', hash: '#/news', icon: 'news' },
 ];
 
 function renderShell(active) {
@@ -555,7 +579,7 @@ function guidesPage() {
     </div>
     <div class="stack">${bySection.map((sec) => `<section>
       <div class="section-head"><h2>${t('sec_' + sec.id)}</h2><p class="muted small">${t('sec_' + sec.id + '_sub')}</p></div>
-      <div class="grid ${sec.id === 'start' ? 'grid-2' : 'grid-3'}">${sec.items.map((g) => guideCard(g, sec.id === 'start')).join('')}</div>
+      <div class="grid ${sec.items.length % 3 === 0 ? 'grid-3' : 'grid-2'}">${sec.items.map((g) => guideCard(g, sec.id === 'start')).join('')}</div>
     </section>`).join('')}</div>`;
 }
 
@@ -646,9 +670,205 @@ function cheatsheetPage() {
     </section>`).join('') || `<div class="empty">${t('cs_none')}</div>`}</div>`;
 }
 
+// ---------- home ----------
+
+function homePage() {
+  const { sessions } = state.sessions;
+  const guides = state.docsIndex[state.lang] || [];
+  const read = guides.filter((g) => progress.isRead(g.file)).length;
+  const nextGuide = guides.find((g) => !progress.isRead(g.file)) || guides[0];
+  const latest = sessions[0];
+  const avgUsed = sessions.length ? sessions.reduce((a, x) => a + x.contextTokens / windowFor(x), 0) / sessions.length : 0;
+  const cmdCount = state.cheatsheet ? state.cheatsheet.sections.reduce((a, x) => a + x.items.length, 0) : 0;
+  const start = guides.filter((g) => g.section === 'start');
+
+  const tile = (href, ic, title, desc, stat) => `<a class="card tile" href="${href}">
+      <span class="tile-icon">${icon(ic)}</span>
+      <span class="tile-body"><h3>${title}</h3><p>${desc}</p></span>
+      <span class="tile-foot"><span class="tile-stat">${stat}</span>${icon('arrow', 'icon icon-sm')}</span>
+    </a>`;
+
+  const bd = latest ? breakdownOf(latest) : null;
+  return `${banner()}
+  <section class="hero card">
+    <div class="hero-text">
+      <span class="eyebrow">${t('home_eyebrow')}</span>
+      <h1>${t('home_title')}</h1>
+      <p>${t('home_sub')}</p>
+      <div class="hero-cta">
+        ${start[0] ? `<a class="btn primary" href="#/guides/${esc(start[0].file)}">${icon('rocket')} ${t('home_cta_start')}</a>` : ''}
+        <a class="btn" href="#/dashboard">${icon('overview')} ${t('home_cta_dash')}</a>
+      </div>
+    </div>
+    <div class="hero-side">
+      ${latest ? `<a class="snapshot" href="#/session/${esc(latest.id)}">
+        <span class="card-sub">${t('home_latest')}</span>
+        <span class="snap-title">${esc(latest.title || latest.id)}</span>
+        <span class="snap-pct">${t('ctx_used', { p: pctSmart(bd.used / bd.win) })}</span>
+        ${stackbar(bd, 10)}
+        <span class="card-sub">${fmtK(bd.used)} / ${bd.win >= 1e6 ? '1M' : fmtK(bd.win)} · ${esc(shortModel(latest.model))} · ${ago(latest.end)}</span>
+      </a>` : ''}
+    </div>
+  </section>
+
+  <div class="grid grid-3 tiles">
+    ${tile('#/dashboard', 'overview', t('nav_overview'), t('home_t_dash'), t('home_s_dash', { p: pct(avgUsed) }))}
+    ${tile('#/sessions', 'sessions', t('nav_sessions'), t('home_t_sessions'), t(sessions.length === 1 ? 'home_s_session_one' : 'home_s_sessions', { n: sessions.length }))}
+    ${tile('#/guides', 'book', t('nav_guides'), t('home_t_learn'), t('progress_read', { n: read, t: guides.length }))}
+    ${tile('#/cheatsheet', 'sheet', t('nav_cheatsheet'), t('home_t_cheat'), t('home_s_cheat', { n: cmdCount }))}
+    ${tile('#/news', 'news', t('nav_news'), t('home_t_news'), `<span id="home-news-stat">${t('home_s_news')}</span>`)}
+    ${tile('#/guides/06-reading-the-dashboard.md', 'chart', t('home_t_help_title'), t('home_t_help'), t('min_read', { n: 4 }))}
+  </div>
+
+  <div class="grid grid-2">
+    <section class="card">
+      <div class="card-head"><h2>${t('home_whatsnew')}</h2><a class="small" href="#/news">${t('see_all')} →</a></div>
+      <div id="home-news">${homeNews()}</div>
+    </section>
+    <section class="card">
+      <div class="card-head"><h2>${t('home_continue')}</h2><a class="small" href="#/guides">${t('see_all')} →</a></div>
+      <div class="learn-progress" style="margin-bottom:14px"><span>${t('progress_read', { n: read, t: guides.length })}</span>
+        <span class="track"><span style="width:${guides.length ? (read / guides.length) * 100 : 0}%"></span></span></div>
+      <div class="home-next">${nextGuide ? guideCard(nextGuide) : ''}</div>
+    </section>
+  </div>`;
+}
+
+function homeNews() {
+  const n = state.news;
+  if (!n) return `<div class="empty small">${t('loading')}</div>`;
+  const stat = document.getElementById('home-news-stat');
+  const cc = (n.releases || []).find((r) => r.source === 'claude-code');
+  if (stat && cc) stat.textContent = t('home_s_news_v', { v: cc.version });
+  const items = [];
+  for (const r of n.releases || []) {
+    for (const g of r.groups) for (const it of g.items) if (it.tags.includes('context') && g.type !== 'fixed') items.push({ r, it });
+    if (items.length >= 4) break;
+  }
+  if (!items.length) return `<div class="empty small">${t('news_empty')}</div>`;
+  return `<div class="news-mini">${items.slice(0, 4).map(({ r, it }) => `<div class="nm-item">
+      <span class="badge">${r.version ? 'v' + esc(r.version) : esc(sourceName(r.source))}</span>
+      <span class="nm-text">${mdInline(it.text)}</span>
+      <span class="card-sub">${fmtDate(r.date)}</span></div>`).join('')}</div>`;
+}
+
+// ---------- news ----------
+
+const sourceName = (id) => ({ 'claude-code': 'Claude Code', platform: 'Claude Platform' }[id] || id);
+function fmtDate(d) {
+  if (!d) return '';
+  try { return new Date(d + 'T00:00:00Z').toLocaleDateString(state.lang, { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }); } catch { return d; }
+}
+
+async function loadNews(force = false) {
+  try { state.news = await getJSON('/api/news' + (force ? '?refresh=1' : '')); } catch (e) { state.news = state.news || { error: e.message, releases: [], sources: [] }; }
+}
+
+function newsPage() {
+  const n = state.news;
+  const f = state.newsFilter;
+  const q = state.query.toLowerCase();
+  const head = `<div class="page-head">
+      <div><h1>${t('news_title')}</h1><p>${t('news_sub')}</p></div>
+      <div class="toolbar">
+        <span class="small muted">${n && n.updated ? t('news_checked', { x: ago(n.updated) }) : ''}</span>
+        <button class="btn" type="button" id="news-refresh" ${n && n.disabled ? 'disabled' : ''}>${icon('refresh')} ${t('news_refresh')}</button>
+      </div>
+    </div>`;
+  if (!n) return head + loadingView();
+  const filters = `<div class="toolbar news-filters">
+      <div class="seg" role="group" aria-label="${esc(t('news_source'))}">
+        ${['all', 'claude-code', 'platform'].map((id) => `<button type="button" data-news-source="${id}" aria-pressed="${f.source === id}">${id === 'all' ? t('news_all') : sourceName(id)}</button>`).join('')}
+      </div>
+      <button type="button" class="chip-toggle" data-news-context aria-pressed="${f.context}">${icon('gauge', 'icon icon-sm')} ${t('news_context_only')}</button>
+      <input class="input" id="news-search" type="search" placeholder="${esc(t('news_search'))}" value="${esc(state.query)}" aria-label="${esc(t('news_search'))}">
+    </div>`;
+  const notes = [];
+  if (n.disabled) notes.push(t('news_disabled'));
+  else if (n.offline) notes.push(t('news_offline'));
+  for (const src of n.sources || []) if (!src.ok && !n.offline) notes.push(t('news_source_failed', { s: src.name }));
+  if (state.lang !== 'en') notes.push(t('news_lang'));
+
+  const releases = (n.releases || []).filter((r) => f.source === 'all' || r.source === f.source).map((r) => ({
+    ...r,
+    groups: r.groups.map((g) => ({ ...g, items: g.items.filter((it) => (!f.context || it.tags.includes('context')) && (!q || it.text.toLowerCase().includes(q))) })).filter((g) => g.items.length),
+  })).filter((r) => r.groups.length);
+
+  const groupLabel = (g) => t('news_g_' + g.type) !== 'news_g_' + g.type ? t('news_g_' + g.type) : g.label;
+  const srcPage = (id) => ((n.sources || []).find((x) => x.id === id) || {}).page;
+  return `${head}${liveCards()}${filters}
+    ${notes.map((x) => `<div class="banner">${icon('info')}<span>${esc(x)}</span></div>`).join('')}
+    <div class="news-list">${releases.slice(0, 30).map((r) => `<article class="card release">
+      <div class="release-head">
+        <div class="release-title"><span class="badge ${r.source === 'claude-code' ? 'accent' : ''}">${sourceName(r.source)}</span>
+          <h2>${r.version ? 'v' + esc(r.version) : fmtDate(r.date)}</h2></div>
+        <div class="release-meta"><span class="card-sub">${r.version ? fmtDate(r.date) : ''}</span>
+          ${srcPage(r.source) ? `<a class="small" href="${esc(srcPage(r.source))}" target="_blank" rel="noopener noreferrer">${t('news_open')} ↗</a>` : ''}</div>
+      </div>
+      ${r.groups.map((g) => {
+        const shown = g.items.slice(0, 6), more = g.items.slice(6);
+        const li = (it) => `<li class="${it.tags.includes('context') ? 'ctx' : ''}"><span>${mdInline(it.text)}</span>${it.tags.includes('context') ? `<span class="tag">${t('news_tag_context')}</span>` : ''}</li>`;
+        return `<div class="rgroup"><h3><span class="gdot g-${esc(g.type)}"></span>${esc(groupLabel(g))} <span class="card-sub">${g.items.length}</span></h3>
+          <ul>${shown.map(li).join('')}</ul>
+          ${more.length ? `<details><summary>${t('news_more', { n: more.length })}</summary><ul>${more.map(li).join('')}</ul></details>` : ''}</div>`;
+      }).join('')}
+    </article>`).join('') || `<div class="card empty">${t('news_none')}</div>`}</div>`;
+}
+
+function liveCards() {
+  const L2 = state.live || {};
+  const models = L2.models && L2.models.list;
+  const v = L2.version && L2.version.latest;
+  const st = L2.status && !L2.status.error && L2.status.indicator ? L2.status : null;
+  const mine = state.sessions && state.sessions.sessions.map((x) => x.version).filter(Boolean).sort(cmpVersion).pop();
+  const stColor = { none: 'var(--good)', minor: 'var(--warning)', major: 'var(--serious)', critical: 'var(--critical)' };
+  return `<div class="grid grid-2 live-row">
+    <section class="card">
+      <div class="card-head"><h2>${t('live_models')}</h2>${L2.models && L2.models.page ? `<a class="small" href="${esc(L2.models.page)}" target="_blank" rel="noopener noreferrer">${t('news_open_docs')} ↗</a>` : ''}</div>
+      ${models ? `<div class="table-wrap"><table>
+        <thead><tr><th>${t('col_model')}</th><th class="r">${t('live_ctx')}</th><th class="r">${t('live_out')}</th><th>${t('live_effort')}</th></tr></thead>
+        <tbody>${models.map((m) => `<tr><td><div class="cell-title">${m.page ? `<a href="${esc(m.page)}" target="_blank" rel="noopener noreferrer">${esc(m.name)}</a>` : esc(m.name)}</div><div class="cell-sub mono">${esc(m.id)}</div></td>
+          <td class="r num">${m.contextWindow ? fmtK(m.contextWindow) : '–'}</td><td class="r num">${m.maxOutput ? fmtK(m.maxOutput) : '–'}</td><td><span class="badge">${esc(m.defaultEffort || '–')}</span></td></tr>`).join('')}</tbody>
+      </table></div><p class="note">${icon('info')}<span>${t('live_models_note')}</span></p>` : `<div class="empty small">${t('live_unavailable')}</div>`}
+    </section>
+    <section class="card live-side">
+      <div class="card-head"><h2>Claude Code</h2>${L2.version && L2.version.page ? `<a class="small" href="${esc(L2.version.page)}" target="_blank" rel="noopener noreferrer">${t('news_open')} ↗</a>` : ''}</div>
+      <div class="grid grid-2">
+        <div class="kpi"><span class="kpi-label">${t('live_latest')}</span><span class="kpi-value">${v ? 'v' + esc(v) : '–'}</span></div>
+        <div class="kpi"><span class="kpi-label">${t('live_yours')}</span><span class="kpi-value">${mine ? 'v' + esc(mine) : '–'}</span>
+          <span class="kpi-note">${mine && v ? (cmpVersion(mine, v) < 0 ? t('live_behind') : t('live_uptodate')) : ''}</span></div>
+      </div>
+      ${(() => {
+        const rel = state.news && state.news.releases ? state.news.releases.filter((r) => r.source === 'claude-code' && r.version) : [];
+        const newer = mine ? rel.filter((r) => cmpVersion(r.version, mine) > 0) : [];
+        const ctx = newer.reduce((a, r) => a + r.groups.reduce((b, g) => b + g.items.filter((i) => i.tags.includes('context')).length, 0), 0);
+        return `<div class="legend-rows" style="margin-top:0">
+          ${mine ? `<div class="lrow"><span></span><span>${t('live_since')}</span><span class="v">${newer.length}</span><span class="p"></span></div>
+          <div class="lrow"><span></span><span>${t('live_since_ctx')}</span><span class="v">${ctx}</span><span class="p"></span></div>` : ''}
+          <div class="lrow"><span></span><span>${t('live_check_how')}</span><span class="v" style="grid-column: span 2"><code>claude --version</code></span></div>
+          ${mine && v && cmpVersion(mine, v) < 0 ? `<div class="lrow"><span></span><span>${t('live_update_how')}</span><span class="v" style="grid-column: span 2"><code>claude update</code></span></div>` : ''}
+        </div>`;
+      })()}
+      ${st ? `<div class="status-box">
+        <div class="status"><span class="dot" style="background:${stColor[st.indicator] || 'var(--text-3)'}"></span>${esc(st.description || st.indicator)}
+          <a class="small" href="${esc(st.page)}" target="_blank" rel="noopener noreferrer">${t('live_status_page')} ↗</a></div>
+        ${(st.incidents || []).map((x) => `<div class="small muted">• ${esc(x.name)} (${esc(x.status)})</div>`).join('')}
+      </div>` : ''}
+    </section>
+  </div>`;
+}
+
+document.addEventListener('click', async (e) => {
+  const src = e.target.closest('[data-news-source]');
+  if (src) { state.newsFilter.source = src.dataset.newsSource; app.innerHTML = newsPage(); return; }
+  if (e.target.closest('[data-news-context]')) { state.newsFilter.context = !state.newsFilter.context; app.innerHTML = newsPage(); return; }
+  const rb = e.target.closest('#news-refresh');
+  if (rb) { rb.disabled = true; rb.classList.add('spinning'); await loadNews(true); if (currentRoute === 'news') app.innerHTML = newsPage(); }
+});
+
 // ---------- router ----------
 
-let currentRoute = 'overview';
+let currentRoute = 'home';
 const app = document.getElementById('app');
 
 async function ensure(what) {
@@ -656,26 +876,36 @@ async function ensure(what) {
   if (what.includes('docs') && !state.docsIndex[state.lang]) state.docsIndex[state.lang] = await getJSON(`/docs/${state.lang}/index.json`);
   if (what.includes('cheat') && !state.cheatsheet) state.cheatsheet = await getJSON('/data/cheatsheet.json');
   if (what.includes('sessions') && !state.sessions) state.sessions = await getJSON('/api/sessions');
+  if (what.includes('live') && !state.live) { try { state.live = await getJSON('/api/live'); } catch { state.live = {}; } }
 }
 
 async function route() {
   const hash = location.hash || '#/';
   const parts = hash.slice(2).split('/');
-  const page = parts[0] || 'overview';
+  const page = parts[0] || 'home';
   const prev = currentRoute;
-  currentRoute = page === 'session' ? 'sessions' : page;
+  currentRoute = page === 'session' ? 'sessions' : page === 'dashboard' ? 'overview' : page;
   if (prev !== currentRoute) state.query = '';
   renderShell(currentRoute);
   app.innerHTML = loadingView();
   try {
-    if (page === 'overview' || page === '') {
-      await ensure(['guide', 'docs', 'sessions']);
+    if (page === 'home') {
+      await ensure(['docs', 'sessions', 'cheat', 'live']);
+      app.innerHTML = homePage();
+      loadNews().then(() => { if (currentRoute === 'home') { const el = document.getElementById('home-news'); if (el) el.innerHTML = homeNews(); } });
+    } else if (page === 'dashboard') {
+      await ensure(['guide', 'docs', 'sessions', 'live']);
       app.innerHTML = overviewPage();
+    } else if (page === 'news') {
+      await ensure(['live', 'sessions']);
+      app.innerHTML = newsPage();
+      await loadNews();
+      if (currentRoute === 'news') app.innerHTML = newsPage();
     } else if (page === 'sessions') {
-      await ensure(['guide', 'docs', 'sessions']);
+      await ensure(['guide', 'docs', 'sessions', 'live']);
       app.innerHTML = sessionsPage();
     } else if (page === 'session') {
-      await ensure(['guide', 'docs', 'sessions']);
+      await ensure(['guide', 'docs', 'sessions', 'live']);
       const s = await getJSON(`/api/sessions/${encodeURIComponent(parts[1])}`);
       app.innerHTML = sessionPage(s);
       const bd = breakdownOf(s);
@@ -704,11 +934,11 @@ async function route() {
 
 // Search boxes re-render their page but keep focus.
 document.addEventListener('input', (e) => {
-  if (e.target.id !== 'session-search' && e.target.id !== 'cheat-search') return;
+  if (!['session-search', 'cheat-search', 'news-search'].includes(e.target.id)) return;
   state.query = e.target.value;
   const id = e.target.id;
   const pos = e.target.selectionStart;
-  app.innerHTML = id === 'session-search' ? sessionsPage() : cheatsheetPage();
+  app.innerHTML = id === 'session-search' ? sessionsPage() : id === 'news-search' ? newsPage() : cheatsheetPage();
   const el = document.getElementById(id);
   el.focus();
   el.setSelectionRange(pos, pos);

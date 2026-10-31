@@ -13,7 +13,7 @@ A small, friendly dashboard that shows **how much context your Claude Code sessi
 - **Printable cheatsheet**: 50+ commands and shortcuts with short "why it helps" notes.
 - **Light & dark mode**, **English & Spanish**, works on Mac, Windows and Linux.
 
-Runs only on your computer. Your transcripts are mounted **read-only** and nothing is sent anywhere.
+Runs only on your computer. Your transcripts are mounted **read-only** and never leave your machine.
 
 ## Quick start (Docker)
 
@@ -55,6 +55,23 @@ Claude Code saves every session as a `.jsonl` file under `~/.claude/projects/`. 
 For exact numbers inside a session, run `/context` in Claude Code.
 
 **Which sessions show up?** Sessions that ran on this computer: the CLI, the desktop app and IDE extensions. Cloud sessions (claude.ai/code) run on Anthropic's servers, so their transcripts are not on your disk.
+
+## News and live facts
+
+The **News** page shows the official Claude Code changelog and Claude Platform release notes, refreshed every 6 hours, with context-related changes highlighted. The dashboard also reads a few free, official sources to stay accurate:
+
+| Source | Used for | Refresh |
+|---|---|---|
+| Claude Code changelog & Platform release notes | News page, "What's new" on Home | 6 h |
+| Models overview (docs) | Correct context window per model, "Current models" card | daily |
+| npm registry | "Update available" when a session ran on an older Claude Code | 6 h |
+| Status page | Service status on the News page (hidden if unreachable) | 5 min |
+
+These are the only requests to the internet, and they send nothing about you. Set `NEWS=off` in `.env` to turn them all off; the app then uses the copy bundled in `public/data/`.
+
+## Keeping it up to date
+
+This repo includes a Claude Code skill, **`/update-dashboard`** (`.claude/skills/update-dashboard/`). Run it in Claude Code inside this project after a Claude release. It checks the official sources, updates facts, guides, cheatsheet and code in both languages, runs `npm test` and `npm run check`, and then updates its own facts list (`facts.md`) and sources (`sources.md`).
 
 ## Troubleshooting
 

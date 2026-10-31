@@ -10,6 +10,9 @@ services:
     ports:
       # Only reachable from this computer. Your transcripts stay private.
       - "127.0.0.1:${PORT:-3000}:3000"
+    environment:
+      # "off" disables News and live facts (no outside requests at all).
+      - NEWS=${NEWS:-on}
     volumes:
       # Your Claude Code folder, mounted read-only.
       # Mac/Linux: ~/.claude    Windows: C:\Users\<you>\.claude

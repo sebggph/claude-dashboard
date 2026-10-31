@@ -1,8 +1,12 @@
 [
-  {"file": "01-what-is-context.md", "title": "¿Qué es la ventana de contexto?", "summary": "Qué llena la memoria de trabajo de Claude y cómo revisarla.", "icon": "book"},
-  {"file": "02-keep-context-lean.md", "title": "Mantén tu contexto ligero", "summary": "Hábitos diarios para sesiones pequeñas y enfocadas.", "icon": "broom"},
-  {"file": "03-claude-md-memory.md", "title": "CLAUDE.md y memoria", "summary": "Dónde viven los archivos de memoria y qué poner en ellos.", "icon": "brain"},
-  {"file": "04-mcp-skills-subagents.md", "title": "MCP, skills y subagentes", "summary": "Cuándo usar cada uno y cuánto contexto cuesta.", "icon": "plug"},
-  {"file": "05-workflows.md", "title": "Flujos de trabajo del día a día", "summary": "Planifica, retoma, deshaz, automatiza y elige modelo.", "icon": "route"},
-  {"file": "06-reading-the-dashboard.md", "title": "Cómo leer este panel", "summary": "Qué significa cada pantalla y cada número de esta app.", "icon": "chart"}
+  {"file": "start-new-project.md", "title": "Empieza un proyecto nuevo con Claude Code", "summary": "Prepara un proyecto nuevo: contexto ligero y reglas claras.", "icon": "rocket", "section": "start", "type": "tutorial", "minutes": 8, "level": "beginner"},
+  {"file": "optimize-existing-project.md", "title": "Optimiza un proyecto existente para Claude Code", "summary": "Una auditoría de 30 minutos para aligerar cada sesión.", "icon": "wrench", "section": "start", "type": "tutorial", "minutes": 8, "level": "intermediate"},
+  {"file": "01-what-is-context.md", "title": "¿Qué es la ventana de contexto?", "summary": "Qué llena la memoria de trabajo de Claude y cómo revisarla.", "icon": "book", "section": "concepts", "type": "guide", "minutes": 3, "level": "beginner"},
+  {"file": "03-claude-md-memory.md", "title": "CLAUDE.md y memoria", "summary": "Dónde viven los archivos de memoria y qué poner en ellos.", "icon": "brain", "section": "concepts", "type": "guide", "minutes": 3, "level": "beginner"},
+  {"file": "04-mcp-skills-subagents.md", "title": "MCP, skills y subagentes", "summary": "Cuándo usar cada uno y cuánto contexto cuesta.", "icon": "plug", "section": "concepts", "type": "guide", "minutes": 3, "level": "intermediate"},
+  {"file": "02-keep-context-lean.md", "title": "Mantén tu contexto ligero", "summary": "Hábitos diarios para sesiones pequeñas y enfocadas.", "icon": "broom", "section": "habits", "type": "guide", "minutes": 3, "level": "beginner"},
+  {"file": "compaction.md", "title": "Compactación: qué es y cómo usarla", "summary": "Qué conserva y pierde la compactación, y cuándo hacerla tú.", "icon": "layers", "section": "habits", "type": "guide", "minutes": 6, "level": "intermediate"},
+  {"file": "change-or-restart.md", "title": "¿Cambiar a mitad de sesión o empezar de cero?", "summary": "Qué cuesta cada cambio a mitad de sesión y cuándo hacer /clear.", "icon": "refresh", "section": "habits", "type": "guide", "minutes": 6, "level": "intermediate"},
+  {"file": "05-workflows.md", "title": "Flujos de trabajo del día a día", "summary": "Planifica, retoma, deshaz, automatiza y elige modelo.", "icon": "route", "section": "habits", "type": "guide", "minutes": 3, "level": "beginner"},
+  {"file": "06-reading-the-dashboard.md", "title": "Cómo leer este panel", "summary": "Qué significa cada pantalla y cada número de esta app.", "icon": "chart", "section": "concepts", "type": "guide", "minutes": 4, "level": "beginner"}
 ]

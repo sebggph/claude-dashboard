@@ -13,7 +13,7 @@ Un panel pequeño y sencillo que muestra **cuánto contexto usan tus sesiones de
 - **Chuleta imprimible**: más de 50 comandos y atajos con una nota de por qué ayudan.
 - **Modo claro y oscuro**, **inglés y español**, funciona en Mac, Windows y Linux.
 
-Funciona solo en tu equipo. Tus historiales se montan **en solo lectura** y no se envía nada a ningún sitio.
+Funciona solo en tu equipo. Tus historiales se montan **en solo lectura** y nunca salen de tu máquina.
 
 ## Inicio rápido (Docker)
 
@@ -55,6 +55,23 @@ Claude Code guarda cada sesión como un archivo `.jsonl` en `~/.claude/projects/
 Para cifras exactas dentro de una sesión, usa `/context` en Claude Code.
 
 **¿Qué sesiones aparecen?** Las que se ejecutaron en este equipo: la CLI, la app de escritorio y las extensiones del IDE. Las sesiones en la nube (claude.ai/code) se ejecutan en servidores de Anthropic, así que sus historiales no están en tu disco.
+
+## Novedades y datos en vivo
+
+La página **Novedades** muestra el changelog oficial de Claude Code y las notas de versión de Claude Platform, actualizadas cada 6 horas, con los cambios sobre el contexto resaltados. El panel también lee algunas fuentes oficiales y gratuitas para mantenerse preciso:
+
+| Fuente | Para qué | Frecuencia |
+|---|---|---|
+| Changelog de Claude Code y notas de Claude Platform | Página Novedades y "Novedades" en Inicio | 6 h |
+| Página de modelos (docs) | Ventana de contexto correcta por modelo, tarjeta "Modelos actuales" | diaria |
+| Registro de npm | "Hay una actualización" si una sesión usó una versión antigua | 6 h |
+| Página de estado | Estado del servicio en Novedades (se oculta si no responde) | 5 min |
+
+Son las únicas peticiones a internet y no envían nada sobre ti. Pon `NEWS=off` en `.env` para desactivarlas; el panel usará la copia incluida en `public/data/`.
+
+## Mantenerlo al día
+
+Este repositorio incluye una skill de Claude Code, **`/update-dashboard`** (`.claude/skills/update-dashboard/`). Ejecútala en Claude Code dentro de este proyecto después de una versión nueva de Claude. Revisa las fuentes oficiales, actualiza datos, guías, chuleta y código en los dos idiomas, ejecuta `npm test` y `npm run check`, y luego actualiza su propia lista de datos (`facts.md`) y fuentes (`sources.md`).
 
 ## Solución de problemas
 

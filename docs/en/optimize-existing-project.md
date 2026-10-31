@@ -4,7 +4,7 @@
 
 This tutorial is for you if a project already uses Claude Code (or you're bringing Claude into a big existing codebase) and sessions feel heavy, slow or expensive. You'll measure a baseline, cut the fixed overhead, fix a few habits and share the result with your team. Plan on about 30 minutes, plus a quick re-check a week later.
 
-New to context? Read [What is the context window?](#/guides/01-what-is-context.md). Starting from scratch? See [Start a new project](#/guides/start-new-project.md).
+New to context? Read [What is the context window?](#/guides/01-what-is-context.md). Starting from scratch? See [Start a new project with Claude Code](#/guides/start-new-project.md).
 
 ---
 
@@ -144,8 +144,8 @@ More in [MCP, skills and subagents](#/guides/04-mcp-skills-subagents.md).
 | You see… | Likely cause | Fix |
 | --- | --- | --- |
 | **Big tool outputs** | Full logs, test runs or big file reads | Filter output or use a subagent (Step 5) |
-| **Compacting often** | Several tasks in one long session | `/clear` between tasks; see [Compaction](#/guides/compaction.md) |
-| **Cache expired after a break** | Coming back after the cache lifetime ran out | If you don't need the history, `/clear` is cheaper; see [Change or restart?](#/guides/change-or-restart.md) |
+| **Compacting often** | Several tasks in one long session | `/clear` between tasks; see [Compaction: what it is and how to use it](#/guides/compaction.md) |
+| **Cache expired after a break** | Coming back after the cache lifetime ran out | If you don't need the history, `/clear` is cheaper; see [Change mid-session or start fresh?](#/guides/change-or-restart.md) |
 | **Model changed mid-session** | `/model` switch; each model has its own cache | Pick the model at the start of a session |
 | **Many file reads** | Vague prompts, Claude searching around | Name files with `@path`, write specific prompts, delegate exploration |
 | **High starting cost** | Heavy CLAUDE.md, skills or MCP | Steps 2–4 |

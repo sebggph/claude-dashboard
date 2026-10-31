@@ -4,7 +4,7 @@
 
 Este tutorial es para ti si un proyecto ya usa Claude Code (o vas a meter a Claude en una base de código grande que ya existe) y las sesiones se sienten pesadas, lentas o caras. Vas a medir un punto de partida, recortar la carga fija, corregir algunos hábitos y compartir el resultado con tu equipo. Calcula unos 30 minutos, más un repaso rápido una semana después.
 
-¿Nuevo con el contexto? Lee [¿Qué es la ventana de contexto?](#/guides/01-what-is-context.md). ¿Empiezas desde cero? Mira [Empieza un proyecto nuevo](#/guides/start-new-project.md).
+¿Nuevo con el contexto? Lee [¿Qué es la ventana de contexto?](#/guides/01-what-is-context.md). ¿Empiezas desde cero? Mira [Empieza un proyecto nuevo con Claude Code](#/guides/start-new-project.md).
 
 ---
 
@@ -20,16 +20,16 @@ Este tutorial es para ti si un proyecto ya usa Claude Code (o vas a meter a Clau
 
 Apunta el total y las partes fijas más grandes: prompt del sistema, herramientas del sistema, herramientas MCP, skills y **Memory files**. Esa última lista también muestra qué archivos CLAUDE.md y de reglas se cargaron de verdad.
 
-Después abre en este dashboard una sesión reciente y típica, y mira:
+Después abre en este panel una sesión reciente y típica, y mira:
 
 - La fila **Prompt del sistema, herramientas y memoria**: tu carga fija.
 - El grupo **Skills, MCP y recordatorios**: las filas **Lista de skills**, **Instrucciones de servidores MCP** y **Lista de herramientas diferidas**.
 - **Elementos más grandes**: los resultados sueltos que más espacio ocuparon.
 
-[Cómo leer este dashboard](#/guides/06-reading-the-dashboard.md) explica cada fila. Recuerda que el dashboard muestra estimaciones; `/context` es la fuente de verdad.
+[Cómo leer este panel](#/guides/06-reading-the-dashboard.md) explica cada fila. Recuerda que el panel muestra estimaciones; `/context` es la fuente de verdad.
 
 - [ ] Ejecuté `/context` en una sesión nueva y apunté los números
-- [ ] Abrí una sesión típica en el dashboard y apunté la carga fija
+- [ ] Abrí una sesión típica en el panel y apunté la carga fija
 
 ## Paso 2: Audita CLAUDE.md y los archivos de memoria
 
@@ -137,20 +137,20 @@ Más en [MCP, skills y subagentes](#/guides/04-mcp-skills-subagents.md).
 - [ ] Añadí reglas `Read` en `deny` para secretos y archivos generados
 - [ ] Apunté qué comandos filtrar siempre o mandar a un subagente
 
-## Paso 6: Corrige los hábitos que ves en el dashboard
+## Paso 6: Corrige los hábitos que ves en el panel
 
-**Por qué:** la configuración es solo la mitad. Las recomendaciones del dashboard muestran cómo fueron de verdad tus sesiones. Abre las más pesadas y busca lo que ves:
+**Por qué:** la configuración es solo la mitad. Las recomendaciones del panel muestran cómo fueron de verdad tus sesiones. Abre las más pesadas y busca lo que ves:
 
 | Ves… | Causa probable | Solución |
 | --- | --- | --- |
 | **Salidas de herramientas grandes** | Logs completos, tests o lecturas de archivos grandes | Filtra la salida o usa un subagente (Paso 5) |
-| **Compactas a menudo** | Varias tareas en una sesión larga | `/clear` entre tareas; mira [Compactación](#/guides/compaction.md) |
-| **La caché expiró tras una pausa** | Volviste cuando la caché ya había caducado | Si no necesitas el historial, `/clear` sale más barato; mira [¿Cambiar o reiniciar?](#/guides/change-or-restart.md) |
+| **Compactas a menudo** | Varias tareas en una sesión larga | `/clear` entre tareas; mira [Compactación: qué es y cómo usarla](#/guides/compaction.md) |
+| **La caché expiró tras una pausa** | Volviste cuando la caché ya había caducado | Si no necesitas el historial, `/clear` sale más barato; mira [¿Cambiar a mitad de sesión o empezar de cero?](#/guides/change-or-restart.md) |
 | **Cambio de modelo a mitad de sesión** | Cambiaste con `/model`; cada modelo tiene su propia caché | Elige el modelo al empezar la sesión |
 | **Muchas lecturas de archivos** | Prompts vagos, Claude buscando por todas partes | Nombra archivos con `@path`, escribe prompts concretos, delega la exploración |
 | **Costo inicial alto** | CLAUDE.md, skills o MCP pesados | Pasos 2 a 4 |
 
-Los hábitos del día a día están en [Mantén tu contexto ligero](#/guides/02-keep-context-lean.md) y [Flujos de trabajo diarios](#/guides/05-workflows.md).
+Los hábitos del día a día están en [Mantén tu contexto ligero](#/guides/02-keep-context-lean.md) y [Flujos de trabajo del día a día](#/guides/05-workflows.md).
 
 - [ ] Revisé mis tres sesiones más pesadas y elegí un hábito que cambiar
 
@@ -163,7 +163,7 @@ Los hábitos del día a día están en [Mantén tu contexto ligero](#/guides/02-
 - Haz commit de `.claude/settings.json` (permisos, reglas `deny`, hooks), `CLAUDE.md`, `.claude/rules/`, las skills compartidas y `.mcp.json`.
 - Guarda lo personal en `CLAUDE.local.md` y `.claude/settings.local.json`. Claude Code deja el archivo de ajustes local fuera de git cuando lo crea él; si creas alguno de los dos a mano, añádelo a `.gitignore`.
 - Añade al README una sección corta "Cómo usamos Claude": dónde están las reglas, qué skills hay, "una tarea por sesión, `/clear` entre tareas".
-- Después de una semana, vuelve a medir con `/context` en una sesión nueva y compara en el dashboard.
+- Después de una semana, vuelve a medir con `/context` en una sesión nueva y compara en el panel.
 
 - [ ] Hice commit de los ajustes y archivos de memoria compartidos
 - [ ] Añadí "Cómo usamos Claude" al README
@@ -173,7 +173,7 @@ Los hábitos del día a día están en [Mantén tu contexto ligero](#/guides/02-
 
 ## Lista de antes / después
 
-- [ ] Punto de partida apuntado con `/context` y el dashboard
+- [ ] Punto de partida apuntado con `/context` y el panel
 - [ ] Cada CLAUDE.md con menos de 200 líneas, sin reglas obsoletas ni repetidas
 - [ ] Reglas de áreas concretas movidas a `.claude/rules/` con `paths`
 - [ ] Servidores MCP sin uso desactivados, tool search activado

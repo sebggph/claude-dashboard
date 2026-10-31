@@ -9,6 +9,8 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 const { parseSession, parseSubagents, est } = require('./parser');
+const news = require('./news');
+const live = require('./live');
 
 const ROOT = path.join(__dirname, '..');
 const PORT = Number(process.env.PORT || 3000);
@@ -144,6 +146,15 @@ const server = http.createServer((req, res) => {
 
   if (p === '/api/health') return send(res, 200, { ok: true });
 
+  if (p === '/api/live') return send(res, 200, live.getLive());
+
+  if (p === '/api/news') {
+    news.getNews({ force: url.searchParams.get('refresh') === '1' })
+      .then((n) => send(res, 200, n))
+      .catch((e) => send(res, 500, { error: String(e.message || e) }));
+    return;
+  }
+
   if (p === '/api/sessions') {
     const { demo, sessions } = allSummaries();
     return send(res, 200, {
@@ -170,6 +181,9 @@ const server = http.createServer((req, res) => {
   if (p === '/' || p === '/index.html') return serveStatic(res, path.join(ROOT, 'public'), 'index.html');
   return serveStatic(res, path.join(ROOT, 'public'), p.slice(1));
 });
+
+news.start();
+live.start();
 
 server.listen(PORT, HOST, () => {
   const { demo, files } = sources();
