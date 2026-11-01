@@ -4,11 +4,14 @@
   import GuideCard from '#lib/components/GuideCard.svelte';
   import DemoBanner from '#lib/components/DemoBanner.svelte';
   import BudgetBanner from '#lib/components/BudgetBanner.svelte';
-  import { ui, data, t, progress } from '#lib/state.svelte.js';
+  import { ui, data, t, progress, store, startTour } from '#lib/state.svelte.js';
   import { breakdownOf, windowFor, pct, pctSmart, fmtK, winLabel, shortModel, ago, fmtDate, sourceName, slugOf, sessionTitle } from '#lib/rules.js';
   import { inline } from '#lib/markdown.js';
 
   const sessions = $derived(data.sessions?.sessions || []);
+
+  // First visit: start the guided tour once.
+  $effect(() => { if (data.sessions && ui.tour == null && !store.get('tourDone', '')) startTour(); });
   const guides = $derived(data.docsIndex[ui.lang] || []);
   const read = $derived(guides.filter((g) => progress.isRead(slugOf(g.file))).length);
   const nextGuide = $derived(guides.find((g) => !progress.isRead(slugOf(g.file))) || guides[0]);
@@ -49,11 +52,12 @@
     <div class="hero-cta">
       {#if start}<a class="btn primary" href="/learn/{slugOf(start.file)}"><Icon name="rocket" /> {t('home_cta_start')}</a>{/if}
       <a class="btn" href="/dashboard"><Icon name="overview" /> {t('home_cta_dash')}</a>
+      <button class="btn" type="button" onclick={startTour}><Icon name="route" /> {t('tour_take')}</button>
     </div>
   </div>
   <div class="hero-side">
     {#if latest}
-      <a class="snapshot" href="/sessions/{latest.id}">
+      <a class="snapshot" data-tour="snapshot" href="/sessions/{latest.id}">
         <span class="card-sub">{t('home_latest')}</span>
         <span class="snap-title">{sessionTitle(latest)}</span>
         <span class="snap-pct">{t('ctx_used', { p: pctSmart(bd.used / bd.win) })}</span>
@@ -64,7 +68,7 @@
   </div>
 </section>
 
-<div class="grid grid-3 tiles">
+<div class="grid grid-3 tiles" data-tour="tiles">
   {#each tiles as tile (tile.href)}
     <a class="card tile" href={tile.href}>
       <span class="tile-icon"><Icon name={tile.icon} /></span>

@@ -23,12 +23,15 @@ export const ui = $state({
   budget: loadBudget(), // { unit: 'cost' | 'tokens', daily, weekly, session, notify }
   drawer: null, // { key, label } of the open explanation
   readVersion: 0, // bumps when learning progress changes
+  tour: null, // index of the current guided-tour step, or null
 });
 
 export function setLang(l) { ui.lang = l; store.set('lang', l); }
 export function cycleTheme() { ui.theme = { auto: 'light', light: 'dark', dark: 'auto' }[ui.theme]; store.set('theme', ui.theme); }
 export function setWindow(w) { ui.window = w; store.set('window', w); }
 export function saveBudget(patch) { ui.budget = { ...ui.budget, ...patch }; store.set('budget', JSON.stringify(ui.budget)); }
+export function startTour() { ui.tour = 0; }
+export function endTour() { ui.tour = null; store.set('tourDone', '1'); }
 export function togglePrivacy() { ui.privacy = !ui.privacy; store.set('privacy', ui.privacy ? 'on' : 'off'); }
 
 /** Data loaded from the server and static files. */

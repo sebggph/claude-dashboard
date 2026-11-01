@@ -9,7 +9,7 @@
   const bd = $derived(breakdownOf(session));
 </script>
 
-<section class="card">
+<section class="card" data-tour="context">
   <div class="card-head">
     <h2>{t('ctx_title')}</h2>
     <span class="card-sub">{shortModel(session.model)} · {winLabel(bd.win)}{ui.window === 'auto' ? ` (${t('window_auto')})` : ''}</span>
@@ -19,7 +19,7 @@
     <span class="ctx-of">{fmtK(bd.used)} / {winLabel(bd.win)}</span>
   </div>
   <StackBar {bd} />
-  <div class="legend-rows">
+  <div class="legend-rows" data-tour="legend">
     {#each bd.groups as g (g.id)}
       {#if g.rows.length === 1}
         <div class="lrow">

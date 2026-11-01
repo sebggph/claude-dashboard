@@ -28,7 +28,7 @@
   }
 </script>
 
-<section class="card report" style:--hc="var(--{h.grade === 'lean' ? 'good' : h.grade === 'okay' ? 'warning' : 'serious'})">
+<section class="card report" data-tour="report" style:--hc="var(--{h.grade === 'lean' ? 'good' : h.grade === 'okay' ? 'warning' : 'serious'})">
   <div class="report-main">
     <span class="card-sub">{t('rc_title')}</span>
     <div class="report-grade"><HealthBadge grade={h.grade} /></div>

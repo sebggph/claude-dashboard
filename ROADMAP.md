@@ -4,14 +4,13 @@ Ideas to grow the dashboard, roughly in order of value. Each one says where it w
 
 ## Next up
 
-1. **Interactive tour.** A guided first-launch tour that highlights each part of the context card and the timeline.
-   *Where:* a small `Tour.svelte` component in `src/lib/components/`, started from Home.
+1. **Online demo page.** A static build with the sample sessions, so people can try the dashboard in the browser without installing anything.
+   *Where:* a `DEMO_STATIC` build that bakes `/api/*` responses into JSON files under `static/`, published with GitHub Pages.
 
 ## Learning features
 
 5. **More guides.** Hooks, plan mode, permissions, headless mode in CI, writing a good skill. Files go in `static/docs/en` and `static/docs/es` plus their `index.json`.
 6. **Quiz mode for the cheatsheet.** "Which command frees context without losing the summary?" Good for workshops.
-7. **Online demo page.** A static build with the sample sessions, so people can try it in the browser without installing anything.
 
 ## Quality & sharing
 
@@ -21,6 +20,7 @@ Ideas to grow the dashboard, roughly in order of value. Each one says where it w
 
 ## Done
 
+- Guided first-launch tour (v0.9)
 - Session timeline: request-by-request view with biggest jumps and compactions (v0.8)
 - Compare two sessions side by side with takeaways (v0.7)
 - Budget alerts: daily / weekly / per-session, dollars or tokens, notifications (v0.6)
