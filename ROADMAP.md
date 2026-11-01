@@ -2,10 +2,14 @@
 
 Ideas to grow the dashboard, roughly in order of value. Each one says where it would go in the code.
 
-## Next up
+## To do
 
-1. **More languages.** Add a key to `src/lib/i18n.js`, the `L()` objects in `static/data/*.json`, and a `static/docs/<lang>/` folder.
-2. **Team mode.** Several people point the dashboard at a shared folder of exported transcripts. Needs auth before it's ever exposed beyond localhost.
+1. **Team mode.** Several people point the dashboard at a shared folder of exported transcripts, for workshops and teams. Needs sign-in and a security review before it's ever exposed beyond localhost.
+   *Where:* a team data source next to `src/lib/server/sessions.js`, auth in `src/hooks.server.js`, a team overview page.
+
+## On hold
+
+- **More languages.** Add a key to `src/lib/i18n.js`, the `L()` objects in `static/data/*.json`, and a `static/docs/<lang>/` folder.
 
 ## Done
 
