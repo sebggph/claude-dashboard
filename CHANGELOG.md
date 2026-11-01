@@ -2,6 +2,10 @@
 
 Content and feature updates to the dashboard. Newest first. The `/update-dashboard` skill adds an entry each time it runs.
 
+## 2026-11-01: v0.3.1
+
+- Docker uses the first free port from 3000 to 3010 when 3000 is taken. New `npm run docker` keeps the address stable and prints the link.
+
 ## 2026-11-01: v0.3
 
 - Rebuilt on **SvelteKit 3 + Svelte 5 + Vite** (adapter-node), plain CSS, no CSS framework. Real page URLs (`/sessions/<id>`, `/learn/<guide>`), `npm run dev` with hot reload, two-stage Docker build.

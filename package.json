@@ -15,7 +15,8 @@
     "test": "node --test",
     "check": "node scripts/check-content.js",
     "news-snapshot": "node scripts/news-snapshot.js",
-    "make-demo": "node scripts/make-demo.js"
+    "make-demo": "node scripts/make-demo.js",
+    "docker": "node scripts/docker-up.js"
   },
   "imports": {
     "#lib": "./src/lib/index.js",

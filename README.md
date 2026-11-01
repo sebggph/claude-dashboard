@@ -25,7 +25,13 @@ cd claude-dashboard
 docker compose up -d --build
 ```
 
-Open **http://localhost:3000**.
+Open **http://localhost:3000**. If port 3000 is already in use, Docker picks the next free port up to 3010. To see which one:
+
+```bash
+docker compose port dashboard 3000
+```
+
+**Tip:** if you have Node.js, run `npm run docker` instead. It uses 3000 when it's free (or the next free port), keeps the same address across restarts, and prints the link to open.
 
 It reads `~/.claude` on Mac/Linux and `%USERPROFILE%\.claude` on Windows automatically. To use another folder, copy `.env.example` to `.env` and set `CLAUDE_HOME`.
 
@@ -88,7 +94,7 @@ This repo includes a Claude Code skill, **`/update-dashboard`** (`.claude/skills
 - **"Demo mode" banner, but I do use Claude Code.** Check that `CLAUDE_HOME` points to the folder that contains `projects/`.
 - **Linux: "folder can't be read".** The container runs as an unprivileged user. Add `UID_GID=1000:1000` (your `id -u`:`id -g`) to `.env` and run `docker compose up -d` again.
 - **Windows with WSL.** If Claude Code runs inside WSL, set `CLAUDE_HOME=//wsl$/Ubuntu/home/<you>/.claude`.
-- **Port 3000 is taken.** Set `PORT=3001` in `.env`.
+- **Port 3000 is taken.** It's handled automatically (see Quick start). To always use one port, set e.g. `PORT=8080` in `.env`. `npm run dev` also moves to the next free port on its own.
 
 ## Project layout
 

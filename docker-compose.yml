@@ -9,7 +9,10 @@ services:
     user: "${UID_GID:-node}"
     ports:
       # Only reachable from this computer. Your transcripts stay private.
-      - "127.0.0.1:${PORT:-3000}:3000"
+      # Docker uses the first free port from 3000 to 3010. To see which one:
+      #   docker compose port dashboard 3000     (or: npm run docker)
+      # Set PORT in .env to a single port (e.g. 3000) or another range.
+      - "127.0.0.1:${PORT:-3000-3010}:3000"
     environment:
       # "off" disables News and live facts (no outside requests at all).
       - NEWS=${NEWS:-on}

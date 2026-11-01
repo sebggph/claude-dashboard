@@ -25,7 +25,13 @@ cd claude-dashboard
 docker compose up -d --build
 ```
 
-Abre **http://localhost:3000**.
+Abre **http://localhost:3000**. Si el puerto 3000 ya está en uso, Docker elige el siguiente libre hasta el 3010. Para ver cuál:
+
+```bash
+docker compose port dashboard 3000
+```
+
+**Consejo:** si tienes Node.js, usa `npm run docker`. Usa el 3000 cuando está libre (o el siguiente libre), mantiene la misma dirección al reiniciar y muestra el enlace para abrir.
 
 Lee `~/.claude` en Mac/Linux y `%USERPROFILE%\.claude` en Windows automáticamente. Para usar otra carpeta, copia `.env.example` a `.env` y define `CLAUDE_HOME`.
 
@@ -88,7 +94,7 @@ Este repositorio incluye una skill de Claude Code, **`/update-dashboard`** (`.cl
 - **Veo "Modo demo" pero sí uso Claude Code.** Comprueba que `CLAUDE_HOME` apunta a la carpeta que contiene `projects/`.
 - **Linux: "no se puede leer la carpeta".** El contenedor usa un usuario sin privilegios. Añade `UID_GID=1000:1000` (tu `id -u`:`id -g`) a `.env` y vuelve a ejecutar `docker compose up -d`.
 - **Windows con WSL.** Si Claude Code corre dentro de WSL, usa `CLAUDE_HOME=//wsl$/Ubuntu/home/<tu-usuario>/.claude`.
-- **El puerto 3000 está ocupado.** Pon `PORT=3001` en `.env`.
+- **El puerto 3000 está ocupado.** Se resuelve solo (mira Inicio rápido). Para usar siempre un puerto fijo, pon por ejemplo `PORT=8080` en `.env`. `npm run dev` también pasa solo al siguiente puerto libre.
 
 ## Añadir una guía o tutorial
 
