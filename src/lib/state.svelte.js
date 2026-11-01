@@ -32,6 +32,7 @@ export const data = $state({
   docsIndex: {}, // per language
   news: null,
   live: null,
+  live_connected: false, // live-update stream is open
   error: null,
 });
 

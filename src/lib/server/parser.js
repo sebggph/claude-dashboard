@@ -125,6 +125,8 @@ function parseSession(file, { full = true } = {}) {
     requests: [], // one per API call
     compactions: [],
     totals: { input: 0, cacheWrite: 0, cacheRead: 0, output: 0, thinking: 0 },
+    byModel: {},
+    byDay: {},
     systemPromptChars: 0,
   };
 
@@ -284,6 +286,22 @@ function parseSession(file, { full = true } = {}) {
     s.totals.cacheRead += u.cache_read_input_tokens || 0;
     s.totals.output += u.output_tokens || 0;
     s.totals.thinking += (u.output_tokens_details && u.output_tokens_details.thinking_tokens) || 0;
+
+    // Usage per model (prices differ per model; some models price large prompts higher)
+    // and per day (for trends). Cache writes are split into 5-minute and 1-hour.
+    const cw = u.cache_creation_input_tokens || 0;
+    const cw1h = Math.min(cw, (u.cache_creation && u.cache_creation.ephemeral_1h_input_tokens) || 0);
+    const promptSize = usageTotal(u);
+    const key = `${r.model || 'unknown'}|${promptSize > 100000 ? 'large' : 'std'}`;
+    const m = s.byModel[key] || (s.byModel[key] = { model: r.model || 'unknown', large: promptSize > 100000, requests: 0, input: 0, cw5m: 0, cw1h: 0, read: 0, output: 0 });
+    m.requests++; m.input += u.input_tokens || 0; m.cw5m += cw - cw1h; m.cw1h += cw1h; m.read += u.cache_read_input_tokens || 0; m.output += u.output_tokens || 0;
+    const day = String(r.time || '').slice(0, 10);
+    if (day) {
+      const d = s.byDay[day] || (s.byDay[day] = { requests: 0, input: 0, cacheWrite: 0, cacheRead: 0, output: 0, byModel: {} });
+      d.requests++; d.input += u.input_tokens || 0; d.cacheWrite += cw; d.cacheRead += u.cache_read_input_tokens || 0; d.output += u.output_tokens || 0;
+      const dm = d.byModel[key] || (d.byModel[key] = { model: m.model, large: m.large, input: 0, cw5m: 0, cw1h: 0, read: 0, output: 0 });
+      dm.input += u.input_tokens || 0; dm.cw5m += cw - cw1h; dm.cw1h += cw1h; dm.read += u.cache_read_input_tokens || 0; dm.output += u.output_tokens || 0;
+    }
   }
 
   const last = s.requests[s.requests.length - 1];
@@ -312,6 +330,8 @@ function parseSession(file, { full = true } = {}) {
     lastOutput: lastOut,
     peakTokens: peak,
     totals: s.totals,
+    byModel: Object.values(s.byModel),
+    byDay: s.byDay,
     cacheHitRate: (() => {
       const all = s.totals.input + s.totals.cacheWrite + s.totals.cacheRead;
       return all ? s.totals.cacheRead / all : 0;

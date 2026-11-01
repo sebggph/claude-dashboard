@@ -8,6 +8,7 @@ All free, public and official. No API keys. Add a source here when you find a us
 | Claude Code CHANGELOG (GitHub, no dates) | https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md | Backup if the docs page is down | No |
 | Claude Platform release notes | https://platform.claude.com/docs/en/release-notes/overview.md | API, models, SDK, deprecations | Yes: News (every 6 h) |
 | Models overview | https://platform.claude.com/docs/en/about-claude/models/overview.md | Model IDs, context windows, max output, default effort, retirement | Yes: context window + "Current models" (daily) |
+| Pricing page | https://platform.claude.com/docs/en/about-claude/pricing.md | API prices per model (input, 5m/1h cache writes, cache hits, output; size tiers) | Yes: estimated cost + Trends (daily) |
 | npm registry | https://registry.npmjs.org/@anthropic-ai/claude-code/latest | Latest Claude Code version | Yes: "update available" (every 6 h) |
 | Status page API | https://status.claude.com/api/v2/summary.json | Is Claude up right now | Yes: News card (every 5 min; hidden if unreachable) |
 | Docs index | https://code.claude.com/docs/llms.txt | Spot new/removed docs pages (`npm run check`) | No (maintenance only) |

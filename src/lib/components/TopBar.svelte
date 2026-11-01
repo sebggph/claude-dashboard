@@ -1,12 +1,13 @@
 <script>
   import { page } from '$app/state';
   import Icon from './Icon.svelte';
-  import { ui, t, setLang, cycleTheme, setWindow, togglePrivacy } from '#lib/state.svelte.js';
+  import { ui, data, t, setLang, cycleTheme, setWindow, togglePrivacy } from '#lib/state.svelte.js';
 
   const ROUTES = [
     { id: 'home', href: '/', icon: 'home' },
     { id: 'overview', href: '/dashboard', icon: 'overview' },
     { id: 'sessions', href: '/sessions', icon: 'sessions' },
+    { id: 'trends', href: '/trends', icon: 'chart' },
     { id: 'guides', href: '/learn', icon: 'book' },
     { id: 'cheatsheet', href: '/cheatsheet', icon: 'sheet' },
     { id: 'news', href: '/news', icon: 'news' },
@@ -36,6 +37,7 @@
       {/each}
     </nav>
     <div class="tools">
+      <span class="live-dot" class:on={data.live_connected} title={data.live_connected ? t('live_on') : t('live_off')}><i></i>{t('live_label')}</span>
       <div class="seg" role="group" aria-label={t('language')}>
         {#each ['en', 'es'] as l (l)}
           <button type="button" aria-pressed={ui.lang === l} onclick={() => setLang(l)}>{l.toUpperCase()}</button>

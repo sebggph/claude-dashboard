@@ -2,6 +2,12 @@
 
 Content and feature updates to the dashboard. Newest first. The `/update-dashboard` skill adds an entry each time it runs.
 
+## 2026-11-01: v0.5
+
+- **Live updates**: Server-Sent Events push changes the moment a transcript changes (green *Live* dot; falls back to 15-second checks).
+- **Estimated cost** per session at official API prices (pricing page, refreshed daily), with *saved by caching*.
+- **Trends** page: requests, estimated cost and cache hit rate per day (7/30/90 days) and projects.
+
 ## 2026-11-01: v0.4
 
 - MIT license; CI on every pull request (tests, content check, build, Docker image build) plus a weekly link check.
