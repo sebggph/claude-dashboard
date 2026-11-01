@@ -40,6 +40,22 @@ It reads `~/.claude` on Mac/Linux and `%USERPROFILE%\.claude` on Windows automat
 
 Stop it with `docker compose down`.
 
+### Run the published image (no cloning)
+
+```bash
+# Mac / Linux
+docker run -d --name claude-context-dashboard -p 127.0.0.1:3000:3000 \
+  -v ~/.claude:/data/claude:ro ghcr.io/sebggph/claude-dashboard:latest
+```
+
+```powershell
+# Windows (PowerShell)
+docker run -d --name claude-context-dashboard -p 127.0.0.1:3000:3000 `
+  -v "$env:USERPROFILE\.claude:/data/claude:ro" ghcr.io/sebggph/claude-dashboard:latest
+```
+
+Open **http://localhost:3000**. Update later with `docker pull ghcr.io/sebggph/claude-dashboard:latest`, then remove and re-run the container.
+
 ### Without Docker (Mac or PC)
 
 Needs [Node.js](https://nodejs.org/) 22 or newer. Built with [SvelteKit](https://svelte.dev/docs/kit) and Vite; no CSS framework.

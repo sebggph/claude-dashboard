@@ -40,6 +40,22 @@ Lee `~/.claude` en Mac/Linux y `%USERPROFILE%\.claude` en Windows automáticamen
 
 Para detenerlo: `docker compose down`.
 
+### Usar la imagen publicada (sin clonar)
+
+```bash
+# Mac / Linux
+docker run -d --name claude-context-dashboard -p 127.0.0.1:3000:3000 \
+  -v ~/.claude:/data/claude:ro ghcr.io/sebggph/claude-dashboard:latest
+```
+
+```powershell
+# Windows (PowerShell)
+docker run -d --name claude-context-dashboard -p 127.0.0.1:3000:3000 `
+  -v "$env:USERPROFILE\.claude:/data/claude:ro" ghcr.io/sebggph/claude-dashboard:latest
+```
+
+Abre **http://localhost:3000**. Para actualizar: `docker pull ghcr.io/sebggph/claude-dashboard:latest`, luego elimina el contenedor y vuelve a ejecutarlo.
+
 ### Sin Docker (Mac o PC)
 
 Necesita [Node.js](https://nodejs.org/) 22 o superior. Hecho con [SvelteKit](https://svelte.dev/docs/kit) y Vite; sin framework de CSS.
