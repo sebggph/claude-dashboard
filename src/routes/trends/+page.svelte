@@ -3,6 +3,7 @@
   import Kpi from '#lib/components/Kpi.svelte';
   import DayChart from '#lib/components/DayChart.svelte';
   import DemoBanner from '#lib/components/DemoBanner.svelte';
+  import BudgetCard from '#lib/components/BudgetCard.svelte';
   import { ui, data, t } from '#lib/state.svelte.js';
   import { fmtK, pct, maskProject } from '#lib/rules.js';
   import { costOf, fmtUSD } from '#lib/cost.js';
@@ -83,10 +84,17 @@
       <div class="card-head"><h2>{t('tr_req_day')}</h2></div>
       <DayChart days={perDay.map((d) => ({ day: d.day, value: d.requests }))} label={t('st_requests')} format={(v) => fmtK(v)} />
     </section>
-    <section class="card">
-      <div class="card-head"><h2>{t('tr_cost_day')}</h2><span class="card-sub">{t('tr_api_prices')}</span></div>
-      <DayChart days={perDay.map((d) => ({ day: d.day, value: d.cost }))} label={t('cost_est')} format={usd} />
-    </section>
+    {#if ui.budget.unit === 'tokens'}
+      <section class="card">
+        <div class="card-head"><h2>{t('tr_tokens_day')}</h2></div>
+        <DayChart days={perDay.map((d) => ({ day: d.day, value: d.tokens }))} label={t('kpi_tokens')} format={(v) => fmtK(v)} limit={ui.budget.daily} limitLabel={t('bud_daily')} />
+      </section>
+    {:else}
+      <section class="card">
+        <div class="card-head"><h2>{t('tr_cost_day')}</h2><span class="card-sub">{t('tr_api_prices')}</span></div>
+        <DayChart days={perDay.map((d) => ({ day: d.day, value: d.cost }))} label={t('cost_est')} format={usd} limit={ui.budget.daily} limitLabel={t('bud_daily')} />
+      </section>
+    {/if}
   </div>
   <div class="grid grid-2">
     <section class="card">
@@ -106,5 +114,6 @@
       </div>
     </section>
   </div>
+  <BudgetCard />
   <p class="note"><Icon name="info" /><span>{t('cost_note')}</span></p>
 </div>

@@ -762,6 +762,19 @@
         "es": "Las versiones nuevas suelen corregir fallos de contexto y caché y añadir funciones. Ejecuta claude update en tu terminal y mira en Novedades qué cambió."
       },
       "doc": "https://code.claude.com/docs/en/changelog"
+    },
+    {
+      "id": "over_budget",
+      "when": "session usage (estimated cost or tokens) is above the per-session budget set on the Trends page",
+      "title": {
+        "en": "Over your session budget",
+        "es": "Por encima de tu presupuesto por sesión"
+      },
+      "text": {
+        "en": "This session used more than your budget. Start a fresh session for the next task, keep context lean, and pick a lighter model or effort for simple work.",
+        "es": "Esta sesión usó más que tu presupuesto. Empieza una sesión nueva para la siguiente tarea, mantén el contexto ligero y usa un modelo o esfuerzo más ligero para trabajo sencillo."
+      },
+      "doc": "https://code.claude.com/docs/en/costs"
     }
   ]
 }

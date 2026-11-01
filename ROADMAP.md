@@ -4,9 +4,7 @@ Ideas to grow the dashboard, roughly in order of value. Each one says where it w
 
 ## Next up
 
-1. **Budget alerts.** Optional daily/weekly cost or token threshold that highlights days and sessions over budget.
-   *Where:* a setting in `src/lib/state.svelte.js`, markers in `src/lib/components/DayChart.svelte`.
-2. **Compare two sessions** side by side (fixed overhead, tools, cost) to show the effect of a setup change.
+1. **Compare two sessions** side by side (fixed overhead, tools, cost) to show the effect of a setup change.
    *Where:* a new `src/routes/compare/` page reusing `ContextCard.svelte`.
 
 ## Learning features
@@ -24,6 +22,7 @@ Ideas to grow the dashboard, roughly in order of value. Each one says where it w
 
 ## Done
 
+- Budget alerts: daily / weekly / per-session, dollars or tokens, notifications (v0.6)
 - Live updates via Server-Sent Events (v0.5)
 - Estimated cost at API prices and Trends page (v0.5)
 
