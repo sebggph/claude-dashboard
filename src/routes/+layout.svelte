@@ -2,6 +2,7 @@
   import '../app.css';
   import TopBar from '#lib/components/TopBar.svelte';
   import Drawer from '#lib/components/Drawer.svelte';
+  import Tour from '#lib/components/Tour.svelte';
   import { page } from '$app/state';
   import { invalidateAll } from '$app/navigation';
   import { ui, data, load, t, store } from '#lib/state.svelte.js';
@@ -62,3 +63,4 @@
 </main>
 <footer>{t('footer')}</footer>
 <Drawer />
+<Tour />

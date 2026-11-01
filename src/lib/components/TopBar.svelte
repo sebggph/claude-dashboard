@@ -1,7 +1,7 @@
 <script>
   import { page } from '$app/state';
   import Icon from './Icon.svelte';
-  import { ui, data, t, setLang, cycleTheme, setWindow, togglePrivacy } from '#lib/state.svelte.js';
+  import { ui, data, t, setLang, cycleTheme, setWindow, togglePrivacy, startTour } from '#lib/state.svelte.js';
 
   const ROUTES = [
     { id: 'home', href: '/', icon: 'home' },
@@ -31,12 +31,12 @@
       <span class="brand-mark"><svg class="icon" viewBox="0 0 24 24" fill="currentColor"><path d="M5 19h3v-6H5zm5.5 0h3V6h-3zm5.5 0h3v-9h-3z" /></svg></span>
       <span>Context Dashboard</span>
     </a>
-    <nav class="nav">
+    <nav class="nav" data-tour="nav">
       {#each ROUTES as r (r.id)}
         <a href={r.href} aria-current={active(r) ? 'page' : undefined}><Icon name={r.icon} /><span>{t('nav_' + r.id)}</span></a>
       {/each}
     </nav>
-    <div class="tools">
+    <div class="tools" data-tour="tools">
       <span class="live-dot" class:on={data.live_connected} title={data.live_connected ? t('live_on') : t('live_off')}><i></i>{t('live_label')}</span>
       <div class="seg" role="group" aria-label={t('language')}>
         {#each ['en', 'es'] as l (l)}
@@ -59,6 +59,7 @@
       </label>
       <label class="check"><input type="checkbox" checked={ui.privacy} onchange={togglePrivacy} /> {t('privacy')}</label>
       <div class="small muted">{t('privacy_hint')}</div>
+      <button class="btn" type="button" onclick={() => { settingsOpen = false; startTour(); }}>{t('tour_restart')}</button>
       <div class="small muted">{t('set_buffer')}: 33K (1M) · 0 (200K). {t('set_buffer_hint')}</div>
     </div>
   {/if}

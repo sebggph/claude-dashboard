@@ -35,7 +35,7 @@
   <a class="btn" href="/compare?b={s.id}"><Icon name="layers" /> {t('cmp_with')}</a>
 </div>
 
-<div class="seg view-tabs" role="tablist" aria-label={t('tl_views')}>
+<div class="seg view-tabs" data-tour="views" role="tablist" aria-label={t('tl_views')}>
   <button type="button" role="tab" aria-selected={view === 'overview'} aria-pressed={view === 'overview'} onclick={() => setView('overview')}>{t('tl_overview')}</button>
   <button type="button" role="tab" aria-selected={view === 'timeline'} aria-pressed={view === 'timeline'} onclick={() => setView('timeline')}>{t('tl_timeline')}</button>
 </div>

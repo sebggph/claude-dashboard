@@ -2,6 +2,11 @@
 
 Content and feature updates to the dashboard. Newest first. The `/update-dashboard` skill adds an entry each time it runs.
 
+## 2026-11-01: v0.9
+
+- **Guided tour**: 10 short steps on first launch (Home, latest session, context card, explanations, report card, timeline, sections, settings), with a highlight, Back/Next/Skip, arrow keys and Esc. Ends on the *Start a new project* tutorial. Restart from Home (*Take the tour*) or Settings.
+- Phone layout: the logo text hides on small screens so the top bar fits.
+
 ## 2026-11-01: v0.8
 
 - **Session timeline** (Timeline tab on each session, `?view=timeline`): pick any request on the chart, with the slider or ← →; see the context size and change, your prompt, and the biggest items added (tool results, replies). Buttons jump to the biggest jumps and compactions.
