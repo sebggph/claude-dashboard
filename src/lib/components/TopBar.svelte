@@ -1,7 +1,7 @@
 <script>
   import { page } from '$app/state';
   import Icon from './Icon.svelte';
-  import { ui, t, setLang, cycleTheme, setWindow } from '#lib/state.svelte.js';
+  import { ui, t, setLang, cycleTheme, setWindow, togglePrivacy } from '#lib/state.svelte.js';
 
   const ROUTES = [
     { id: 'home', href: '/', icon: 'home' },
@@ -41,6 +41,7 @@
           <button type="button" aria-pressed={ui.lang === l} onclick={() => setLang(l)}>{l.toUpperCase()}</button>
         {/each}
       </div>
+      <button class="icon-btn" class:on={ui.privacy} type="button" aria-pressed={ui.privacy} title={ui.privacy ? t('privacy_on') : t('privacy_off')} aria-label={t('privacy')} onclick={togglePrivacy}><Icon name={ui.privacy ? 'eyeoff' : 'eye'} /></button>
       <button class="icon-btn" type="button" title={themeTitle} aria-label={themeTitle} onclick={cycleTheme}><Icon name={themeIcon} /></button>
       <button class="icon-btn" id="settings-btn" type="button" title={t('settings')} aria-label={t('settings')} aria-expanded={settingsOpen} onclick={() => (settingsOpen = !settingsOpen)}><Icon name="gear" /></button>
     </div>
@@ -54,6 +55,8 @@
           <option value="1000000">1M</option>
         </select>
       </label>
+      <label class="check"><input type="checkbox" checked={ui.privacy} onchange={togglePrivacy} /> {t('privacy')}</label>
+      <div class="small muted">{t('privacy_hint')}</div>
       <div class="small muted">{t('set_buffer')}: 33K (1M) · 0 (200K). {t('set_buffer_hint')}</div>
     </div>
   {/if}

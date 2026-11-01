@@ -4,7 +4,7 @@
   import GuideCard from '#lib/components/GuideCard.svelte';
   import DemoBanner from '#lib/components/DemoBanner.svelte';
   import { ui, data, t, progress } from '#lib/state.svelte.js';
-  import { breakdownOf, windowFor, pct, pctSmart, fmtK, winLabel, shortModel, ago, fmtDate, sourceName, slugOf } from '#lib/rules.js';
+  import { breakdownOf, windowFor, pct, pctSmart, fmtK, winLabel, shortModel, ago, fmtDate, sourceName, slugOf, sessionTitle } from '#lib/rules.js';
   import { inline } from '#lib/markdown.js';
 
   const sessions = $derived(data.sessions?.sessions || []);
@@ -53,7 +53,7 @@
     {#if latest}
       <a class="snapshot" href="/sessions/{latest.id}">
         <span class="card-sub">{t('home_latest')}</span>
-        <span class="snap-title">{latest.title || latest.id}</span>
+        <span class="snap-title">{sessionTitle(latest)}</span>
         <span class="snap-pct">{t('ctx_used', { p: pctSmart(bd.used / bd.win) })}</span>
         <StackBar {bd} height={10} />
         <span class="card-sub">{fmtK(bd.used)} / {winLabel(bd.win)} · {shortModel(latest.model)} · {ago(latest.end)}</span>

@@ -8,6 +8,9 @@ A small, friendly dashboard that shows **how much context your Claude Code sessi
 - **Context breakdown**: a detailed list like `/context`: system prompt, tools, skills, MCP, your messages, Claude's replies, thinking, tool calls and tool results, plus autocompact buffer and free space.
 - **Explanations with proof**: click any row to see what it is, how to reduce it, and links to the official Claude Code docs.
 - **Recommendations**: simple rules spot big tool outputs, frequent compaction, low cache hits and more.
+- **Session report card**: each session gets a health grade (Lean, Okay, Heavy) with its top 3 fixes and a *Copy for chat* summary.
+- **Memory & MCP**: which CLAUDE.md, rules and imports load, and what each MCP server's tools cost.
+- **Privacy mode** (eye icon): hides titles, project names, branches, file paths and prompt text so screenshots are safe to share.
 - **Charts**: context growth per request with compaction markers, biggest items, tools used, subagents, token totals.
 - **Learn hub**: step-by-step tutorials (*Start a new project*, *Optimize an existing project*) with tickable checklists, plus guides on context, compaction, CLAUDE.md, MCP/skills/subagents, workflows and *Change mid-session or start fresh?*. Tracks what you've read.
 - **Printable cheatsheet**: 50+ commands and shortcuts with short "why it helps" notes.

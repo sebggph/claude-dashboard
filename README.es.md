@@ -8,6 +8,9 @@ Un panel pequeño y sencillo que muestra **cuánto contexto usan tus sesiones de
 - **Desglose del contexto**: una lista detallada como `/context`: prompt del sistema, herramientas, skills, MCP, tus mensajes, respuestas de Claude, razonamiento, llamadas y resultados de herramientas, reserva para autocompactar y espacio libre.
 - **Explicaciones con pruebas**: haz clic en cualquier fila para ver qué es, cómo reducirlo y enlaces a la documentación oficial.
 - **Recomendaciones**: reglas sencillas que detectan salidas grandes, compactaciones frecuentes, poca caché y más.
+- **Informe de sesión**: cada sesión recibe un estado (Ligera, Aceptable, Pesada) con sus 3 mejoras principales y un resumen para *copiar al chat*.
+- **Memoria y MCP**: qué CLAUDE.md, reglas e imports se cargan, y cuánto cuestan las herramientas de cada servidor MCP.
+- **Modo privado** (icono del ojo): oculta títulos, proyectos, ramas, rutas y el texto de los mensajes para compartir capturas sin riesgo.
 - **Gráficos**: crecimiento del contexto por petición, elementos más grandes, herramientas, subagentes y totales de tokens.
 - **Sección Aprender**: tutoriales paso a paso (*Empezar un proyecto nuevo*, *Optimizar un proyecto existente*) con listas de pasos marcables, y guías sobre contexto, compactación, CLAUDE.md, MCP/skills/subagentes, flujos de trabajo y *¿Cambiar a mitad de sesión o empezar de cero?*. Recuerda lo que ya leíste.
 - **Chuleta imprimible**: más de 50 comandos y atajos con una nota de por qué ayudan.

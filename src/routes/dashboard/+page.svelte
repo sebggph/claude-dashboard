@@ -6,7 +6,7 @@
   import GuideCard from '#lib/components/GuideCard.svelte';
   import DemoBanner from '#lib/components/DemoBanner.svelte';
   import { ui, data, t, progress } from '#lib/state.svelte.js';
-  import { breakdownOf, windowFor, recommendationsFor, GROUPS, GUIDE_KEY, pct, pctSmart, fmtK, slugOf } from '#lib/rules.js';
+  import { breakdownOf, windowFor, recommendationsFor, GROUPS, GUIDE_KEY, pct, pctSmart, fmtK, slugOf, sessionTitle } from '#lib/rules.js';
 
   const sessions = $derived(data.sessions?.sessions || []);
   const active = $derived(sessions.filter((s) => s.end && Date.now() - new Date(s.end) < 86400000).length);
@@ -27,7 +27,7 @@
   const topRecs = $derived.by(() => {
     const order = { serious: 0, warning: 1, info: 2 };
     const all = [];
-    for (const s of sessions.slice(0, 30)) for (const r of recommendationsFor(s, data.sessions.memoryFiles)) all.push({ ...r, session: s.title || s.id.slice(0, 8) });
+    for (const s of sessions.slice(0, 30)) for (const r of recommendationsFor(s, data.sessions.memoryFiles)) all.push({ ...r, session: sessionTitle(s) });
     const seen = new Set();
     return all.sort((a, b) => order[a.level] - order[b.level]).filter((r) => (seen.has(r.id) ? false : seen.add(r.id))).slice(0, 4);
   });
@@ -54,7 +54,7 @@
       <div class="hbars">
         {#each fullest as { s, bd } (s.id)}
           <a class="hbar" href="/sessions/{s.id}">
-            <span class="name" title={s.title}>{s.title || s.id}</span>
+            <span class="name" title={sessionTitle(s)}>{sessionTitle(s)}</span>
             <span class="bar">{#each bd.groups as g (g.id)}<span style:width="{(g.tokens / bd.win) * 100}%" style:background={g.color}></span>{/each}</span>
             <span class="val">{pctSmart(bd.used / bd.win)}</span>
           </a>

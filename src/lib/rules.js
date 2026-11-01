@@ -43,6 +43,20 @@ export function cmpVersion(a, b) {
   return 0;
 }
 
+// ---------- privacy mode ----------
+// Hides anything personal (titles, project paths, branches, file paths, prompt
+// text) so screenshots are safe to share. Labels stay stable per session/project.
+function shortHash(x) {
+  let h = 0;
+  for (const c of String(x)) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+  return 'ABCDEFGHJKLMNPQRSTUVWXYZ'[h % 24] + (h % 10);
+}
+export const sessionTitle = (s) => (ui.privacy ? t('priv_session', { id: s.id.replace(/-/g, '').slice(-6) }) : s.title || s.id);
+export const maskProject = (p) => (ui.privacy ? t('priv_project', { id: shortHash(p) }) : projectName(p));
+export const maskBranch = (b) => (b && ui.privacy ? '•••' : b);
+export const maskText = (x) => (ui.privacy ? '' : x);
+export const maskPath = (p) => (p && ui.privacy ? '…/' + String(p).split('/').pop() : p);
+
 export const winLabel = (w) => (w >= 1e6 ? '1M' : fmtK(w));
 export const slugOf = (file) => file.replace(/\.md$/, '');
 
@@ -160,7 +174,7 @@ export function recommendationsFor(s, memoryFiles = []) {
   if (s.userPrompts > 80) add('long_session_many_turns', 'info', t('why_long_session_many_turns', { n: s.userPrompts }));
   if (s.requests >= 5 && s.cacheHitRate < 0.7) add('low_cache_hit', 'info', t('why_low_cache_hit', { p: pct(s.cacheHitRate) }));
   const memFiles = s.memory ? s.memory.files.filter((f) => f.loads === 'start') : memoryFiles;
-  for (const f of memFiles) if (f.tokens > 10000 || f.lines > 200) { add('big_memory_file', 'info', t('why_big_memory_file', { f: f.path, t: fmtK(f.tokens) })); break; }
+  for (const f of memFiles) if (f.tokens > 10000 || f.lines > 200) { add('big_memory_file', 'info', t('why_big_memory_file', { f: maskPath(f.path), t: fmtK(f.tokens) })); break; }
   if (s.mcp && s.mcp.loadedTokens > win * 0.1) add('many_mcp_tools', 'warning', t('why_mcp_defs', { t: fmtK(s.mcp.loadedTokens) }));
   if ((cats.thinking || 0) / msgs > 0.5 && s.totals.thinking > 0) add('heavy_thinking', 'info', t('why_heavy_thinking', { p: pct((cats.thinking || 0) / msgs) }));
   if (sig.fileReads > 30 || sig.mostReadFile) add('many_file_reads', 'info', t('why_many_file_reads', { n: sig.fileReads }));
@@ -179,5 +193,25 @@ export function recommendationsFor(s, memoryFiles = []) {
     .filter((h) => h.def)
     .sort((a, b) => order[a.level] - order[b.level]);
 }
+
+// ---------- session health ("report card") ----------
+// lean: nothing to fix · okay: one warning or > 40% used · heavy: > 70% used,
+// a serious finding, or two or more warnings.
+export function healthOf(s, memoryFiles = []) {
+  const recs = recommendationsFor(s, memoryFiles);
+  const { win, used } = breakdownOf(s);
+  const u = used / win;
+  const serious = recs.filter((r) => r.level === 'serious').length;
+  const warns = recs.filter((r) => r.level === 'warning').length;
+  let grade = 'lean';
+  if (serious || u > 0.7 || warns >= 2) grade = 'heavy';
+  else if (warns || u > 0.4) grade = 'okay';
+  return { grade, recs, used: u, win };
+}
+export const HEALTH = {
+  lean: { color: 'var(--good)', icon: 'check' },
+  okay: { color: 'var(--warning)', icon: 'info' },
+  heavy: { color: 'var(--serious)', icon: 'alert' },
+};
 
 export const sourceName = (id) => ({ 'claude-code': 'Claude Code', platform: 'Claude Platform' }[id] || id);

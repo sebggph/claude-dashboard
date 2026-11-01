@@ -14,6 +14,7 @@ export const ui = $state({
   lang: store.get('lang', browserLang),
   theme: store.get('theme', 'auto'), // auto | light | dark
   window: store.get('window', 'auto'), // auto | 200000 | 1000000
+  privacy: store.get('privacy', 'off') === 'on', // hide titles, paths and prompt text
   drawer: null, // { key, label } of the open explanation
   readVersion: 0, // bumps when learning progress changes
 });
@@ -21,6 +22,7 @@ export const ui = $state({
 export function setLang(l) { ui.lang = l; store.set('lang', l); }
 export function cycleTheme() { ui.theme = { auto: 'light', light: 'dark', dark: 'auto' }[ui.theme]; store.set('theme', ui.theme); }
 export function setWindow(w) { ui.window = w; store.set('window', w); }
+export function togglePrivacy() { ui.privacy = !ui.privacy; store.set('privacy', ui.privacy ? 'on' : 'off'); }
 
 /** Data loaded from the server and static files. */
 export const data = $state({
