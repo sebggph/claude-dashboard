@@ -2,7 +2,7 @@
   // Context size per request, with the auto-compact point and compactions.
   import { t } from '#lib/state.svelte.js';
   import { fmtK, niceMax } from '#lib/charts.js';
-  let { points, limit = 0, compactions = [] } = $props();
+  let { points, limit = 0, compactions = [], selected = null, onselect = null } = $props();
 
   const W = 640, H = 260, m = { l: 48, r: 12, t: 14, b: 28 };
   const iw = W - m.l - m.r, ih = H - m.t - m.b;
@@ -37,11 +37,15 @@
     <path class="line" d={path} />
     {#if limit}<line class="threshold" x1={m.l} x2={W - m.r} y1={y(limit)} y2={y(limit)} />{/if}
     {#each compactions.filter((i) => i < n) as i (i)}<circle class="marker" cx={x(i)} cy={y(points[i].total)} r="5" />{/each}
+    {#if selected != null && selected < n}
+      <line class="selected-line" x1={x(selected)} x2={x(selected)} y1={m.t} y2={m.t + ih} />
+      <circle class="selected-dot" cx={x(selected)} cy={y(points[selected].total)} r="6" />
+    {/if}
     {#if hp}
       <line class="cross" x1={x(hover)} x2={x(hover)} y1={m.t} y2={m.t + ih} />
       <circle class="hover-dot" cx={x(hover)} cy={y(hp.total)} r="5" />
     {/if}
-    <rect x={m.l} y={m.t} width={iw} height={ih} fill="transparent" role="presentation" onmousemove={move} onmouseleave={() => (hover = null)} />
+    <rect x={m.l} y={m.t} width={iw} height={ih} fill="transparent" role="presentation" style:cursor={onselect ? 'pointer' : null} onmousemove={move} onmouseleave={() => (hover = null)} onclick={() => onselect && hover != null && onselect(hover)} />
   </svg>
   {#if hp}
     <div class="tooltip" style:left="{(x(hover) / W) * 100}%" style:top="{(y(hp.total) / H) * 100}%">

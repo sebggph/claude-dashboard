@@ -132,6 +132,7 @@ function parseSession(file, { full = true } = {}) {
 
   // Items that sit in the context window, in order. Reset on compaction.
   let items = [];
+  const allItems = []; // every item, also from before a compaction (for the timeline)
   const toolNames = new Map(); // tool_use_id -> {name, label}
   // MCP servers seen in this session (from tool listings in the transcript).
   const mcp = new Map(); // server -> { name, tools:Set, loaded:Map(tool -> tokens), instructionsTokens }
@@ -147,6 +148,7 @@ function parseSession(file, { full = true } = {}) {
     it.tokens = it.tokens || 0;
     it.turn = s.requests.length; // requests made before this item
     items.push(it);
+    allItems.push(it);
   };
 
   for (const d of rows) {
@@ -477,6 +479,34 @@ function parseSession(file, { full = true } = {}) {
     largestToolResult: items.filter((i) => i.cat === 'tool_results').reduce((m, i) => Math.max(m, i.tokens), 0),
   };
 
+  // Timeline steps: what was added to the context before each request.
+  // Items from before a compaction weren't calibrated, so apply the same factors.
+  const current = new Set(items);
+  const tokOf = (it) => (current.has(it) ? it.tokens : Math.round(it.tokens * (it.cat === 'tool_results' ? scale : it.req ? 1 : PROSE_FACTOR)));
+  const byTurn = new Map();
+  for (const it of allItems) {
+    if (!byTurn.has(it.turn)) byTurn.set(it.turn, []);
+    byTurn.get(it.turn).push(it);
+  }
+  const compactedAt = new Set(s.compactions.map((c) => c.atRequest));
+  const steps = s.requests.map((r, j) => {
+    const added = (byTurn.get(j) || []).map((it) => ({ cat: it.cat, kind: it.kind, tool: it.tool, label: it.label, tokens: tokOf(it) }));
+    const prompt = added.find((it) => it.cat === 'user' && it.kind === 'text' && it.label);
+    const reply = added.filter((it) => ['assistant', 'thinking', 'tool_calls'].includes(it.cat)).reduce((a, it) => a + it.tokens, 0);
+    const total = usageTotal(r.usage);
+    return {
+      i: j,
+      time: r.time,
+      total,
+      delta: j ? total - usageTotal(s.requests[j - 1].usage) : total,
+      compacted: compactedAt.has(j),
+      prompt: prompt ? prompt.label : null,
+      replyTokens: reply,
+      count: added.length,
+      top: added.filter((it) => it.tokens > 0).sort((a, b) => b.tokens - a.tokens).slice(0, 6),
+    };
+  });
+
   const timeline = s.requests.map((r, i) => ({
     i,
     time: r.time,
@@ -493,6 +523,7 @@ function parseSession(file, { full = true } = {}) {
     tools: Object.values(tools).sort((a, b) => (b.resultTokens + b.callTokens) - (a.resultTokens + a.callTokens)),
     biggest,
     timeline,
+    steps,
     compactionEvents: s.compactions,
     signals,
     mcp: { servers: mcpServers, issues: mcpIssues, loadedTokens: mcpLoaded },

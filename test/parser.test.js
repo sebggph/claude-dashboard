@@ -47,3 +47,18 @@ test('tracks compactions', () => {
   assert.strictEqual(s.peakTokens, 90002);
   assert.ok(s.breakdown.categories.compact_summary > 0);
 });
+
+test('timeline steps: what was added before each request', () => {
+  const f = write([
+    { type: 'user', timestamp: '2026-01-01T00:00:00Z', message: { role: 'user', content: 'read the config please' } },
+    { type: 'assistant', timestamp: '2026-01-01T00:00:01Z', message: { id: 'm1', content: [{ type: 'tool_use', id: 't1', name: 'Read', input: { file_path: 'config.json' } }], usage: usage(10000, 0, 50) } },
+    { type: 'user', timestamp: '2026-01-01T00:00:02Z', message: { role: 'user', content: [{ type: 'tool_result', tool_use_id: 't1', content: 'x'.repeat(8000) }] } },
+    { type: 'assistant', timestamp: '2026-01-01T00:00:03Z', message: { id: 'm2', content: [{ type: 'text', text: 'ok' }], usage: usage(2600, 10002, 20) } },
+  ]);
+  const s = parseSession(f);
+  assert.strictEqual(s.steps.length, 2);
+  assert.strictEqual(s.steps[0].prompt, 'read the config please');
+  assert.strictEqual(s.steps[1].delta, 2602); // 2 + 2600 + 10002 − (2 + 10000)
+  assert.strictEqual(s.steps[1].top[0].tool, 'Read');
+  assert.strictEqual(s.steps[1].top[0].label, 'config.json');
+});

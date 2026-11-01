@@ -4,12 +4,11 @@ Ideas to grow the dashboard, roughly in order of value. Each one says where it w
 
 ## Next up
 
-1. **Session timeline view.** Step through a session request by request and see which item made the context jump.
-   *Where:* a new tab on `src/routes/sessions/[id]/+page.svelte`; per-request items are already in the parser.
+1. **Interactive tour.** A guided first-launch tour that highlights each part of the context card and the timeline.
+   *Where:* a small `Tour.svelte` component in `src/lib/components/`, started from Home.
 
 ## Learning features
 
-4. **Interactive tutorial.** A guided tour on first launch that highlights each part of the context card.
 5. **More guides.** Hooks, plan mode, permissions, headless mode in CI, writing a good skill. Files go in `static/docs/en` and `static/docs/es` plus their `index.json`.
 6. **Quiz mode for the cheatsheet.** "Which command frees context without losing the summary?" Good for workshops.
 7. **Online demo page.** A static build with the sample sessions, so people can try it in the browser without installing anything.
@@ -22,6 +21,7 @@ Ideas to grow the dashboard, roughly in order of value. Each one says where it w
 
 ## Done
 
+- Session timeline: request-by-request view with biggest jumps and compactions (v0.8)
 - Compare two sessions side by side with takeaways (v0.7)
 - Budget alerts: daily / weekly / per-session, dollars or tokens, notifications (v0.6)
 - Live updates via Server-Sent Events (v0.5)
