@@ -2,6 +2,11 @@
 
 Content and feature updates to the dashboard. Newest first. The `/update-dashboard` skill adds an entry each time it runs.
 
+## 2026-11-01: v0.7
+
+- **Compare sessions** (`/compare`): pick A (before) and B (after); setup cost vs conversation with paired bars, key numbers, tools, and plain-language takeaways. Entry points on the sessions list and each session page.
+- Demo data now records MCP tool definitions, so the demo shows MCP cost correctly.
+
 ## 2026-11-01: v0.6
 
 - **Budget alerts**: daily, weekly (last 7 days) and per-session budgets in dollars (estimated API cost) or tokens. Budget line and red bars in the Trends chart, progress bars with status, warning banner on Home and Dashboard, *Over budget* marker in the sessions list, a session recommendation, and optional desktop notifications at 80% and 100%.

@@ -13,6 +13,7 @@ A small, friendly dashboard that shows **how much context your Claude Code sessi
 - **Live updates**: the dashboard refreshes the moment a session changes (green *Live* dot).
 - **Estimated cost & Trends**: cost per session at official API prices, how much prompt caching saved, and daily charts for requests, cost and cache hit rate.
 - **Budget alerts**: daily, weekly and per-session budgets in dollars or tokens, with a budget line in the charts, warnings at 80% and 100%, and optional desktop notifications.
+- **Compare sessions**: two sessions side by side (setup cost, conversation, key numbers, tools) with plain-language takeaways, for example before and after removing MCP servers.
 - **Privacy mode** (eye icon): hides titles, project names, branches, file paths and prompt text so screenshots are safe to share.
 - **Charts**: context growth per request with compaction markers, biggest items, tools used, subagents, token totals.
 - **Learn hub**: step-by-step tutorials (*Start a new project*, *Optimize an existing project*) with tickable checklists, plus guides on context, compaction, CLAUDE.md, MCP/skills/subagents, workflows and *Change mid-session or start fresh?*. Tracks what you've read.

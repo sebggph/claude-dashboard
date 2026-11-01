@@ -27,6 +27,7 @@
 <a href="/sessions" class="small"><Icon name="back" /> {t('back')}</a>
 <div class="page-head" style="margin-top:10px">
   <div><h1>{sessionTitle(s)}</h1><div class="chips">{#each chips as c (c)}<span class="chip">{c}</span>{/each}</div></div>
+  <a class="btn" href="/compare?b={s.id}"><Icon name="layers" /> {t('cmp_with')}</a>
 </div>
 
 <div class="stack">
