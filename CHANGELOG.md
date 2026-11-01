@@ -2,6 +2,11 @@
 
 Content and feature updates to the dashboard. Newest first. The `/update-dashboard` skill adds an entry each time it runs.
 
+## 2026-11-01: v0.12
+
+- **Cheatsheet quiz** (Quiz tab, `?mode=quiz`): 10-question rounds generated from the cheatsheet (EN + ES), choices from the same topic, keys 1–4 and Enter, explanation and doc link after each answer, score, best score per topic, and a review of missed items.
+- Roadmap tidied.
+
 ## 2026-11-01: v0.11
 
 - **Export** on each session: Markdown report, CSV (breakdown, timeline, tools), JSON, and a print / PDF layout. Privacy mode applies; CSV cells are protected against spreadsheet formulas.
