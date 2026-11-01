@@ -9,18 +9,17 @@
 // Checks:
 //   1. Every UI string exists in English and Spanish.
 //   2. Guides: same files in docs/en and docs/es, index.json entries exist,
-//      and in-app links (#/guides/<file>) point to real guides.
+//      and in-app links (/learn/<slug>) point to real guides.
 //   3. Data files (cheatsheet, context guide) have both languages.
 //   4. Every external link in docs, data and READMEs still works.
 //   5. Pages added to / removed from the official docs since the last review
 //      (compares https://code.claude.com/docs/llms.txt with a saved baseline).
 
-'use strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const fs = require('fs');
-const path = require('path');
-
-const ROOT = path.join(__dirname, '..');
+const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const args = new Set(process.argv.slice(2));
 const OFFLINE = args.has('--offline');
 const WRITE = args.has('--write');
@@ -46,8 +45,8 @@ function walk(dir, ext) {
 }
 
 async function checkStrings() {
-  console.log('\n1. UI strings (public/js/i18n.js)');
-  const { STRINGS } = await import(path.join(ROOT, 'public/js/i18n.js'));
+  console.log('\n1. UI strings (src/lib/i18n.js)');
+  const { STRINGS } = await import(path.join(ROOT, 'src/lib/i18n.js'));
   const en = Object.keys(STRINGS.en), es = Object.keys(STRINGS.es);
   const missing = en.filter((k) => !es.includes(k)), extra = es.filter((k) => !en.includes(k));
   if (missing.length) fail(`missing in es: ${missing.join(', ')}`);
@@ -56,36 +55,36 @@ async function checkStrings() {
 }
 
 function checkGuides() {
-  console.log('\n2. Guides (docs/en, docs/es)');
-  const files = { en: walk('docs/en', ['.md']).map((f) => path.basename(f)), es: walk('docs/es', ['.md']).map((f) => path.basename(f)) };
+  console.log('\n2. Guides (static/docs/en, static/docs/es)');
+  const files = { en: walk('static/docs/en', ['.md']).map((f) => path.basename(f)), es: walk('static/docs/es', ['.md']).map((f) => path.basename(f)) };
   const onlyEn = files.en.filter((f) => !files.es.includes(f)), onlyEs = files.es.filter((f) => !files.en.includes(f));
   if (onlyEn.length) fail(`only in English: ${onlyEn.join(', ')}`);
   if (onlyEs.length) fail(`only in Spanish: ${onlyEs.join(', ')}`);
   for (const lang of ['en', 'es']) {
-    const idx = json(`docs/${lang}/index.json`);
+    const idx = json(`static/docs/${lang}/index.json`);
     for (const g of idx) {
       if (!files[lang].includes(g.file)) fail(`${lang}/index.json lists missing file ${g.file}`);
       for (const k of ['title', 'summary', 'section', 'type', 'minutes', 'level']) if (g[k] == null) fail(`${lang}/index.json ${g.file}: missing "${k}"`);
     }
     for (const f of files[lang]) if (!idx.some((g) => g.file === f)) fail(`${lang}/${f} is not in index.json (hidden from the app)`);
     for (const f of files[lang]) {
-      const md = read(`docs/${lang}/${f}`);
-      for (const m of md.matchAll(/\(#\/guides\/([^)]+)\)/g)) if (!files[lang].includes(m[1])) fail(`${lang}/${f} links to missing guide ${m[1]}`);
+      const md = read(`static/docs/${lang}/${f}`);
+      for (const m of md.matchAll(/\]\(\/learn\/([\w-]+)\)/g)) if (!files[lang].includes(m[1] + '.md')) fail(`${lang}/${f} links to missing guide /learn/${m[1]}`);
     }
   }
   if (!problems.some((p) => /guide|index|only in/.test(p))) ok(`${files.en.length} guides, both languages, all in-app links resolve`);
 }
 
 function checkData() {
-  console.log('\n3. Data files (public/data)');
+  console.log('\n3. Data files (static/data)');
   const before = problems.length;
   const both = (obj, where) => { if (!obj || !obj.en || !obj.es) fail(`${where}: needs both "en" and "es"`); };
-  const cs = json('public/data/cheatsheet.json');
+  const cs = json('static/data/cheatsheet.json');
   for (const sec of cs.sections) {
     both(sec.title, `cheatsheet section ${sec.id}`);
     for (const it of sec.items) { both(it.desc, `cheatsheet ${it.cmd} desc`); both(it.why, `cheatsheet ${it.cmd} why`); }
   }
-  const cg = json('public/data/context-guide.json');
+  const cg = json('static/data/context-guide.json');
   for (const [id, c] of Object.entries(cg.categories)) { both(c.label, `context-guide ${id} label`); both(c.what, `context-guide ${id} what`); (c.tips || []).forEach((t, i) => both(t, `context-guide ${id} tip ${i}`)); }
   for (const r of cg.recommendations) { both(r.title, `recommendation ${r.id} title`); both(r.text, `recommendation ${r.id} text`); }
   if (problems.length === before) ok(`cheatsheet (${cs.sections.reduce((a, s) => a + s.items.length, 0)} items) and context guide are bilingual`);
@@ -105,7 +104,7 @@ async function fetchStatus(url) {
 
 async function checkLinks() {
   console.log('\n4. External links');
-  const files = [...walk('docs', ['.md']), 'public/data/cheatsheet.json', 'public/data/context-guide.json', 'README.md', 'README.es.md', 'CLAUDE.md', 'server/news.js'];
+  const files = [...walk('static/docs', ['.md']), 'static/data/cheatsheet.json', 'static/data/context-guide.json', 'README.md', 'README.es.md', 'CLAUDE.md', 'src/lib/server/news.js', 'src/lib/server/live.js'];
   const urls = new Map();
   for (const f of files) {
     for (const m of read(f).matchAll(/https?:\/\/[^\s)"'`<>\]]+/g)) {
@@ -113,7 +112,7 @@ async function checkLinks() {
       if (/localhost|127\.0\.0\.1|example\.com|\$\{/.test(u)) continue;
       // Not web pages: git clone URLs (private repos answer 404) and install
       // scripts (downloads some networks block). Check these by hand.
-      if (/\.git$|\/install\.(sh|ps1|cmd)$/.test(u)) continue;
+      if (/\.git$|\/install\.(sh|ps1|cmd)$|\/api\/v2\//.test(u)) continue;
       if (!urls.has(u)) urls.set(u, new Set());
       urls.get(u).add(f);
     }

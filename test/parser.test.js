@@ -1,11 +1,10 @@
 // Run: npm test  (uses Node's built-in test runner)
-'use strict';
-const test = require('node:test');
-const assert = require('node:assert');
-const fs = require('fs');
-const os = require('os');
-const path = require('path');
-const { parseSession } = require('../server/parser');
+import test from 'node:test';
+import assert from 'node:assert';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { parseSession } from '../src/lib/server/parser.js';
 
 function write(rows) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ccd-'));

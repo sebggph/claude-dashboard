@@ -2,6 +2,12 @@
 
 Content and feature updates to the dashboard. Newest first. The `/update-dashboard` skill adds an entry each time it runs.
 
+## 2026-11-01: v0.3
+
+- Rebuilt on **SvelteKit 3 + Svelte 5 + Vite** (adapter-node), plain CSS, no CSS framework. Real page URLs (`/sessions/<id>`, `/learn/<guide>`), `npm run dev` with hot reload, two-stage Docker build.
+- New **Security & guardrails** section in Learn: secure setup (tutorial), prompt injection, code quality & security reviews, guardrails and monitoring agents.
+- Cheatsheet: new "Security & code quality" section.
+
 ## 2026-10-31: v0.2
 
 Covers Claude Code up to **v2.1.316** and Platform notes up to 2026-10-30.

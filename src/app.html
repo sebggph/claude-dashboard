@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="description" content="See how much context your Claude Code sessions use, what fills it, and how to keep it lean." />
+		<link rel="icon" href="/favicon.svg" />
+		<title>Claude Context Dashboard</title>
+		<script>
+			// Apply the saved theme before first paint to avoid a flash.
+			try { var t = localStorage.getItem('ccd.theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch (e) {}
+		</script>
+		%sveltekit.head%
+	</head>
+	<body data-sveltekit-preload-data="hover">
+		<div style="display: contents">%sveltekit.body%</div>
+	</body>
+</html>

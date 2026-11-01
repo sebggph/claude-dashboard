@@ -31,14 +31,24 @@ It reads `~/.claude` on Mac/Linux and `%USERPROFILE%\.claude` on Windows automat
 
 Stop it with `docker compose down`.
 
-### Without Docker
+### Without Docker (Mac or PC)
 
-Needs Node.js 18 or newer. No `npm install` needed: there are no dependencies.
+Needs [Node.js](https://nodejs.org/) 22 or newer. Built with [SvelteKit](https://svelte.dev/docs/kit) and Vite; no CSS framework.
 
 ```bash
-npm start          # reads ~/.claude
+npm install
+npm run dev        # development with hot reload → http://localhost:5173
+```
+
+To run it like in production:
+
+```bash
+npm run build
+npm start          # reads ~/.claude → http://localhost:3000
 npm run demo       # sample data only
 ```
+
+Other settings (`CLAUDE_DIR`, `PORT`, `NEWS=off`) are environment variables, e.g. `CLAUDE_DIR=/path/to/.claude npm start`.
 
 ## Where the data comes from
 
@@ -67,7 +77,7 @@ The **News** page shows the official Claude Code changelog and Claude Platform r
 | npm registry | "Update available" when a session ran on an older Claude Code | 6 h |
 | Status page | Service status on the News page (hidden if unreachable) | 5 min |
 
-These are the only requests to the internet, and they send nothing about you. Set `NEWS=off` in `.env` to turn them all off; the app then uses the copy bundled in `public/data/`.
+These are the only requests to the internet, and they send nothing about you. Set `NEWS=off` in `.env` to turn them all off; the app then uses the copy bundled in `static/data/`.
 
 ## Keeping it up to date
 
@@ -83,20 +93,25 @@ This repo includes a Claude Code skill, **`/update-dashboard`** (`.claude/skills
 ## Project layout
 
 ```
-server/        Node server (no dependencies) and the transcript parser
-public/        Dashboard UI: HTML, CSS, vanilla JS modules
-public/data/   Cheatsheet and context explanations (EN + ES, with doc links)
-docs/en|es/    Markdown guides & tutorials shown in the app (+ index.json)
-samples/       Demo sessions (regenerate: npm run make-demo)
-test/          Parser tests (npm test)
+src/routes/            Pages (/, /dashboard, /sessions, /learn, /cheatsheet, /news) and API (/api/*)
+src/lib/components/    Svelte components (context card, growth chart, drawer, …)
+src/lib/server/        Transcript parser, session discovery, news and live facts (server only)
+src/lib/               Shared logic: rules.js (context rules), i18n.js, state.svelte.js, markdown.js
+src/app.css            All styles (plain CSS, light + dark themes)
+static/docs/en|es/     Markdown guides & tutorials (+ index.json)
+static/data/           Cheatsheet, context explanations, news/models snapshots
+samples/               Demo sessions (regenerate: npm run make-demo)
+test/                  Parser tests (npm test)
+.claude/skills/        The /update-dashboard skill and its facts list
 ```
 
 ## Adding a guide or tutorial
 
-1. Write `docs/en/<name>.md` and `docs/es/<name>.md` (same structure in both).
-2. Add an entry to both `docs/en/index.json` and `docs/es/index.json`:
-   `{"file": "<name>.md", "title": "…", "summary": "…", "icon": "book", "section": "start|concepts|habits|dashboard", "type": "tutorial|guide", "minutes": 6, "level": "beginner|intermediate"}`
-3. Supported markdown: headings, lists, tables, code, quotes, links. `- [ ] step` becomes a checkbox the app remembers. Link other guides with `[title](#/guides/<name>.md)`.
+1. Write `static/docs/en/<name>.md` and `static/docs/es/<name>.md` (same structure in both).
+2. Add an entry to both `static/docs/en/index.json` and `static/docs/es/index.json`:
+   `{"file": "<name>.md", "title": "…", "summary": "…", "icon": "book", "section": "start|concepts|habits|security", "type": "tutorial|guide", "minutes": 6, "level": "beginner|intermediate"}`
+3. Supported markdown: headings, lists, tables, code, quotes, links. `- [ ] step` becomes a checkbox the app remembers. Link other guides with `[title](/learn/<name>)`.
+4. Run `npm run check`.
 
 ## Contributing
 

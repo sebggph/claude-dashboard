@@ -1,9 +1,8 @@
 // Parsers for the official news and models pages. Run: npm test
-'use strict';
-const test = require('node:test');
-const assert = require('node:assert');
-const { parseClaudeCode, parsePlatform } = require('../server/news');
-const { parseModels } = require('../server/live');
+import test from 'node:test';
+import assert from 'node:assert';
+import { parseClaudeCode, parsePlatform } from '../src/lib/server/news.js';
+import { parseModels } from '../src/lib/server/live.js';
 
 test('parses the Claude Code changelog page', () => {
   const md = `# Claude Code changelog\n\n**2.1.316**\n\nOctober 31, 2026\n\n**Added**\n\n* Added \`/foo\` to compact faster\n* \\[VSCode] Added a thing\n\n**3 bug fixes**\n\n* Fixed the context window size\n\n**2.1.315**\n\nOctober 30, 2026\n\n* Fixed something`;

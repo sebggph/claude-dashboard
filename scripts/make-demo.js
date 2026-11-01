@@ -1,10 +1,11 @@
 // Generates sample sessions in ./samples so the dashboard has something to
 // show when no real sessions are mounted. Run: node scripts/make-demo.js
 
-'use strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const fs = require('fs');
-const path = require('path');
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const OUT = path.join(__dirname, '..', 'samples');
 let seed = 42;

@@ -31,14 +31,24 @@ Lee `~/.claude` en Mac/Linux y `%USERPROFILE%\.claude` en Windows automáticamen
 
 Para detenerlo: `docker compose down`.
 
-### Sin Docker
+### Sin Docker (Mac o PC)
 
-Necesita Node.js 18 o superior. No hace falta `npm install`: no tiene dependencias.
+Necesita [Node.js](https://nodejs.org/) 22 o superior. Hecho con [SvelteKit](https://svelte.dev/docs/kit) y Vite; sin framework de CSS.
 
 ```bash
-npm start          # lee ~/.claude
+npm install
+npm run dev        # desarrollo con recarga en vivo → http://localhost:5173
+```
+
+Para ejecutarlo como en producción:
+
+```bash
+npm run build
+npm start          # lee ~/.claude → http://localhost:3000
 npm run demo       # solo datos de ejemplo
 ```
+
+Otros ajustes (`CLAUDE_DIR`, `PORT`, `NEWS=off`) son variables de entorno, por ejemplo `CLAUDE_DIR=/ruta/a/.claude npm start`.
 
 ## De dónde salen los datos
 
@@ -67,7 +77,7 @@ La página **Novedades** muestra el changelog oficial de Claude Code y las notas
 | Registro de npm | "Hay una actualización" si una sesión usó una versión antigua | 6 h |
 | Página de estado | Estado del servicio en Novedades (se oculta si no responde) | 5 min |
 
-Son las únicas peticiones a internet y no envían nada sobre ti. Pon `NEWS=off` en `.env` para desactivarlas; el panel usará la copia incluida en `public/data/`.
+Son las únicas peticiones a internet y no envían nada sobre ti. Pon `NEWS=off` en `.env` para desactivarlas; el panel usará la copia incluida en `static/data/`.
 
 ## Mantenerlo al día
 
@@ -82,10 +92,11 @@ Este repositorio incluye una skill de Claude Code, **`/update-dashboard`** (`.cl
 
 ## Añadir una guía o tutorial
 
-1. Escribe `docs/en/<nombre>.md` y `docs/es/<nombre>.md` (misma estructura en ambos).
-2. Añade una entrada en `docs/en/index.json` y `docs/es/index.json`:
-   `{"file": "<nombre>.md", "title": "…", "summary": "…", "icon": "book", "section": "start|concepts|habits|dashboard", "type": "tutorial|guide", "minutes": 6, "level": "beginner|intermediate"}`
-3. Markdown soportado: títulos, listas, tablas, código, citas y enlaces. `- [ ] paso` se convierte en una casilla que la app recuerda. Enlaza otras guías con `[título](#/guides/<nombre>.md)`.
+1. Escribe `static/docs/en/<nombre>.md` y `static/docs/es/<nombre>.md` (misma estructura en ambos).
+2. Añade una entrada en `static/docs/en/index.json` y `static/docs/es/index.json`:
+   `{"file": "<nombre>.md", "title": "…", "summary": "…", "icon": "book", "section": "start|concepts|habits|security", "type": "tutorial|guide", "minutes": 6, "level": "beginner|intermediate"}`
+3. Markdown soportado: títulos, listas, tablas, código, citas y enlaces. `- [ ] paso` se convierte en una casilla que la app recuerda. Enlaza otras guías con `[título](/learn/<nombre>)`.
+4. Ejecuta `npm run check`.
 
 ## Contribuir
 

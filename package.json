@@ -1,15 +1,31 @@
 {
   "name": "claude-context-dashboard",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "description": "See how much context your Claude Code sessions use, what fills it, and how to keep it lean.",
   "private": true,
-  "engines": { "node": ">=18" },
+  "type": "module",
+  "engines": { "node": ">=22" },
   "scripts": {
-    "start": "node server/index.js",
-    "demo": "node server/index.js --demo",
-    "make-demo": "node scripts/make-demo.js",
-    "news-snapshot": "node scripts/news-snapshot.js",
+    "dev": "vite dev",
+    "build": "vite build",
+    "start": "node build",
+    "demo": "node build --demo",
+    "preview": "vite preview",
+    "prepare": "svelte-kit sync || echo ''",
+    "test": "node --test",
     "check": "node scripts/check-content.js",
-    "test": "node --test"
+    "news-snapshot": "node scripts/news-snapshot.js",
+    "make-demo": "node scripts/make-demo.js"
+  },
+  "imports": {
+    "#lib": "./src/lib/index.js",
+    "#lib/*": "./src/lib/*"
+  },
+  "devDependencies": {
+    "@sveltejs/adapter-node": "^6.0.1",
+    "@sveltejs/kit": "^3.1.1",
+    "@sveltejs/vite-plugin-svelte": "^7.3.1",
+    "svelte": "^5.57.3",
+    "vite": "^8.3.5"
   }
 }
