@@ -1,5 +1,7 @@
 # Claude Context Dashboard
 
+See `HANDOVER.md` for the current state and open items.
+
 Local dashboard that reads Claude Code transcripts (`~/.claude/projects/**/*.jsonl`) read-only and explains context usage. Audience: people learning Claude Code.
 
 ## Commands
