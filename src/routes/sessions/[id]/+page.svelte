@@ -11,6 +11,7 @@
   import ReportCard from '#lib/components/ReportCard.svelte';
   import CostCard from '#lib/components/CostCard.svelte';
   import TimelineView from '#lib/components/TimelineView.svelte';
+  import ExportMenu from '#lib/components/ExportMenu.svelte';
   import { page } from '$app/state';
   import { goto } from '$app/navigation';
   import { data as app, t } from '#lib/state.svelte.js';
@@ -30,10 +31,13 @@
 <svelte:head><title>{sessionTitle(s)} · Context Dashboard</title></svelte:head>
 
 <DemoBanner />
-<a href={link('/sessions')} class="small"><Icon name="back" /> {t('back')}</a>
+<a href={link('/sessions')} class="small no-print"><Icon name="back" /> {t('back')}</a>
 <div class="page-head" style="margin-top:10px">
   <div><h1>{sessionTitle(s)}</h1><div class="chips">{#each chips as c (c)}<span class="chip">{c}</span>{/each}</div></div>
-  <a class="btn" href={link(`/compare?b=${s.id}`)}><Icon name="layers" /> {t('cmp_with')}</a>
+  <div class="toolbar no-print">
+    <a class="btn" href={link(`/compare?b=${s.id}`)}><Icon name="layers" /> {t('cmp_with')}</a>
+    <ExportMenu session={s} />
+  </div>
 </div>
 
 <div class="seg view-tabs" data-tour="views" role="tablist" aria-label={t('tl_views')}>
