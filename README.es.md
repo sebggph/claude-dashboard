@@ -10,6 +10,8 @@ Un panel pequeño y sencillo que muestra **cuánto contexto usan tus sesiones de
 - **Recomendaciones**: reglas sencillas que detectan salidas grandes, compactaciones frecuentes, poca caché y más.
 - **Informe de sesión**: cada sesión recibe un estado (Ligera, Aceptable, Pesada) con sus 3 mejoras principales y un resumen para *copiar al chat*.
 - **Memoria y MCP**: qué CLAUDE.md, reglas e imports se cargan, y cuánto cuestan las herramientas de cada servidor MCP.
+- **Actualización en vivo**: el panel se actualiza en cuanto cambia una sesión (punto verde *En vivo*).
+- **Coste estimado y Tendencias**: coste por sesión con los precios oficiales de la API, cuánto ahorró la caché y gráficos diarios de peticiones, coste y aciertos de caché.
 - **Modo privado** (icono del ojo): oculta títulos, proyectos, ramas, rutas y el texto de los mensajes para compartir capturas sin riesgo.
 - **Gráficos**: crecimiento del contexto por petición, elementos más grandes, herramientas, subagentes y totales de tokens.
 - **Sección Aprender**: tutoriales paso a paso (*Empezar un proyecto nuevo*, *Optimizar un proyecto existente*) con listas de pasos marcables, y guías sobre contexto, compactación, CLAUDE.md, MCP/skills/subagentes, flujos de trabajo y *¿Cambiar a mitad de sesión o empezar de cero?*. Recuerda lo que ya leíste.
@@ -99,6 +101,7 @@ La página **Novedades** muestra el changelog oficial de Claude Code y las notas
 |---|---|---|
 | Changelog de Claude Code y notas de Claude Platform | Página Novedades y "Novedades" en Inicio | 6 h |
 | Página de modelos (docs) | Ventana de contexto correcta por modelo, tarjeta "Modelos actuales" | diaria |
+| Página de precios (docs) | Coste estimado por sesión y por día | diaria |
 | Registro de npm | "Hay una actualización" si una sesión usó una versión antigua | 6 h |
 | Página de estado | Estado del servicio en Novedades (se oculta si no responde) | 5 min |
 

@@ -46,12 +46,228 @@
     "page": "https://platform.claude.com/docs/en/models/haiku-5-5/overview"
    }
   ],
-  "updated": "2026-10-31T23:54:42.575Z",
+  "updated": "2026-11-01T01:14:55.723Z",
   "page": "https://platform.claude.com/docs/en/about-claude/models/overview"
  },
  "version": {
   "latest": "2.1.316",
-  "updated": "2026-10-31T23:54:42.071Z",
+  "updated": "2026-11-01T01:14:55.321Z",
   "page": "https://code.claude.com/docs/en/changelog"
+ },
+ "pricing": {
+  "list": [
+   {
+    "id": "claude-fable-5-1",
+    "name": "Claude Fable 5.1",
+    "tier": "std",
+    "input": 10,
+    "cw5m": 12.5,
+    "cw1h": 20,
+    "read": 0.25,
+    "output": 50
+   },
+   {
+    "id": "claude-mythos-5-1",
+    "name": "Claude Mythos 5.1",
+    "tier": "std",
+    "input": 10,
+    "cw5m": 12.5,
+    "cw1h": 20,
+    "read": 0.25,
+    "output": 50
+   },
+   {
+    "id": "claude-fable-5",
+    "name": "Claude Fable 5",
+    "tier": "std",
+    "input": 10,
+    "cw5m": 12.5,
+    "cw1h": 20,
+    "read": 1,
+    "output": 50
+   },
+   {
+    "id": "claude-mythos-5",
+    "name": "Claude Mythos 5",
+    "tier": "std",
+    "input": 10,
+    "cw5m": 12.5,
+    "cw1h": 20,
+    "read": 1,
+    "output": 50
+   },
+   {
+    "id": "claude-opus-5-5",
+    "name": "Claude Opus 5.5",
+    "tier": "std",
+    "input": 4,
+    "cw5m": 5,
+    "cw1h": 8,
+    "read": 0.2,
+    "output": 20
+   },
+   {
+    "id": "claude-opus-5",
+    "name": "Claude Opus 5",
+    "tier": "std",
+    "input": 5,
+    "cw5m": 6.25,
+    "cw1h": 10,
+    "read": 0.5,
+    "output": 25
+   },
+   {
+    "id": "claude-opus-4-8",
+    "name": "Claude Opus 4.8",
+    "tier": "std",
+    "input": 5,
+    "cw5m": 6.25,
+    "cw1h": 10,
+    "read": 0.5,
+    "output": 25
+   },
+   {
+    "id": "claude-opus-4-7",
+    "name": "Claude Opus 4.7",
+    "tier": "std",
+    "input": 5,
+    "cw5m": 6.25,
+    "cw1h": 10,
+    "read": 0.5,
+    "output": 25
+   },
+   {
+    "id": "claude-opus-4-6",
+    "name": "Claude Opus 4.6",
+    "tier": "std",
+    "input": 5,
+    "cw5m": 6.25,
+    "cw1h": 10,
+    "read": 0.5,
+    "output": 25
+   },
+   {
+    "id": "claude-opus-4-5",
+    "name": "Claude Opus 4.5",
+    "tier": "std",
+    "input": 5,
+    "cw5m": 6.25,
+    "cw1h": 10,
+    "read": 0.5,
+    "output": 25
+   },
+   {
+    "id": "claude-opus-4-1",
+    "name": "Claude Opus 4.1",
+    "tier": "std",
+    "input": 15,
+    "cw5m": 18.75,
+    "cw1h": 30,
+    "read": 1.5,
+    "output": 75
+   },
+   {
+    "id": "claude-opus-4",
+    "name": "Claude Opus 4",
+    "tier": "std",
+    "input": 15,
+    "cw5m": 18.75,
+    "cw1h": 30,
+    "read": 1.5,
+    "output": 75
+   },
+   {
+    "id": "claude-sonnet-5-5",
+    "name": "Claude Sonnet 5.5",
+    "tier": "std",
+    "input": 2,
+    "cw5m": 2.5,
+    "cw1h": 4,
+    "read": 0.1,
+    "output": 10
+   },
+   {
+    "id": "claude-sonnet-5",
+    "name": "Claude Sonnet 5",
+    "tier": "std",
+    "input": 2,
+    "cw5m": 2.5,
+    "cw1h": 4,
+    "read": 0.2,
+    "output": 10
+   },
+   {
+    "id": "claude-sonnet-4-6",
+    "name": "Claude Sonnet 4.6",
+    "tier": "std",
+    "input": 3,
+    "cw5m": 3.75,
+    "cw1h": 6,
+    "read": 0.3,
+    "output": 15
+   },
+   {
+    "id": "claude-sonnet-4-5",
+    "name": "Claude Sonnet 4.5",
+    "tier": "std",
+    "input": 3,
+    "cw5m": 3.75,
+    "cw1h": 6,
+    "read": 0.3,
+    "output": 15
+   },
+   {
+    "id": "claude-sonnet-4",
+    "name": "Claude Sonnet 4",
+    "tier": "std",
+    "input": 3,
+    "cw5m": 3.75,
+    "cw1h": 6,
+    "read": 0.3,
+    "output": 15
+   },
+   {
+    "id": "claude-haiku-5-5",
+    "name": "Claude Haiku 5.5",
+    "tier": "std",
+    "input": 0.1,
+    "cw5m": 0.125,
+    "cw1h": 0.2,
+    "read": 0.01,
+    "output": 0.5
+   },
+   {
+    "id": "claude-haiku-5-5",
+    "name": "Claude Haiku 5.5",
+    "tier": "large",
+    "input": 0.5,
+    "cw5m": 0.625,
+    "cw1h": 1,
+    "read": 0.05,
+    "output": 2.5
+   },
+   {
+    "id": "claude-haiku-4-5",
+    "name": "Claude Haiku 4.5",
+    "tier": "std",
+    "input": 1,
+    "cw5m": 1.25,
+    "cw1h": 2,
+    "read": 0.1,
+    "output": 5
+   },
+   {
+    "id": "claude-haiku-3-5",
+    "name": "Claude Haiku 3.5",
+    "tier": "std",
+    "input": 0.8,
+    "cw5m": 1,
+    "cw1h": 1.6,
+    "read": 0.08,
+    "output": 4
+   }
+  ],
+  "updated": "2026-11-01T01:14:55.675Z",
+  "page": "https://platform.claude.com/docs/en/about-claude/pricing"
  }
 }

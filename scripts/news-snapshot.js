@@ -17,10 +17,10 @@ refresh().then((n) => {
   fs.writeFileSync(out, JSON.stringify({ ...n, offline: false }, null, 0) + '\n');
   console.log(`Saved ${n.releases.length} releases to ${out}`);
   // Also save models + latest version (status is live-only, never snapshotted).
-  return Promise.all([live.refresh('models'), live.refresh('version')]).then(() => {
-    const { models, version } = live.getLive();
+  return Promise.all([live.refresh('models'), live.refresh('version'), live.refresh('pricing')]).then(() => {
+    const { models, version, pricing } = live.getLive();
     const liveOut = path.join(APP_ROOT, 'static', 'data', 'live-snapshot.json');
-    fs.writeFileSync(liveOut, JSON.stringify({ models, version }, null, 1) + '\n');
-    console.log(`Saved ${models && models.list ? models.list.length : 0} models and version ${version && version.latest} to ${liveOut}`);
+    fs.writeFileSync(liveOut, JSON.stringify({ models, version, pricing }, null, 1) + '\n');
+    console.log(`Saved ${models && models.list ? models.list.length : 0} models, ${pricing && pricing.list ? pricing.list.length : 0} prices and version ${version && version.latest} to ${liveOut}`);
   });
 });

@@ -10,6 +10,8 @@ A small, friendly dashboard that shows **how much context your Claude Code sessi
 - **Recommendations**: simple rules spot big tool outputs, frequent compaction, low cache hits and more.
 - **Session report card**: each session gets a health grade (Lean, Okay, Heavy) with its top 3 fixes and a *Copy for chat* summary.
 - **Memory & MCP**: which CLAUDE.md, rules and imports load, and what each MCP server's tools cost.
+- **Live updates**: the dashboard refreshes the moment a session changes (green *Live* dot).
+- **Estimated cost & Trends**: cost per session at official API prices, how much prompt caching saved, and daily charts for requests, cost and cache hit rate.
 - **Privacy mode** (eye icon): hides titles, project names, branches, file paths and prompt text so screenshots are safe to share.
 - **Charts**: context growth per request with compaction markers, biggest items, tools used, subagents, token totals.
 - **Learn hub**: step-by-step tutorials (*Start a new project*, *Optimize an existing project*) with tickable checklists, plus guides on context, compaction, CLAUDE.md, MCP/skills/subagents, workflows and *Change mid-session or start fresh?*. Tracks what you've read.
@@ -99,6 +101,7 @@ The **News** page shows the official Claude Code changelog and Claude Platform r
 |---|---|---|
 | Claude Code changelog & Platform release notes | News page, "What's new" on Home | 6 h |
 | Models overview (docs) | Correct context window per model, "Current models" card | daily |
+| Pricing page (docs) | Estimated cost per session and per day | daily |
 | npm registry | "Update available" when a session ran on an older Claude Code | 6 h |
 | Status page | Service status on the News page (hidden if unreachable) | 5 min |
 

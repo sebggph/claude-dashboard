@@ -4,14 +4,10 @@ Ideas to grow the dashboard, roughly in order of value. Each one says where it w
 
 ## Next up
 
-1. **Live updates.** Replace the 15-second polling with Server-Sent Events so an open session view updates as you work.
-   *Where:* a new `src/routes/api/events/+server.js` that watches file `mtime`, and an `EventSource` in `src/routes/+layout.svelte`.
-
-2. **Cost view.** Turn token totals into estimated cost per session and per day, with a model price table you can edit.
-   *Where:* the models page already lists prices (parse them in `src/lib/server/live.js`); add a card to `src/routes/sessions/[id]/+page.svelte`. Subscription users don't pay per token.
-
-3. **Trends over time.** Context-per-day, cache hit rate per day, sessions per project. Good for teams to see habits improve.
-   *Where:* a new `src/routes/trends/` page; aggregate in `src/lib/server/sessions.js`.
+1. **Budget alerts.** Optional daily/weekly cost or token threshold that highlights days and sessions over budget.
+   *Where:* a setting in `src/lib/state.svelte.js`, markers in `src/lib/components/DayChart.svelte`.
+2. **Compare two sessions** side by side (fixed overhead, tools, cost) to show the effect of a setup change.
+   *Where:* a new `src/routes/compare/` page reusing `ContextCard.svelte`.
 
 ## Learning features
 
@@ -27,6 +23,9 @@ Ideas to grow the dashboard, roughly in order of value. Each one says where it w
 10. **More languages.** Add a key to `src/lib/i18n.js`, the `L()` objects in `static/data/*.json`, and a `static/docs/<lang>/` folder.
 
 ## Done
+
+- Live updates via Server-Sent Events (v0.5)
+- Estimated cost at API prices and Trends page (v0.5)
 
 - Project memory files and MCP servers per session (v0.4)
 - Session report card and privacy mode (v0.4)

@@ -6,6 +6,8 @@
 //   for the "Current models" card. Refreshed daily.
 // - npm registry: the latest Claude Code version. Used to flag sessions that
 //   ran on an older version. Refreshed every 6 hours.
+// - Pricing page (docs): API prices per model, for the estimated cost view.
+//   Refreshed daily.
 // - Status page (Statuspage API): is Claude up right now? Refreshed every
 //   5 minutes. Hidden in the UI when it can't be reached.
 //
@@ -24,6 +26,7 @@ const CACHE_FILE = path.join(os.tmpdir(), 'claude-context-dashboard-live.json');
 const SOURCES = {
   models: { url: 'https://platform.claude.com/docs/en/about-claude/models/overview.md', page: 'https://platform.claude.com/docs/en/about-claude/models/overview', every: 24 * 3600e3 },
   version: { url: 'https://registry.npmjs.org/@anthropic-ai/claude-code/latest', page: 'https://code.claude.com/docs/en/changelog', every: 6 * 3600e3 },
+  pricing: { url: 'https://platform.claude.com/docs/en/about-claude/pricing.md', page: 'https://platform.claude.com/docs/en/about-claude/pricing', every: 24 * 3600e3 },
   status: { urls: ['https://status.claude.com/api/v2/summary.json', 'https://status.anthropic.com/api/v2/summary.json'], page: 'https://status.claude.com', every: 5 * 60e3 },
 };
 
@@ -81,12 +84,36 @@ function parseModels(md) {
   return models;
 }
 
+// "Model pricing" table: Model | Base input | 5m cache writes | 1h cache writes | Cache hits | Output (USD per million tokens).
+function parsePricing(md) {
+  const lines = md.split('\n');
+  const start = lines.findIndex((l) => /^\|\s*Model\s*\|\s*Base input tokens/i.test(l));
+  if (start < 0) throw new Error('pricing table not found (format changed?)');
+  const usd = (c) => { const m = String(c).replace(/<[^>]+>/g, '').match(/\$([\d.]+)/); return m ? Number(m[1]) : null; };
+  const out = [];
+  for (let i = start + 1; i < lines.length && lines[i].startsWith('|'); i++) {
+    if (/^\|\s*:?-{3,}/.test(lines[i])) continue;
+    const c = lines[i].replace(/^\||\|\s*$/g, '').split('|').map((x) => x.trim());
+    const rawName = cellText(c[0]).replace(/<[^>]+>/g, '');
+    const large = /over [\d,]+ tokens/i.test(rawName);
+    const name = rawName.replace(/\s*\(.*\)\s*$/, '').trim();
+    const v = name.match(/^Claude\s+([A-Za-z]+)\s+(\d+)(?:\.(\d+))?$/);
+    if (!v) continue;
+    const id = `claude-${v[1].toLowerCase()}-${v[2]}${v[3] ? '-' + v[3] : ''}`;
+    out.push({ id, name, tier: large ? 'large' : 'std', input: usd(c[1]), cw5m: usd(c[2]), cw1h: usd(c[3]), read: usd(c[4]), output: usd(c[5]) });
+  }
+  if (!out.length) throw new Error('no prices parsed');
+  return out;
+}
+
 async function refresh(key) {
   if (!ENABLED) return;
   lastTry[key] = Date.now();
   try {
     if (key === 'models') {
       data.models = { list: parseModels(await get(SOURCES.models.url)), updated: new Date().toISOString(), page: SOURCES.models.page };
+    } else if (key === 'pricing') {
+      data.pricing = { list: parsePricing(await get(SOURCES.pricing.url)), updated: new Date().toISOString(), page: SOURCES.pricing.page };
     } else if (key === 'version') {
       const v = await get(SOURCES.version.url, 'json');
       data.version = { latest: v.version, updated: new Date().toISOString(), page: SOURCES.version.page };
@@ -131,4 +158,4 @@ function start() {
 }
 
 
-export { getLive, start, refresh, parseModels };
+export { getLive, start, refresh, parseModels, parsePricing };

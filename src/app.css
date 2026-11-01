@@ -71,7 +71,7 @@ button { font: inherit; color: inherit; }
   max-width: 1240px; margin: 0 auto; padding: 12px 24px;
   display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px;
 }
-.brand { display: flex; align-items: center; gap: 10px; font-weight: 650; letter-spacing: -.01em; color: var(--text); }
+.brand { white-space: nowrap; display: flex; align-items: center; gap: 10px; font-weight: 650; letter-spacing: -.01em; color: var(--text); }
 .brand:hover { text-decoration: none; }
 .brand-mark { width: 28px; height: 28px; border-radius: 8px; background: var(--accent); display: grid; place-items: center; color: var(--accent-ink); }
 .nav { display: flex; gap: 4px; background: var(--surface-2); padding: 4px; border-radius: 12px; }
@@ -93,6 +93,11 @@ button { font: inherit; color: inherit; }
   background: var(--surface); display: grid; place-items: center; cursor: pointer; color: var(--text-2);
 }
 .icon-btn:hover { color: var(--text); }
+.live-dot { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--text-3); margin-right: 4px; }
+.live-dot i { width: 8px; height: 8px; border-radius: 50%; background: var(--text-3); }
+.live-dot.on { color: var(--text-2); }
+.live-dot.on i { background: var(--good); box-shadow: 0 0 0 3px color-mix(in srgb, var(--good) 25%, transparent); }
+@media (max-width: 560px) { .live-dot { display: none; } }
 .icon-btn.on { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); background: color-mix(in srgb, var(--accent) 10%, var(--surface)); }
 .settings-pop label.check { display: flex; gap: 8px; align-items: center; color: var(--text); font-size: 14px; }
 .health { display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; font-weight: 650; color: var(--text); padding: 2px 9px 2px 7px; border-radius: 999px;
@@ -242,6 +247,11 @@ tbody tr.link:hover td { background: var(--surface-2); }
 .chart .area { fill: var(--s1); opacity: .10; }
 .chart .threshold { stroke: var(--text-3); stroke-dasharray: 4 4; stroke-width: 1; }
 .chart .marker { fill: var(--surface); stroke: var(--s2); stroke-width: 2; }
+.chart .bar { fill: var(--s1); }
+.chart .bar.dim { opacity: .45; }
+.cost-top { margin-bottom: 4px; }
+.kpi-value.saved { color: var(--good); }
+.range { margin-left: auto; }
 .chart .cross { stroke: var(--text-3); stroke-width: 1; }
 .chart .hover-dot { fill: var(--s1); stroke: var(--surface); stroke-width: 2; }
 .tooltip {
@@ -260,6 +270,7 @@ tbody tr.link:hover td { background: var(--surface-2); }
 .hbars { display: grid; gap: 10px; }
 .hbar { display: grid; grid-template-columns: minmax(0, 1fr) 2fr 48px; gap: 12px; align-items: center; font-size: 13.5px; cursor: pointer; border-radius: 8px; padding: 4px 6px; }
 .hbar:hover { background: var(--surface-2); }
+.hbar.static { cursor: default; }
 .hbar .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .hbar .bar { height: 10px; background: var(--track); border-radius: 5px; overflow: hidden; display: flex; gap: 2px; }
 .hbar .bar span { height: 100%; }
@@ -397,7 +408,7 @@ tbody tr.link:hover td { background: var(--surface-2); }
 .rgroup summary { cursor: pointer; color: var(--link); font-size: 13px; font-weight: 600; }
 .btn.spinning .icon { animation: spin 1s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
-@media (max-width: 1180px) and (min-width: 961px) { .nav a span { display: none; } }
+@media (max-width: 1400px) and (min-width: 961px) { .nav a span { display: none; } .nav a { padding: 6px 11px; } }
 
 /* ---------- cheatsheet ---------- */
 .toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }

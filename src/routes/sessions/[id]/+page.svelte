@@ -8,6 +8,7 @@
   import MemoryCard from '#lib/components/MemoryCard.svelte';
   import McpCard from '#lib/components/McpCard.svelte';
   import ReportCard from '#lib/components/ReportCard.svelte';
+  import CostCard from '#lib/components/CostCard.svelte';
   import { data as app, t } from '#lib/state.svelte.js';
   import { breakdownOf, recommendationsFor, CAT_COLOR, fmtK, pct, shortModel, ago, sessionTitle, maskProject, maskBranch, maskText } from '#lib/rules.js';
 
@@ -98,6 +99,8 @@
     </section>
   </div>
 
+  <div class="grid grid-2">
+  <CostCard buckets={s.byModel} />
   <section class="card">
     <div class="card-head"><h2>{t('sub_title')}</h2></div>
     <p class="card-sub sub-lead">{t('sub_sub')}</p>
@@ -113,4 +116,5 @@
       </table></div>
     {:else}<div class="empty small">{t('sub_none')}</div>{/if}
   </section>
+  </div>
 </div>
