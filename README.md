@@ -89,6 +89,15 @@ These are the only requests to the internet, and they send nothing about you. Se
 
 This repo includes a Claude Code skill, **`/update-dashboard`** (`.claude/skills/update-dashboard/`). Run it in Claude Code inside this project after a Claude release. It checks the official sources, updates facts, guides, cheatsheet and code in both languages, runs `npm test` and `npm run check`, and then updates its own facts list (`facts.md`) and sources (`sources.md`).
 
+## Project memory files (optional)
+
+The session view lists the memory files Claude Code loads: your `~/.claude/CLAUDE.md`, auto memory, and the project's `CLAUDE.md`, `CLAUDE.local.md`, `.claude/rules/` and `@imports`, with lines, tokens and whether they load at start.
+
+- **Without Docker** this works automatically.
+- **With Docker**, the container can't see your code folders until you mount them (read-only): set `PROJECTS_HOME=/path/to/your/code` in `.env` and uncomment the `/data/projects` line in `docker-compose.yml`.
+
+MCP servers need no setup: the dashboard reads them from the session itself.
+
 ## Troubleshooting
 
 - **"Demo mode" banner, but I do use Claude Code.** Check that `CLAUDE_HOME` points to the folder that contains `projects/`.

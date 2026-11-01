@@ -131,6 +131,13 @@ function parseSession(file, { full = true } = {}) {
   // Items that sit in the context window, in order. Reset on compaction.
   let items = [];
   const toolNames = new Map(); // tool_use_id -> {name, label}
+  // MCP servers seen in this session (from tool listings in the transcript).
+  const mcp = new Map(); // server -> { name, tools:Set, loaded:Map(tool -> tokens), instructionsTokens }
+  let mcpIssues = []; // servers that are pending, need sign-in, or failed
+  const srv = (name) => {
+    if (!mcp.has(name)) mcp.set(name, { name, tools: new Set(), loaded: new Map(), instructionsTokens: 0 });
+    return mcp.get(name);
+  };
   const reqById = new Map();
   let lastAssistantId = null;
 
@@ -175,6 +182,25 @@ function parseSession(file, { full = true } = {}) {
         if (a.type === 'prompt_snapshot') {
           s.systemPromptChars = blockText(a.systemPrompt).length;
           break;
+        }
+        if (a.type === 'deferred_tools_delta') {
+          for (const n of a.addedNames || []) { const sv = mcpServer(n); if (sv) srv(sv).tools.add(n); }
+          for (const n of a.removedNames || []) { const sv = mcpServer(n); if (sv && mcp.has(sv)) { mcp.get(sv).tools.delete(n); mcp.get(sv).loaded.delete(n); } }
+          for (const def of a.surfacedDefinitions || []) {
+            const sv = mcpServer(def.name);
+            if (sv) srv(sv).loaded.set(def.name, Math.round(est(JSON.stringify(def.definition || def)) * PROSE_FACTOR));
+          }
+          // Each delta carries the full current list of servers that aren't connected.
+          if (a.pendingMcpServers || a.needsAuthMcpServers || a.failedMcpServers) {
+            mcpIssues = [
+              ...(a.pendingMcpServers || []).map((n) => ({ name: String(n), status: 'pending' })),
+              ...(a.needsAuthMcpServers || []).map((n) => ({ name: String(n), status: 'needs_auth' })),
+              ...(a.failedMcpServers || []).map((f) => ({ name: String(f.name || f), status: 'failed', error: f.errorCode || null })),
+            ];
+          }
+        }
+        if (a.type === 'mcp_instructions_delta') {
+          (a.addedNames || []).forEach((n, i) => { srv(n).instructionsTokens = Math.round(est((a.addedBlocks || [])[i] || '') * PROSE_FACTOR); });
         }
         if (SILENT_ATTACHMENTS.has(a.type)) break;
         const text = attachmentText(a);
@@ -371,9 +397,14 @@ function parseSession(file, { full = true } = {}) {
     fixedAtStart = Math.max(0, Math.round(usageTotal(first.usage) - (proseByTurn.get(0) || 0) - (toolByTurn.get(0) || 0)));
   }
   const sysPrompt = Math.min(fixed, est('x'.repeat(s.systemPromptChars)));
-  const fixedParts = sysPrompt
-    ? { system_prompt: sysPrompt, tools_and_memory: fixed - sysPrompt }
-    : { fixed_overhead: fixed };
+  const mcpLoaded = [...mcp.values()].reduce((a, m) => a + [...m.loaded.values()].reduce((b, v) => b + v, 0), 0);
+  const mcpTools = Math.min(mcpLoaded, fixed - sysPrompt);
+  const fixedParts = {};
+  if (sysPrompt) fixedParts.system_prompt = sysPrompt;
+  if (mcpTools) fixedParts.mcp_tools = mcpTools;
+  const rest = fixed - sysPrompt - mcpTools;
+  if (sysPrompt || mcpTools) fixedParts.tools_other = rest;
+  else fixedParts.fixed_overhead = fixed;
 
   const cats = {};
   for (const it of items) cats[it.cat] = (cats[it.cat] || 0) + it.tokens;
@@ -405,6 +436,19 @@ function parseSession(file, { full = true } = {}) {
     const gap = new Date(s.requests[j].time) - new Date(s.requests[j - 1].time);
     if (gap > 5 * 60 * 1000 && (s.requests[j].usage.cache_creation_input_tokens || 0) > 20000) idleRebuilds++;
   }
+  const mcpServers = [...mcp.values()].map((m) => {
+    const t = Object.values(tools).filter((x) => x.server === m.name);
+    return {
+      name: m.name,
+      tools: m.tools.size,
+      loadedTools: m.loaded.size,
+      loadedTokens: [...m.loaded.values()].reduce((a, v) => a + v, 0),
+      instructionsTokens: m.instructionsTokens,
+      calls: t.reduce((a, x) => a + x.calls, 0),
+      contextTokens: t.reduce((a, x) => a + x.callTokens + x.resultTokens, 0),
+    };
+  }).sort((a, b) => (b.loadedTokens + b.instructionsTokens + b.contextTokens) - (a.loadedTokens + a.instructionsTokens + a.contextTokens));
+
   const signals = {
     models,
     fileReads: reads.length,
@@ -431,6 +475,7 @@ function parseSession(file, { full = true } = {}) {
     timeline,
     compactionEvents: s.compactions,
     signals,
+    mcp: { servers: mcpServers, issues: mcpIssues, loadedTokens: mcpLoaded },
     itemCount: items.length,
   };
 }

@@ -16,8 +16,14 @@ services:
     environment:
       # "off" disables News and live facts (no outside requests at all).
       - NEWS=${NEWS:-on}
+      # Optional: let the dashboard read your projects' CLAUDE.md files.
+      # Set PROJECTS_HOME in .env and uncomment the matching volume below.
+      - PROJECTS_DIR=/data/projects
+      - PROJECTS_HOST_DIR=${PROJECTS_HOME:-}
     volumes:
       # Your Claude Code folder, mounted read-only.
       # Mac/Linux: ~/.claude    Windows: C:\Users\<you>\.claude
       # Override with CLAUDE_HOME in a .env file (see .env.example).
       - "${CLAUDE_HOME:-${HOME:-${USERPROFILE}}/.claude}:/data/claude:ro"
+      # Optional, read-only: the folder that holds your code projects.
+      # - "${PROJECTS_HOME}:/data/projects:ro"

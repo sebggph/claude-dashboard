@@ -89,6 +89,15 @@ Son las únicas peticiones a internet y no envían nada sobre ti. Pon `NEWS=off`
 
 Este repositorio incluye una skill de Claude Code, **`/update-dashboard`** (`.claude/skills/update-dashboard/`). Ejecútala en Claude Code dentro de este proyecto después de una versión nueva de Claude. Revisa las fuentes oficiales, actualiza datos, guías, chuleta y código en los dos idiomas, ejecuta `npm test` y `npm run check`, y luego actualiza su propia lista de datos (`facts.md`) y fuentes (`sources.md`).
 
+## Archivos de memoria del proyecto (opcional)
+
+La vista de sesión muestra los archivos de memoria que carga Claude Code: tu `~/.claude/CLAUDE.md`, la memoria automática y el `CLAUDE.md`, `CLAUDE.local.md`, `.claude/rules/` e `@imports` del proyecto, con líneas, tokens y si cargan al inicio.
+
+- **Sin Docker** funciona automáticamente.
+- **Con Docker**, el contenedor no ve tus carpetas de código hasta que las montas (en solo lectura): pon `PROJECTS_HOME=/ruta/a/tu/codigo` en `.env` y descomenta la línea `/data/projects` en `docker-compose.yml`.
+
+Los servidores MCP no necesitan configuración: el panel los lee de la propia sesión.
+
 ## Solución de problemas
 
 - **Veo "Modo demo" pero sí uso Claude Code.** Comprueba que `CLAUDE_HOME` apunta a la carpeta que contiene `projects/`.

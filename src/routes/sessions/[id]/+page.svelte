@@ -5,6 +5,8 @@
   import ContextCard from '#lib/components/ContextCard.svelte';
   import GrowthChart from '#lib/components/GrowthChart.svelte';
   import DemoBanner from '#lib/components/DemoBanner.svelte';
+  import MemoryCard from '#lib/components/MemoryCard.svelte';
+  import McpCard from '#lib/components/McpCard.svelte';
   import { data as app, t } from '#lib/state.svelte.js';
   import { breakdownOf, recommendationsFor, CAT_COLOR, fmtK, pct, shortModel, projectName, ago } from '#lib/rules.js';
 
@@ -57,6 +59,11 @@
       {#each recs as r (r.id)}<RecCard rec={r} />{:else}<div class="empty">{t('recs_none')}</div>{/each}
     </div>
   </section>
+
+  <div class="grid grid-2">
+    <MemoryCard memory={s.memory} />
+    <McpCard mcp={s.mcp} />
+  </div>
 
   <div class="grid grid-2">
     <section class="card">
