@@ -33,7 +33,6 @@ Ideas to grow the dashboard, roughly in order of value. Each one says where it w
 12. **Team mode.** Several people point the dashboard at a shared folder of exported transcripts. Needs auth before it's ever exposed beyond localhost.
 13. **More languages.** Add a key to `src/lib/i18n.js`, the `L()` objects in `static/data/*.json`, and a `static/docs/<lang>/` folder.
 14. **Publish the image** to GitHub Container Registry with a GitHub Action, so people can run it without cloning.
-15. **Pick a license** (e.g. MIT) before others start contributing.
 
 ## Known limits
 

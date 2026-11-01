@@ -3,8 +3,11 @@
   "version": "0.3.0",
   "description": "See how much context your Claude Code sessions use, what fills it, and how to keep it lean.",
   "private": true,
+  "license": "MIT",
   "type": "module",
-  "engines": { "node": ">=22" },
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
