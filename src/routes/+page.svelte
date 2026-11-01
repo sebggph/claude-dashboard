@@ -3,6 +3,7 @@
   import StackBar from '#lib/components/StackBar.svelte';
   import GuideCard from '#lib/components/GuideCard.svelte';
   import DemoBanner from '#lib/components/DemoBanner.svelte';
+  import BudgetBanner from '#lib/components/BudgetBanner.svelte';
   import { ui, data, t, progress } from '#lib/state.svelte.js';
   import { breakdownOf, windowFor, pct, pctSmart, fmtK, winLabel, shortModel, ago, fmtDate, sourceName, slugOf, sessionTitle } from '#lib/rules.js';
   import { inline } from '#lib/markdown.js';
@@ -38,6 +39,7 @@
 </script>
 
 <DemoBanner />
+<BudgetBanner />
 
 <section class="hero card">
   <div class="hero-text">

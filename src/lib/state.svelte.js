@@ -9,12 +9,18 @@ export { store };
 
 const browserLang = typeof navigator !== 'undefined' && (navigator.language || 'en').toLowerCase().startsWith('es') ? 'es' : 'en';
 
+const BUDGET_DEFAULT = { unit: 'cost', daily: null, weekly: null, session: null, notify: false };
+function loadBudget() {
+  try { return { ...BUDGET_DEFAULT, ...JSON.parse(store.get('budget', '{}')) }; } catch { return { ...BUDGET_DEFAULT }; }
+}
+
 /** Preferences, saved per browser. */
 export const ui = $state({
   lang: store.get('lang', browserLang),
   theme: store.get('theme', 'auto'), // auto | light | dark
   window: store.get('window', 'auto'), // auto | 200000 | 1000000
   privacy: store.get('privacy', 'off') === 'on', // hide titles, paths and prompt text
+  budget: loadBudget(), // { unit: 'cost' | 'tokens', daily, weekly, session, notify }
   drawer: null, // { key, label } of the open explanation
   readVersion: 0, // bumps when learning progress changes
 });
@@ -22,6 +28,7 @@ export const ui = $state({
 export function setLang(l) { ui.lang = l; store.set('lang', l); }
 export function cycleTheme() { ui.theme = { auto: 'light', light: 'dark', dark: 'auto' }[ui.theme]; store.set('theme', ui.theme); }
 export function setWindow(w) { ui.window = w; store.set('window', w); }
+export function saveBudget(patch) { ui.budget = { ...ui.budget, ...patch }; store.set('budget', JSON.stringify(ui.budget)); }
 export function togglePrivacy() { ui.privacy = !ui.privacy; store.set('privacy', ui.privacy ? 'on' : 'off'); }
 
 /** Data loaded from the server and static files. */

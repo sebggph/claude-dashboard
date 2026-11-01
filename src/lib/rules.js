@@ -1,6 +1,8 @@
 // Context rules and formatting helpers shared by the pages.
 import { ui, data, t } from './state.svelte.js';
 import { fmtK } from './charts.js';
+import { sessionUsage, status as budgetStatus } from './budget.js';
+import { fmtUSD } from './cost.js';
 
 export { fmtK };
 
@@ -134,7 +136,7 @@ export const REC_GUIDE = {
   large_tool_results: '02-keep-context-lean', many_file_reads: '02-keep-context-lean',
   model_switch_midsession: 'change-or-restart', idle_cache_expired: 'change-or-restart', low_cache_hit: 'change-or-restart',
   heavy_thinking: 'change-or-restart', big_fixed_overhead: 'optimize-existing-project', many_mcp_tools: 'optimize-existing-project',
-  many_skills: 'optimize-existing-project', big_memory_file: '03-claude-md-memory',
+  many_skills: 'optimize-existing-project', big_memory_file: '03-claude-md-memory', over_budget: '02-keep-context-lean',
 };
 export const CAT_GUIDE = {
   compaction: 'compaction', autocompact_buffer: 'compaction', free_space: 'compaction', cache: 'change-or-restart',
@@ -185,6 +187,12 @@ export function recommendationsFor(s, memoryFiles = []) {
   const latest = data.live && data.live.version && data.live.version.latest;
   if (latest && s.version && cmpVersion(s.version, latest) < 0 && s.end && Date.now() - new Date(s.end) < 7 * 86400000) {
     add('outdated_version', 'info', t('why_outdated_version', { v: s.version, l: latest }));
+  }
+
+  if (ui.budget.session) {
+    const st = budgetStatus(sessionUsage(s, ui.budget.unit, data.live && data.live.pricing && data.live.pricing.list), ui.budget.session);
+    const f = (v) => (ui.budget.unit === 'tokens' ? fmtK(v) : fmtUSD(v, ui.lang));
+    if (st.level === 'over') add('over_budget', 'serious', t('why_over_budget', { v: f(st.value), l: f(st.limit) }));
   }
 
   const order = { serious: 0, warning: 1, info: 2 };

@@ -2,6 +2,10 @@
 
 Content and feature updates to the dashboard. Newest first. The `/update-dashboard` skill adds an entry each time it runs.
 
+## 2026-11-01: v0.6
+
+- **Budget alerts**: daily, weekly (last 7 days) and per-session budgets in dollars (estimated API cost) or tokens. Budget line and red bars in the Trends chart, progress bars with status, warning banner on Home and Dashboard, *Over budget* marker in the sessions list, a session recommendation, and optional desktop notifications at 80% and 100%.
+
 ## 2026-11-01: v0.5
 
 - **Live updates**: Server-Sent Events push changes the moment a transcript changes (green *Live* dot; falls back to 15-second checks).

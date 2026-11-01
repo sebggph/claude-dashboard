@@ -12,6 +12,7 @@ Un panel pequeño y sencillo que muestra **cuánto contexto usan tus sesiones de
 - **Memoria y MCP**: qué CLAUDE.md, reglas e imports se cargan, y cuánto cuestan las herramientas de cada servidor MCP.
 - **Actualización en vivo**: el panel se actualiza en cuanto cambia una sesión (punto verde *En vivo*).
 - **Coste estimado y Tendencias**: coste por sesión con los precios oficiales de la API, cuánto ahorró la caché y gráficos diarios de peticiones, coste y aciertos de caché.
+- **Alertas de presupuesto**: presupuestos diario, semanal y por sesión en dólares o tokens, con línea de presupuesto en los gráficos, avisos al 80% y al 100% y notificaciones de escritorio opcionales.
 - **Modo privado** (icono del ojo): oculta títulos, proyectos, ramas, rutas y el texto de los mensajes para compartir capturas sin riesgo.
 - **Gráficos**: crecimiento del contexto por petición, elementos más grandes, herramientas, subagentes y totales de tokens.
 - **Sección Aprender**: tutoriales paso a paso (*Empezar un proyecto nuevo*, *Optimizar un proyecto existente*) con listas de pasos marcables, y guías sobre contexto, compactación, CLAUDE.md, MCP/skills/subagentes, flujos de trabajo y *¿Cambiar a mitad de sesión o empezar de cero?*. Recuerda lo que ya leíste.

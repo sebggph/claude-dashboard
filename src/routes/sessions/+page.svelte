@@ -4,6 +4,7 @@
   import DemoBanner from '#lib/components/DemoBanner.svelte';
   import HealthBadge from '#lib/components/HealthBadge.svelte';
   import { ui, data, t } from '#lib/state.svelte.js';
+  import { sessionUsage, status as budgetStatus } from '#lib/budget.js';
   import { windowFor, shortModel, ago, sessionTitle, maskProject, maskBranch, healthOf } from '#lib/rules.js';
 
   let query = $state('');
@@ -44,7 +45,7 @@
             <div class="cell-sub">{maskProject(s.project)}{s.gitBranch ? ' · ' + maskBranch(s.gitBranch) : ''}</div></td>
           <td><span class="badge">{shortModel(s.model)}</span></td>
           <td><MiniBar session={s} /></td>
-          <td><HealthBadge grade={healthOf(s, data.sessions.memoryFiles).grade} /></td>
+          <td><HealthBadge grade={healthOf(s, data.sessions.memoryFiles).grade} />{#if ui.budget.session && budgetStatus(sessionUsage(s, ui.budget.unit, data.live?.pricing?.list), ui.budget.session).level === 'over'} <span class="over-tag" title={t('bud_session_over_title')}>{t('bud_over_tag')}</span>{/if}</td>
           <td class="r num">{s.userPrompts}</td>
           <td class="r num">{s.compactions}</td>
           <td class="r small muted">{ago(s.end)}</td>

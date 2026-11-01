@@ -5,6 +5,7 @@
   import RecCard from '#lib/components/RecCard.svelte';
   import GuideCard from '#lib/components/GuideCard.svelte';
   import DemoBanner from '#lib/components/DemoBanner.svelte';
+  import BudgetBanner from '#lib/components/BudgetBanner.svelte';
   import { ui, data, t, progress } from '#lib/state.svelte.js';
   import { breakdownOf, windowFor, recommendationsFor, GROUPS, GUIDE_KEY, pct, pctSmart, fmtK, slugOf, sessionTitle } from '#lib/rules.js';
 
@@ -40,6 +41,7 @@
 </script>
 
 <DemoBanner />
+<BudgetBanner />
 <div class="page-head"><div><h1>{t('ov_title')}</h1><p>{t('ov_sub')}</p></div></div>
 <div class="stack">
   <div class="grid grid-4">

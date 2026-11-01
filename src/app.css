@@ -249,6 +249,24 @@ tbody tr.link:hover td { background: var(--surface-2); }
 .chart .marker { fill: var(--surface); stroke: var(--s2); stroke-width: 2; }
 .chart .bar { fill: var(--s1); }
 .chart .bar.dim { opacity: .45; }
+.chart .bar.over { fill: var(--critical); }
+.chart .threshold.budget { stroke: var(--critical); stroke-dasharray: 5 4; }
+.chart .budget-label { fill: var(--critical); font-weight: 600; }
+.budget-bar { display: grid; gap: 6px; }
+.bb-head { display: flex; justify-content: space-between; gap: 8px; font-size: 14px; }
+.bb-val { font-variant-numeric: tabular-nums; color: var(--text-2); }
+.bud-inputs label { display: grid; gap: 6px; font-size: 13px; color: var(--text-2); }
+.input-unit { display: flex; align-items: center; gap: 6px; }
+.input-unit .input { min-width: 0; width: 100%; }
+.bud-status { margin: 18px 0 8px; }
+.check-row { display: flex; gap: 8px; align-items: center; font-size: 14px; margin-top: 8px; cursor: pointer; }
+.budget-banner { align-items: center; }
+.budget-banner.near { background: color-mix(in srgb, var(--warning) 14%, var(--surface)); border-color: color-mix(in srgb, var(--warning) 45%, var(--border)); }
+.budget-banner.over { background: color-mix(in srgb, var(--critical) 10%, var(--surface)); border-color: color-mix(in srgb, var(--critical) 40%, var(--border)); }
+.budget-banner .icon { color: var(--critical); }
+.budget-banner.near .icon { color: var(--warning); }
+.budget-banner a { margin-left: auto; font-weight: 600; white-space: nowrap; }
+.over-tag { display: inline-block; margin-left: 6px; font-size: 11.5px; font-weight: 650; color: var(--critical); border: 1px solid color-mix(in srgb, var(--critical) 40%, var(--border)); border-radius: 6px; padding: 1px 6px; }
 .cost-top { margin-bottom: 4px; }
 .kpi-value.saved { color: var(--good); }
 .range { margin-left: auto; }
