@@ -3,6 +3,7 @@
   import MiniBar from '#lib/components/MiniBar.svelte';
   import DemoBanner from '#lib/components/DemoBanner.svelte';
   import HealthBadge from '#lib/components/HealthBadge.svelte';
+  import Icon from '#lib/components/Icon.svelte';
   import { ui, data, t } from '#lib/state.svelte.js';
   import { sessionUsage, status as budgetStatus } from '#lib/budget.js';
   import { windowFor, shortModel, ago, sessionTitle, maskProject, maskBranch, healthOf } from '#lib/rules.js';
@@ -29,7 +30,10 @@
 <DemoBanner />
 <div class="page-head">
   <div><h1>{t('ss_title')}</h1><p>{t('ss_sub')}</p></div>
-  <input class="input" type="search" placeholder={t('search_sessions')} aria-label={t('search_sessions')} bind:value={query} />
+  <div class="toolbar">
+    <input class="input" type="search" placeholder={t('search_sessions')} aria-label={t('search_sessions')} bind:value={query} />
+    <a class="btn" href="/compare"><Icon name="layers" /> {t('cmp_title')}</a>
+  </div>
 </div>
 <section class="card">
   <div class="table-wrap"><table>

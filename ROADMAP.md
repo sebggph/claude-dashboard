@@ -4,8 +4,8 @@ Ideas to grow the dashboard, roughly in order of value. Each one says where it w
 
 ## Next up
 
-1. **Compare two sessions** side by side (fixed overhead, tools, cost) to show the effect of a setup change.
-   *Where:* a new `src/routes/compare/` page reusing `ContextCard.svelte`.
+1. **Session timeline view.** Step through a session request by request and see which item made the context jump.
+   *Where:* a new tab on `src/routes/sessions/[id]/+page.svelte`; per-request items are already in the parser.
 
 ## Learning features
 
@@ -22,6 +22,7 @@ Ideas to grow the dashboard, roughly in order of value. Each one says where it w
 
 ## Done
 
+- Compare two sessions side by side with takeaways (v0.7)
 - Budget alerts: daily / weekly / per-session, dollars or tokens, notifications (v0.6)
 - Live updates via Server-Sent Events (v0.5)
 - Estimated cost at API prices and Trends page (v0.5)

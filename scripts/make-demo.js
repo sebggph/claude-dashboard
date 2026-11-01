@@ -40,7 +40,14 @@ function session({ id, project, branch, model, title, start, steps, fixed, skill
       rows.push({ ...base, type: 'user', isCompactSummary: true, timestamp: ts(), message: { role: 'user', content: summary } });
       ctx = fx + skills + Math.ceil(summary.length / 3.4);
     }
-    if (mcpAddedAt === i) fx += mcpTools;
+    if (mcpAddedAt === i) {
+      fx += mcpTools;
+      // MCP servers connected mid-session: record their tool definitions like Claude Code does.
+      const names = [...Array(12)].map((_, k) => `mcp__${k < 8 ? 'github' : 'linear'}__tool_${k}`);
+      rows.push({ ...base, type: 'attachment', timestamp: ts(), attachment: { type: 'deferred_tools_delta', addedNames: names, surfacedNames: names,
+        surfacedDefinitions: names.map((n) => ({ name: n, definition: { name: n, description: lorem(Math.round((mcpTools * 3.4) / names.length / 1.18)) } })),
+        pendingMcpServers: [], needsAuthMcpServers: [], failedMcpServers: [{ name: 'plugin:jira', errorCode: 'ERR_TIMEOUT' }] } });
+    }
     if (st.prompt) {
       rows.push({ ...base, type: 'user', uuid: uuid(), timestamp: ts(), message: { role: 'user', content: st.prompt } });
       ctx += Math.ceil(st.prompt.length / 3.4);
