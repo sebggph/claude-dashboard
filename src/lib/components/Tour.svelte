@@ -1,4 +1,5 @@
 <script>
+  import { link, appPath } from '#lib/paths.js';
   // Guided first-launch tour: highlights one part of the app at a time with a
   // short explanation. Starts by itself on the first visit; restart it from
   // Home or the settings menu. Esc closes, ← → move.
@@ -40,7 +41,7 @@
   async function show(s) {
     rect = null;
     const where = typeof s.where === 'function' ? s.where() : s.where;
-    if (where && page.url.pathname !== where) await goto(where);
+    if (where && appPath(page.url.pathname) !== where) await goto(link(where));
     await tick();
     if (s.target) {
       const el = await waitFor(`[data-tour="${s.target}"]`);
@@ -82,7 +83,7 @@
 
   const next = () => {
     if (ui.tour < STEPS.length - 1) ui.tour = ui.tour + 1;
-    else { endTour(); goto('/learn/start-new-project'); }
+    else { endTour(); goto(link('/learn/start-new-project')); }
   };
   const back = () => { if (ui.tour > 0) ui.tour = ui.tour - 1; };
   function onkey(e) {

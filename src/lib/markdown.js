@@ -2,6 +2,10 @@
 // bold/italic, inline code, code blocks, lists (one nesting level),
 // blockquotes, links, tables and horizontal rules. All text is escaped.
 
+// Internal links ("/learn/...") go through this, so they work under a base path.
+let resolveLink = (u) => u;
+export function setLinkResolver(fn) { resolveLink = fn; }
+
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 export function inline(s) {
@@ -9,7 +13,8 @@ export function inline(s) {
   s = s.replace(/`([^`]+)`/g, (_, c) => { codes.push(c); return `\u0000${codes.length - 1}\u0000`; });
   s = esc(s);
   s = s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (_, text, url) => {
-    const safe = /^(https?:|#|\/|mailto:)/.test(url) ? url : '#';
+    let safe = /^(https?:|#|\/|mailto:)/.test(url) ? url : '#';
+    if (safe.startsWith('/')) safe = resolveLink(safe);
     const ext = /^https?:/.test(safe) ? ' target="_blank" rel="noopener noreferrer"' : '';
     return `<a href="${safe}"${ext}>${text}</a>`;
   });

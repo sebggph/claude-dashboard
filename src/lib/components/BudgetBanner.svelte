@@ -1,4 +1,5 @@
 <script>
+  import { link } from '#lib/paths.js';
   // Warning at the top of Home / Dashboard when a budget is close or over.
   import Icon from './Icon.svelte';
   import { ui, data, t } from '#lib/state.svelte.js';
@@ -21,6 +22,6 @@
       {#each items as [scope, st], i (scope)}{i ? ' · ' : ''}<b>{t('bud_banner_' + scope)}</b> {fmt(st.value)} / {fmt(st.limit)} ({Math.round(st.pct * 100)}%){/each}
       {#if report.sessionsOver}{items.length ? ' · ' : ''}{t('bud_sessions_over', { n: report.sessionsOver })}{/if}
     </span>
-    <a href="/trends#budget">{t('bud_manage')} →</a>
+    <a href={link('/trends#budget')}>{t('bud_manage')} →</a>
   </div>
 {/if}

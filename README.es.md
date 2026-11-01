@@ -2,6 +2,8 @@
 
 [English](README.md) · **Español**
 
+**[Prueba la demo en línea →](https://sebggph.github.io/claude-dashboard/)** (sesiones de ejemplo; instálalo para ver las tuyas)
+
 Un panel pequeño y sencillo que muestra **cuánto contexto usan tus sesiones de Claude Code, qué lo ocupa y cómo mantenerlo ligero**. Pensado para ayudar a la gente a aprender a usar Claude de forma optimizada.
 
 - **Resumen de sesiones**: cada sesión local de Claude Code, qué tan lleno está su contexto y cuándo se usó por última vez.

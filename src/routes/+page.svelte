@@ -1,4 +1,5 @@
 <script>
+  import { link } from '#lib/paths.js';
   import Icon from '#lib/components/Icon.svelte';
   import StackBar from '#lib/components/StackBar.svelte';
   import GuideCard from '#lib/components/GuideCard.svelte';
@@ -50,14 +51,14 @@
     <h1>{t('home_title')}</h1>
     <p>{t('home_sub')}</p>
     <div class="hero-cta">
-      {#if start}<a class="btn primary" href="/learn/{slugOf(start.file)}"><Icon name="rocket" /> {t('home_cta_start')}</a>{/if}
-      <a class="btn" href="/dashboard"><Icon name="overview" /> {t('home_cta_dash')}</a>
+      {#if start}<a class="btn primary" href={link(`/learn/${slugOf(start.file)}`)}><Icon name="rocket" /> {t('home_cta_start')}</a>{/if}
+      <a class="btn" href={link('/dashboard')}><Icon name="overview" /> {t('home_cta_dash')}</a>
       <button class="btn" type="button" onclick={startTour}><Icon name="route" /> {t('tour_take')}</button>
     </div>
   </div>
   <div class="hero-side">
     {#if latest}
-      <a class="snapshot" data-tour="snapshot" href="/sessions/{latest.id}">
+      <a class="snapshot" data-tour="snapshot" href={link(`/sessions/${latest.id}`)}>
         <span class="card-sub">{t('home_latest')}</span>
         <span class="snap-title">{sessionTitle(latest)}</span>
         <span class="snap-pct">{t('ctx_used', { p: pctSmart(bd.used / bd.win) })}</span>
@@ -70,7 +71,7 @@
 
 <div class="grid grid-3 tiles" data-tour="tiles">
   {#each tiles as tile (tile.href)}
-    <a class="card tile" href={tile.href}>
+    <a class="card tile" href={link(tile.href)}>
       <span class="tile-icon"><Icon name={tile.icon} /></span>
       <span class="tile-body"><h3>{tile.title}</h3><p>{tile.desc}</p></span>
       <span class="tile-foot"><span class="tile-stat">{tile.stat}</span><Icon name="arrow" small /></span>
@@ -80,7 +81,7 @@
 
 <div class="grid grid-2">
   <section class="card">
-    <div class="card-head"><h2>{t('home_whatsnew')}</h2><a class="small" href="/news">{t('see_all')} →</a></div>
+    <div class="card-head"><h2>{t('home_whatsnew')}</h2><a class="small" href={link('/news')}>{t('see_all')} →</a></div>
     {#if !data.news}
       <div class="empty small">{t('loading')}</div>
     {:else if !ctxNews.length}
@@ -98,7 +99,7 @@
     {/if}
   </section>
   <section class="card">
-    <div class="card-head"><h2>{t('home_continue')}</h2><a class="small" href="/learn">{t('see_all')} →</a></div>
+    <div class="card-head"><h2>{t('home_continue')}</h2><a class="small" href={link('/learn')}>{t('see_all')} →</a></div>
     <div class="learn-progress" style="margin-bottom:14px">
       <span>{t('progress_read', { n: read, t: guides.length })}</span>
       <span class="track"><span style:width="{guides.length ? (read / guides.length) * 100 : 0}%"></span></span>

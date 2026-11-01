@@ -1,4 +1,5 @@
 <script>
+  import { link } from '#lib/paths.js';
   import Icon from '#lib/components/Icon.svelte';
   import Kpi from '#lib/components/Kpi.svelte';
   import Explain from '#lib/components/Explain.svelte';
@@ -52,10 +53,10 @@
   </div>
   <div class="grid grid-2">
     <section class="card">
-      <div class="card-head"><h2>{t('ov_fullest')}</h2><a class="small" href="/sessions">{t('see_all')} →</a></div>
+      <div class="card-head"><h2>{t('ov_fullest')}</h2><a class="small" href={link('/sessions')}>{t('see_all')} →</a></div>
       <div class="hbars">
         {#each fullest as { s, bd } (s.id)}
-          <a class="hbar" href="/sessions/{s.id}">
+          <a class="hbar" href={link(`/sessions/${s.id}`)}>
             <span class="name" title={sessionTitle(s)}>{sessionTitle(s)}</span>
             <span class="bar">{#each bd.groups as g (g.id)}<span style:width="{(g.tokens / bd.win) * 100}%" style:background={g.color}></span>{/each}</span>
             <span class="val">{pctSmart(bd.used / bd.win)}</span>
@@ -86,7 +87,7 @@
       </div>
     </section>
     <section class="card">
-      <div class="card-head"><h2>{t('ov_learn')}</h2><a class="small" href="/learn">{t('see_all')} →</a></div>
+      <div class="card-head"><h2>{t('ov_learn')}</h2><a class="small" href={link('/learn')}>{t('see_all')} →</a></div>
       <div class="grid grid-2">{#each guides as g (g.file)}<GuideCard guide={g} />{/each}</div>
     </section>
   </div>

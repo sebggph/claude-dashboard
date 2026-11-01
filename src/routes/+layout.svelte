@@ -3,6 +3,10 @@
   import TopBar from '#lib/components/TopBar.svelte';
   import Drawer from '#lib/components/Drawer.svelte';
   import Tour from '#lib/components/Tour.svelte';
+  import { link, appPath, STATIC_DEMO } from '#lib/paths.js';
+  import { setLinkResolver } from '#lib/markdown.js';
+
+  setLinkResolver(link);
   import { page } from '$app/state';
   import { invalidateAll } from '$app/navigation';
   import { ui, data, load, t, store } from '#lib/state.svelte.js';
@@ -40,6 +44,7 @@
   // Live updates: the server pushes an event when a transcript changes.
   // If the live connection is down, fall back to checking every 15 seconds.
   $effect(() => {
+    if (STATIC_DEMO) return; // the online demo has no server
     const es = new EventSource('/api/events');
     es.onopen = () => (data.live_connected = true);
     es.onerror = () => (data.live_connected = false);
@@ -47,7 +52,7 @@
       let evt = {};
       try { evt = JSON.parse(e.data); } catch { /* ignore */ }
       if (data.sessions) load.sessions(true).catch(() => {});
-      const m = page.url.pathname.match(/^\/sessions\/([^/]+)$/);
+      const m = appPath(page.url.pathname).match(/^\/sessions\/([^/]+)$/);
       if (m && (evt.changed || []).includes(decodeURIComponent(m[1]))) invalidateAll();
     });
     const id = setInterval(() => {

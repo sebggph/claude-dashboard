@@ -1,4 +1,5 @@
 <script>
+  import { link } from '#lib/paths.js';
   import Icon from '#lib/components/Icon.svelte';
   import { ui, data as app, load, t, progress } from '#lib/state.svelte.js';
   import { slugOf } from '#lib/rules.js';
@@ -60,7 +61,7 @@
 
 <svelte:head><title>{guide ? guide.title : t('gd_title')} · Context Dashboard</title></svelte:head>
 
-<a href="/learn" class="small no-print"><Icon name="back" /> {t('gd_all')}</a>
+<a href={link('/learn')} class="small no-print"><Icon name="back" /> {t('gd_all')}</a>
 {#if error}
   <div class="card empty"><p><b>{t('error')}</b></p><p class="small muted">{error}</p></div>
 {:else if !rendered || !guide}
@@ -93,7 +94,7 @@
     </aside>
   </div>
   <nav class="guide-nav" bind:this={end}>
-    {#if prev}<a href="/learn/{slugOf(prev.file)}"><small>← {t('gd_prev')}</small>{prev.title}</a>{:else}<span></span>{/if}
-    {#if next}<a class="next" href="/learn/{slugOf(next.file)}"><small>{t('gd_next')} →</small>{next.title}</a>{:else}<span></span>{/if}
+    {#if prev}<a href={link(`/learn/${slugOf(prev.file)}`)}><small>← {t('gd_prev')}</small>{prev.title}</a>{:else}<span></span>{/if}
+    {#if next}<a class="next" href={link(`/learn/${slugOf(next.file)}`)}><small>{t('gd_next')} →</small>{next.title}</a>{:else}<span></span>{/if}
   </nav>
 {/if}

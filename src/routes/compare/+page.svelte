@@ -1,4 +1,5 @@
 <script>
+  import { link } from '#lib/paths.js';
   import { goto } from '$app/navigation';
   import Icon from '#lib/components/Icon.svelte';
   import Explain from '#lib/components/Explain.svelte';
@@ -17,7 +18,7 @@
 
   function pick(side, id) {
     const q = new URLSearchParams({ a: side === 'a' ? id : data.a || '', b: side === 'b' ? id : data.b || '' });
-    goto(`/compare?${q}`, { replaceState: true, noScroll: true, keepFocus: true });
+    goto(link(`/compare?${q}`), { replaceState: true, noScroll: true, keepFocus: true });
   }
 
   const setupA = $derived(A ? setupOf(A) : null), setupB = $derived(B ? setupOf(B) : null);
@@ -70,7 +71,7 @@
 <svelte:head><title>{t('cmp_title')} · Context Dashboard</title></svelte:head>
 
 <DemoBanner />
-<a href="/sessions" class="small"><Icon name="back" /> {t('back')}</a>
+<a href={link('/sessions')} class="small"><Icon name="back" /> {t('back')}</a>
 <div class="page-head" style="margin-top:10px">
   <div><h1>{t('cmp_title')}</h1><p>{t('cmp_sub')}</p></div>
 </div>
@@ -88,7 +89,7 @@
           <div class="chips">
             <span class="chip">{shortModel(s.model)}</span><span class="chip">{s.requests} {t('rc_text_requests')}</span>
             <HealthBadge grade={healthOf(s, app.sessions?.memoryFiles).grade} />
-            <a class="small" href="/sessions/{s.id}">{t('cmp_open')} →</a>
+            <a class="small" href={link(`/sessions/${s.id}`)}>{t('cmp_open')} →</a>
           </div>
         {/if}
       </section>

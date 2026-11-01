@@ -1,4 +1,5 @@
 <script>
+  import { link } from '#lib/paths.js';
   import Icon from '#lib/components/Icon.svelte';
   import Kpi from '#lib/components/Kpi.svelte';
   import RecCard from '#lib/components/RecCard.svelte';
@@ -29,10 +30,10 @@
 <svelte:head><title>{sessionTitle(s)} · Context Dashboard</title></svelte:head>
 
 <DemoBanner />
-<a href="/sessions" class="small"><Icon name="back" /> {t('back')}</a>
+<a href={link('/sessions')} class="small"><Icon name="back" /> {t('back')}</a>
 <div class="page-head" style="margin-top:10px">
   <div><h1>{sessionTitle(s)}</h1><div class="chips">{#each chips as c (c)}<span class="chip">{c}</span>{/each}</div></div>
-  <a class="btn" href="/compare?b={s.id}"><Icon name="layers" /> {t('cmp_with')}</a>
+  <a class="btn" href={link(`/compare?b=${s.id}`)}><Icon name="layers" /> {t('cmp_with')}</a>
 </div>
 
 <div class="seg view-tabs" data-tour="views" role="tablist" aria-label={t('tl_views')}>

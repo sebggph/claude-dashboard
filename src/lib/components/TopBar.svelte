@@ -1,4 +1,5 @@
 <script>
+  import { link, appPath, STATIC_DEMO } from '#lib/paths.js';
   import { page } from '$app/state';
   import Icon from './Icon.svelte';
   import { ui, data, t, setLang, cycleTheme, setWindow, togglePrivacy, startTour } from '#lib/state.svelte.js';
@@ -12,7 +13,7 @@
     { id: 'cheatsheet', href: '/cheatsheet', icon: 'sheet' },
     { id: 'news', href: '/news', icon: 'news' },
   ];
-  const active = (r) => (r.href === '/' ? page.url.pathname === '/' : page.url.pathname.startsWith(r.href));
+  const active = (r) => { const p = appPath(page.url.pathname); return r.href === '/' ? p === '/' : p.startsWith(r.href); };
 
   let settingsOpen = $state(false);
   const themeIcon = $derived({ auto: 'auto', light: 'sun', dark: 'moon' }[ui.theme]);
@@ -27,17 +28,17 @@
 
 <header class="topbar">
   <div class="topbar-inner">
-    <a class="brand" href="/" aria-label="Claude Context Dashboard">
+    <a class="brand" href={link('/')} aria-label="Claude Context Dashboard">
       <span class="brand-mark"><svg class="icon" viewBox="0 0 24 24" fill="currentColor"><path d="M5 19h3v-6H5zm5.5 0h3V6h-3zm5.5 0h3v-9h-3z" /></svg></span>
       <span>Context Dashboard</span>
     </a>
     <nav class="nav" data-tour="nav">
       {#each ROUTES as r (r.id)}
-        <a href={r.href} aria-current={active(r) ? 'page' : undefined}><Icon name={r.icon} /><span>{t('nav_' + r.id)}</span></a>
+        <a href={link(r.href)} aria-current={active(r) ? 'page' : undefined}><Icon name={r.icon} /><span>{t('nav_' + r.id)}</span></a>
       {/each}
     </nav>
     <div class="tools" data-tour="tools">
-      <span class="live-dot" class:on={data.live_connected} title={data.live_connected ? t('live_on') : t('live_off')}><i></i>{t('live_label')}</span>
+      {#if !STATIC_DEMO}<span class="live-dot" class:on={data.live_connected} title={data.live_connected ? t('live_on') : t('live_off')}><i></i>{t('live_label')}</span>{/if}
       <div class="seg" role="group" aria-label={t('language')}>
         {#each ['en', 'es'] as l (l)}
           <button type="button" aria-pressed={ui.lang === l} onclick={() => setLang(l)}>{l.toUpperCase()}</button>

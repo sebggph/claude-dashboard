@@ -3,7 +3,7 @@
 Local dashboard that reads Claude Code transcripts (`~/.claude/projects/**/*.jsonl`) read-only and explains context usage. Audience: people learning Claude Code.
 
 ## Commands
-- `npm run dev` (Vite, hot reload, :5173) · `npm run build` then `npm start` (:3000) or `npm run demo`
+- `npm run dev` (Vite, hot reload, :5173) · `npm run build` then `npm start` (:3000) or `npm run demo` · `npm run build:demo` (static online demo)
 - `npm test` (parsers) · `npm run check` (i18n, guides, data, links, new docs pages) · `npm run news-snapshot` · `npm run make-demo`
 - Docker: `docker compose up -d --build` → http://localhost:3000
 
@@ -15,6 +15,7 @@ Local dashboard that reads Claude Code transcripts (`~/.claude/projects/**/*.jso
 ## Rules
 - Server-only code goes in `src/lib/server/` (parser, sessions, news, live). API routes in `src/routes/api/*/+server.js` are GET-only.
 - Every UI string exists in `en` and `es` (`src/lib/i18n.js`, `static/data/*.json`, `static/docs/en|es`).
+- Links: use `link('/path')` and `file('/static-file')` from `#lib/paths.js` (the online demo runs under a base path).
 - Never use `{@html}` on transcript text. It's only for our own markdown (`renderMarkdown`/`inline` escape input).
 - Facts about Claude Code must link to official docs (https://code.claude.com/docs/en/...). Don't invent commands.
 - Keep texts short and plain. Keep the grid symmetric (cards in pairs or threes).
