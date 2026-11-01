@@ -2,6 +2,7 @@
 
 export const fmtK = (n) => {
   if (n == null) return '–';
+  if (n < 0) return '-' + fmtK(-n);
   if (n >= 1e6) return (n / 1e6).toFixed(n >= 1e7 ? 0 : 1).replace(/\.0$/, '') + 'M';
   if (n >= 1e3) return (n / 1e3).toFixed(n >= 1e5 ? 0 : 1).replace(/\.0$/, '') + 'k';
   return String(Math.round(n));

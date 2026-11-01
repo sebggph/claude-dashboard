@@ -2,6 +2,11 @@
 
 Content and feature updates to the dashboard. Newest first. The `/update-dashboard` skill adds an entry each time it runs.
 
+## 2026-11-01: v0.8
+
+- **Session timeline** (Timeline tab on each session, `?view=timeline`): pick any request on the chart, with the slider or ← →; see the context size and change, your prompt, and the biggest items added (tool results, replies). Buttons jump to the biggest jumps and compactions.
+- Negative numbers are shortened too (e.g. -87.8k).
+
 ## 2026-11-01: v0.7
 
 - **Compare sessions** (`/compare`): pick A (before) and B (after); setup cost vs conversation with paired bars, key numbers, tools, and plain-language takeaways. Entry points on the sessions list and each session page.

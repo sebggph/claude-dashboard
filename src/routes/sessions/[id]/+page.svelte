@@ -9,6 +9,9 @@
   import McpCard from '#lib/components/McpCard.svelte';
   import ReportCard from '#lib/components/ReportCard.svelte';
   import CostCard from '#lib/components/CostCard.svelte';
+  import TimelineView from '#lib/components/TimelineView.svelte';
+  import { page } from '$app/state';
+  import { goto } from '$app/navigation';
   import { data as app, t } from '#lib/state.svelte.js';
   import { breakdownOf, recommendationsFor, CAT_COLOR, fmtK, pct, shortModel, ago, sessionTitle, maskProject, maskBranch, maskText } from '#lib/rules.js';
 
@@ -18,6 +21,8 @@
   const recs = $derived(recommendationsFor(s, app.sessions?.memoryFiles));
   const chips = $derived([maskProject(s.project), maskBranch(s.gitBranch), shortModel(s.model), s.version && 'v' + s.version, ago(s.end)].filter(Boolean));
   const tok = $derived(s.totals);
+  const view = $derived(page.url.searchParams.get('view') === 'timeline' ? 'timeline' : 'overview');
+  const setView = (v) => goto(v === 'timeline' ? '?view=timeline' : '?', { replaceState: true, noScroll: true, keepFocus: true });
   const toolName = (x) => (x.server ? x.name.split('__').slice(2).join('__') : x.name);
 </script>
 
@@ -30,7 +35,15 @@
   <a class="btn" href="/compare?b={s.id}"><Icon name="layers" /> {t('cmp_with')}</a>
 </div>
 
+<div class="seg view-tabs" role="tablist" aria-label={t('tl_views')}>
+  <button type="button" role="tab" aria-selected={view === 'overview'} aria-pressed={view === 'overview'} onclick={() => setView('overview')}>{t('tl_overview')}</button>
+  <button type="button" role="tab" aria-selected={view === 'timeline'} aria-pressed={view === 'timeline'} onclick={() => setView('timeline')}>{t('tl_timeline')}</button>
+</div>
+
 <div class="stack">
+{#if view === 'timeline'}
+  <TimelineView session={s} />
+{:else}
   <ReportCard session={s} />
   <div class="grid grid-2">
     <ContextCard session={s} />
@@ -118,4 +131,5 @@
     {:else}<div class="empty small">{t('sub_none')}</div>{/if}
   </section>
   </div>
+{/if}
 </div>

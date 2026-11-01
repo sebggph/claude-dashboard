@@ -3,6 +3,13 @@
 
 export const STRINGS = {
   en: {
+    tl_views: 'Session views', tl_overview: 'Overview', tl_timeline: 'Timeline', tl_none: 'No requests in this session yet.',
+    tl_click: 'click to pick a request · ← →', tl_jumps: 'Biggest jumps', tl_compactions: 'Compactions', tl_of: 'of {n}',
+    tl_slider: 'Pick a request', tl_change: 'Change since the previous request', tl_from: 'from {t}',
+    tl_compacted: 'Compacted before this request: context went from {a} to {b}.', tl_prompt: 'Your prompt',
+    tl_added: 'Added since the previous request ({n} items)', tl_nothing: 'Nothing new was added.',
+    tl_rest: 'About {t} more comes from smaller items and from tools loaded on demand.',
+    tl_note: 'Sizes are estimated from the transcript; the context total is measured. Claude’s reply to the previous request is part of what’s added.',
     cmp_title: 'Compare sessions', cmp_with: 'Compare', cmp_sub: 'Put two sessions side by side, for example before and after you removed MCP servers or trimmed CLAUDE.md.',
     cmp_a: 'Session A (before)', cmp_b: 'Session B (after)', cmp_open: 'Open', cmp_need_two: 'You need at least two sessions to compare.',
     cmp_takeaways: 'What changed', cmp_change: 'Change', cmp_total: 'Total', cmp_better: 'better', cmp_worse: 'worse', cmp_same: 'about the same',
@@ -177,6 +184,13 @@ export const STRINGS = {
     ago_now: 'just now', ago_min: '{n} min ago', ago_h: '{n} h ago', ago_d: '{n} d ago',
   },
   es: {
+    tl_views: 'Vistas de la sesión', tl_overview: 'Resumen', tl_timeline: 'Línea de tiempo', tl_none: 'Esta sesión aún no tiene peticiones.',
+    tl_click: 'haz clic para elegir una petición · ← →', tl_jumps: 'Mayores saltos', tl_compactions: 'Compactaciones', tl_of: 'de {n}',
+    tl_slider: 'Elegir una petición', tl_change: 'Cambio desde la petición anterior', tl_from: 'desde {t}',
+    tl_compacted: 'Se compactó antes de esta petición: el contexto pasó de {a} a {b}.', tl_prompt: 'Tu mensaje',
+    tl_added: 'Añadido desde la petición anterior ({n} elementos)', tl_nothing: 'No se añadió nada nuevo.',
+    tl_rest: 'Unos {t} más vienen de elementos pequeños y de herramientas cargadas cuando hacen falta.',
+    tl_note: 'Los tamaños se estiman a partir del historial; el total de contexto es medido. La respuesta de Claude a la petición anterior forma parte de lo añadido.',
     cmp_title: 'Comparar sesiones', cmp_with: 'Comparar', cmp_sub: 'Pon dos sesiones lado a lado, por ejemplo antes y después de quitar servidores MCP o recortar CLAUDE.md.',
     cmp_a: 'Sesión A (antes)', cmp_b: 'Sesión B (después)', cmp_open: 'Abrir', cmp_need_two: 'Necesitas al menos dos sesiones para comparar.',
     cmp_takeaways: 'Qué cambió', cmp_change: 'Cambio', cmp_total: 'Total', cmp_better: 'mejor', cmp_worse: 'peor', cmp_same: 'casi igual',
