@@ -22,6 +22,7 @@ A small, friendly dashboard that shows **how much context your Claude Code sessi
 - **Privacy mode** (eye icon): hides titles, project names, branches, file paths and prompt text so screenshots are safe to share.
 - **Charts**: context growth per request with compaction markers, biggest items, tools used, subagents, token totals.
 - **Learn hub**: step-by-step tutorials (*Start a new project*, *Optimize an existing project*) with tickable checklists, plus guides on context, compaction, CLAUDE.md, MCP/skills/subagents, workflows and *Change mid-session or start fresh?*. Tracks what you've read.
+- **Cheatsheet quiz**: 10-question rounds built from the cheatsheet, with explanations and doc links; great for workshops.
 - **Printable cheatsheet**: 50+ commands and shortcuts with short "why it helps" notes.
 - **Light & dark mode**, **English & Spanish**, works on Mac, Windows and Linux.
 

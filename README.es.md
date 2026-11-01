@@ -22,6 +22,7 @@ Un panel pequeño y sencillo que muestra **cuánto contexto usan tus sesiones de
 - **Modo privado** (icono del ojo): oculta títulos, proyectos, ramas, rutas y el texto de los mensajes para compartir capturas sin riesgo.
 - **Gráficos**: crecimiento del contexto por petición, elementos más grandes, herramientas, subagentes y totales de tokens.
 - **Sección Aprender**: tutoriales paso a paso (*Empezar un proyecto nuevo*, *Optimizar un proyecto existente*) con listas de pasos marcables, y guías sobre contexto, compactación, CLAUDE.md, MCP/skills/subagentes, flujos de trabajo y *¿Cambiar a mitad de sesión o empezar de cero?*. Recuerda lo que ya leíste.
+- **Cuestionario de la chuleta**: rondas de 10 preguntas creadas a partir de la chuleta, con explicaciones y enlaces a la documentación; ideal para talleres.
 - **Chuleta imprimible**: más de 50 comandos y atajos con una nota de por qué ayudan.
 - **Modo claro y oscuro**, **inglés y español**, funciona en Mac, Windows y Linux.
 
