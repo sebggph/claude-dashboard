@@ -4,20 +4,20 @@ Ideas to grow the dashboard, roughly in order of value. Each one says where it w
 
 ## Next up
 
-1. **More guides.** Hooks, plan mode, permissions, headless mode in CI, writing a good skill.
-2. **Export.** Download a session's breakdown as CSV / JSON, or a PDF report.
+1. **Quiz mode for the cheatsheet.** "Which command frees context without losing the summary?" Good for workshops.
+2. **More languages.** Add a key to `src/lib/i18n.js`, the `L()` objects in `static/data/*.json`, and a `static/docs/<lang>/` folder.
 
 ## Learning features
 
-6. **Quiz mode for the cheatsheet.** "Which command frees context without losing the summary?" Good for workshops.
 
 ## Quality & sharing
 
 9. **Team mode.** Several people point the dashboard at a shared folder of exported transcripts. Needs auth before it's ever exposed beyond localhost.
-10. **More languages.** Add a key to `src/lib/i18n.js`, the `L()` objects in `static/data/*.json`, and a `static/docs/<lang>/` folder.
 
 ## Done
 
+- Session export: Markdown report, CSV, JSON, print/PDF (v0.11)
+- Guides: plan mode, hooks, write a skill, headless/CI (v0.11)
 - Online demo on GitHub Pages (v0.10)
 - Guided first-launch tour (v0.9)
 - Session timeline: request-by-request view with biggest jumps and compactions (v0.8)

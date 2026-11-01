@@ -148,7 +148,7 @@ export const CAT_GUIDE = {
 export const guideMeta = (slug) => (data.docsIndex[ui.lang] || []).find((g) => slugOf(g.file) === slug);
 
 // Sections of the Learn page, in order.
-export const SECTIONS = ['start', 'concepts', 'habits', 'security'];
+export const SECTIONS = ['start', 'concepts', 'habits', 'build', 'security'];
 
 // ---------- recommendations ----------
 export const LEVEL = {

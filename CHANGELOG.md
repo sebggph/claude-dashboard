@@ -2,6 +2,11 @@
 
 Content and feature updates to the dashboard. Newest first. The `/update-dashboard` skill adds an entry each time it runs.
 
+## 2026-11-01: v0.11
+
+- **Export** on each session: Markdown report, CSV (breakdown, timeline, tools), JSON, and a print / PDF layout. Privacy mode applies; CSV cells are protected against spreadsheet formulas.
+- New Learn section **Build & automate**: *Plan before you build: plan mode*, *Automate with hooks* (tutorial), *Write your own skill* (tutorial), *Claude in scripts and CI (headless mode)*. EN + ES, 18 guides in total.
+
 ## 2026-11-01: v0.10
 
 - **Online demo** at https://sebggph.github.io/claude-dashboard/ (sample sessions, no install). `npm run build:demo` bakes the API answers into JSON and builds a static site; a workflow publishes it to GitHub Pages on every push to main.

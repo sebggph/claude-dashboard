@@ -16,6 +16,7 @@ A small, friendly dashboard that shows **how much context your Claude Code sessi
 - **Estimated cost & Trends**: cost per session at official API prices, how much prompt caching saved, and daily charts for requests, cost and cache hit rate.
 - **Budget alerts**: daily, weekly and per-session budgets in dollars or tokens, with a budget line in the charts, warnings at 80% and 100%, and optional desktop notifications.
 - **Guided tour**: a 1-minute walkthrough on first launch (restart it from Home or Settings).
+- **Export**: download a session as a Markdown report, CSV (breakdown, timeline, tools) or JSON, or print it / save as PDF. Privacy mode applies.
 - **Session timeline**: step through a session request by request and see what made the context jump (biggest jumps, compactions, your prompt, tool results).
 - **Compare sessions**: two sessions side by side (setup cost, conversation, key numbers, tools) with plain-language takeaways, for example before and after removing MCP servers.
 - **Privacy mode** (eye icon): hides titles, project names, branches, file paths and prompt text so screenshots are safe to share.
