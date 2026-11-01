@@ -31,3 +31,6 @@ $RECYCLE.BIN/
 # Logs & temp
 *.log
 *.tmp
+node_modules/
+build/
+.svelte-kit/

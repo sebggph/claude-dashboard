@@ -1,0 +1,57 @@
+{
+ "models": {
+  "list": [
+   {
+    "name": "Claude Fable 5.1",
+    "id": "claude-fable-5-1",
+    "contextWindow": 1000000,
+    "maxOutput": 128000,
+    "defaultEffort": "high",
+    "thinking": "Adaptive (always on)",
+    "latency": "Slower",
+    "retirement": "Not sooner than September 1, 2027",
+    "page": "https://platform.claude.com/docs/en/models/fable-5-1/overview"
+   },
+   {
+    "name": "Claude Opus 5.5",
+    "id": "claude-opus-5-5",
+    "contextWindow": 1000000,
+    "maxOutput": 128000,
+    "defaultEffort": "medium",
+    "thinking": "Adaptive (always on)",
+    "latency": "Moderate",
+    "retirement": "Not sooner than September 22, 2027",
+    "page": "https://platform.claude.com/docs/en/models/opus-5-5/overview"
+   },
+   {
+    "name": "Claude Sonnet 5.5",
+    "id": "claude-sonnet-5-5",
+    "contextWindow": 1000000,
+    "maxOutput": 128000,
+    "defaultEffort": "high",
+    "thinking": "Adaptive",
+    "latency": "Fast",
+    "retirement": "Not sooner than September 28, 2027",
+    "page": "https://platform.claude.com/docs/en/models/sonnet-5-5/overview"
+   },
+   {
+    "name": "Claude Haiku 5.5",
+    "id": "claude-haiku-5-5",
+    "contextWindow": 1000000,
+    "maxOutput": 128000,
+    "defaultEffort": "medium",
+    "thinking": "Adaptive",
+    "latency": "Fastest",
+    "retirement": "Not sooner than October 7, 2027",
+    "page": "https://platform.claude.com/docs/en/models/haiku-5-5/overview"
+   }
+  ],
+  "updated": "2026-10-31T23:54:42.575Z",
+  "page": "https://platform.claude.com/docs/en/about-claude/models/overview"
+ },
+ "version": {
+  "latest": "2.1.316",
+  "updated": "2026-10-31T23:54:42.071Z",
+  "page": "https://code.claude.com/docs/en/changelog"
+ }
+}

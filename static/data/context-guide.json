@@ -1,0 +1,767 @@
+{
+  "updated": "2026-10-31",
+  "categories": {
+    "system_prompt": {
+      "label": {
+        "en": "System prompt",
+        "es": "Prompt del sistema"
+      },
+      "what": {
+        "en": "Claude Code's built-in instructions, sent at the start of every request. Your output style and any --append-system-prompt text are added here too.",
+        "es": "Las instrucciones de base de Claude Code, enviadas al inicio de cada petición. Tu estilo de salida y el texto de --append-system-prompt también van aquí."
+      },
+      "tips": [
+        {
+          "en": "You can't remove it, but it is cached: after the first turn it is re-read at the cheaper cached rate.",
+          "es": "No se puede quitar, pero se guarda en caché: tras el primer turno se relee a la tarifa reducida."
+        },
+        {
+          "en": "Avoid changing --append-system-prompt between runs; a different prompt can't reuse the cache.",
+          "es": "Evita cambiar --append-system-prompt entre ejecuciones; un prompt distinto no reutiliza la caché."
+        }
+      ],
+      "docs": [
+        {
+          "title": "How Claude Code works",
+          "url": "https://code.claude.com/docs/en/how-claude-code-works"
+        },
+        {
+          "title": "How Claude Code uses prompt caching",
+          "url": "https://code.claude.com/docs/en/prompt-caching"
+        }
+      ]
+    },
+    "system_tools": {
+      "label": {
+        "en": "Built-in tools",
+        "es": "Herramientas integradas"
+      },
+      "what": {
+        "en": "Descriptions of Claude Code's own tools, like Read, Edit and Bash. They sit in the system prompt so Claude knows how to use them.",
+        "es": "Descripciones de las herramientas propias de Claude Code, como Read, Edit y Bash. Están en el prompt del sistema para que Claude sepa usarlas."
+      },
+      "tips": [
+        {
+          "en": "This is a fixed cost per session and is cached after the first turn.",
+          "es": "Es un costo fijo por sesión y queda en caché tras el primer turno."
+        },
+        {
+          "en": "Denying a whole tool mid-session changes this block and forces one uncached turn. Set deny rules before you start.",
+          "es": "Negar una herramienta entera a mitad de sesión cambia este bloque y provoca un turno sin caché. Define las reglas antes de empezar."
+        }
+      ],
+      "docs": [
+        {
+          "title": "Tools reference",
+          "url": "https://code.claude.com/docs/en/tools-reference"
+        },
+        {
+          "title": "How Claude Code uses prompt caching",
+          "url": "https://code.claude.com/docs/en/prompt-caching"
+        }
+      ]
+    },
+    "mcp_tools": {
+      "label": {
+        "en": "MCP tools",
+        "es": "Herramientas MCP"
+      },
+      "what": {
+        "en": "Tools that come from MCP servers you connected, like GitHub or Slack. By default only their names load; full definitions load only when Claude needs one.",
+        "es": "Herramientas de los servidores MCP que conectaste, como GitHub o Slack. Por defecto solo se cargan sus nombres; la definición completa solo cuando Claude la necesita."
+      },
+      "tips": [
+        {
+          "en": "Disable MCP servers you don't use with /mcp.",
+          "es": "Desactiva con /mcp los servidores MCP que no uses."
+        },
+        {
+          "en": "Prefer command-line tools like gh or aws when they exist: they add no tool list to context.",
+          "es": "Prefiere herramientas de terminal como gh o aws si existen: no añaden lista de herramientas al contexto."
+        },
+        {
+          "en": "If this number is large, tool search may be off (ENABLE_TOOL_SEARCH=false) or your model may not support it.",
+          "es": "Si este número es grande, quizá la búsqueda de herramientas está apagada (ENABLE_TOOL_SEARCH=false) o tu modelo no la admite."
+        }
+      ],
+      "docs": [
+        {
+          "title": "Scale with MCP tool search",
+          "url": "https://code.claude.com/docs/en/mcp#scale-with-mcp-tool-search"
+        },
+        {
+          "title": "Reduce token usage",
+          "url": "https://code.claude.com/docs/en/costs#reduce-token-usage"
+        }
+      ]
+    },
+    "deferred_tools": {
+      "label": {
+        "en": "Deferred tools (tool search)",
+        "es": "Herramientas diferidas (búsqueda)"
+      },
+      "what": {
+        "en": "Tools that are listed by name only. When Claude needs one, it uses tool search to load the full definition, so idle tools cost almost nothing.",
+        "es": "Herramientas que aparecen solo por su nombre. Cuando Claude necesita una, usa la búsqueda de herramientas para cargar su definición, así las que no se usan casi no cuestan."
+      },
+      "tips": [
+        {
+          "en": "Tool search is on by default, so adding MCP servers has little impact on context.",
+          "es": "La búsqueda de herramientas viene activada, así que añadir servidores MCP afecta poco al contexto."
+        },
+        {
+          "en": "Keep it on: ENABLE_TOOL_SEARCH=false loads every MCP tool definition upfront.",
+          "es": "Déjala activada: ENABLE_TOOL_SEARCH=false carga todas las definiciones MCP desde el inicio."
+        },
+        {
+          "en": "With tools deferred, connecting a server mid-session doesn't break the cache.",
+          "es": "Con herramientas diferidas, conectar un servidor a mitad de sesión no rompe la caché."
+        }
+      ],
+      "docs": [
+        {
+          "title": "Configure tool search",
+          "url": "https://code.claude.com/docs/en/mcp#configure-tool-search"
+        },
+        {
+          "title": "Extend Claude Code: context costs",
+          "url": "https://code.claude.com/docs/en/features-overview#understand-context-costs"
+        }
+      ]
+    },
+    "skills": {
+      "label": {
+        "en": "Skills",
+        "es": "Skills"
+      },
+      "what": {
+        "en": "A short list of your skills' names and descriptions, so Claude knows what is available. A skill's full instructions load only when it is used.",
+        "es": "Una lista corta con nombres y descripciones de tus skills, para que Claude sepa cuáles hay. Las instrucciones completas solo se cargan al usarla."
+      },
+      "tips": [
+        {
+          "en": "Run /skill-doctor to see what each skill costs; remove or disable the ones you rarely use.",
+          "es": "Ejecuta /skill-doctor para ver cuánto cuesta cada skill; quita o desactiva las que casi no usas."
+        },
+        {
+          "en": "Add disable-model-invocation: true to skills you only run by hand; their description leaves the context.",
+          "es": "Añade disable-model-invocation: true a las skills que solo ejecutas tú; su descripción sale del contexto."
+        },
+        {
+          "en": "Put the key use case first in each description: the listing is capped at about 1% of the window.",
+          "es": "Pon el uso principal al inicio de cada descripción: la lista se limita a cerca del 1% de la ventana."
+        }
+      ],
+      "docs": [
+        {
+          "title": "Extend Claude with skills",
+          "url": "https://code.claude.com/docs/en/skills"
+        },
+        {
+          "title": "Control who invokes a skill",
+          "url": "https://code.claude.com/docs/en/skills#control-who-invokes-a-skill"
+        }
+      ]
+    },
+    "memory_files": {
+      "label": {
+        "en": "Memory files (CLAUDE.md)",
+        "es": "Archivos de memoria (CLAUDE.md)"
+      },
+      "what": {
+        "en": "Your CLAUDE.md files, rules and auto memory (MEMORY.md). They load at session start and are sent with every request.",
+        "es": "Tus archivos CLAUDE.md, reglas y memoria automática (MEMORY.md). Se cargan al iniciar la sesión y se envían en cada petición."
+      },
+      "tips": [
+        {
+          "en": "Keep each CLAUDE.md under about 200 lines. Edit them with /memory.",
+          "es": "Mantén cada CLAUDE.md bajo unas 200 líneas. Edítalos con /memory."
+        },
+        {
+          "en": "Move long, task-specific instructions into skills; they load only when needed.",
+          "es": "Pasa instrucciones largas y específicas a skills; solo se cargan cuando hacen falta."
+        },
+        {
+          "en": "Use path-scoped rules in .claude/rules/ for instructions that apply to one folder.",
+          "es": "Usa reglas por ruta en .claude/rules/ para instrucciones de una sola carpeta."
+        },
+        {
+          "en": "@imports help organize, but imported files still count fully.",
+          "es": "Los @imports ayudan a ordenar, pero los archivos importados cuentan completos."
+        }
+      ],
+      "docs": [
+        {
+          "title": "How Claude remembers your project",
+          "url": "https://code.claude.com/docs/en/memory"
+        },
+        {
+          "title": "Path-specific rules",
+          "url": "https://code.claude.com/docs/en/memory#path-specific-rules"
+        }
+      ]
+    },
+    "mcp_instructions": {
+      "label": {
+        "en": "MCP server instructions",
+        "es": "Instrucciones de servidores MCP"
+      },
+      "what": {
+        "en": "Short notes each MCP server sends to explain when to use its tools. They load at session start even when tool definitions are deferred.",
+        "es": "Notas cortas que envía cada servidor MCP para explicar cuándo usar sus herramientas. Se cargan al iniciar aunque las herramientas estén diferidas."
+      },
+      "tips": [
+        {
+          "en": "Each server's instructions are cut at 4,096 characters by default.",
+          "es": "Las instrucciones de cada servidor se cortan en 4.096 caracteres por defecto."
+        },
+        {
+          "en": "Remove servers you no longer use with /mcp; their instructions go away too.",
+          "es": "Quita con /mcp los servidores que ya no usas; sus instrucciones también desaparecen."
+        }
+      ],
+      "docs": [
+        {
+          "title": "Tool search for MCP server authors",
+          "url": "https://code.claude.com/docs/en/mcp#tool-search-for-mcp-server-authors"
+        },
+        {
+          "title": "Connect Claude Code to tools via MCP",
+          "url": "https://code.claude.com/docs/en/mcp"
+        }
+      ]
+    },
+    "messages": {
+      "label": {
+        "en": "Messages (conversation)",
+        "es": "Mensajes (conversación)"
+      },
+      "what": {
+        "en": "Everything said so far: your prompts, Claude's replies, tool calls and their results. It grows every turn and is re-sent with each request.",
+        "es": "Todo lo dicho hasta ahora: tus prompts, respuestas de Claude, llamadas a herramientas y sus resultados. Crece cada turno y se reenvía en cada petición."
+      },
+      "tips": [
+        {
+          "en": "Run /clear when you switch to an unrelated task.",
+          "es": "Usa /clear cuando cambies a una tarea distinta."
+        },
+        {
+          "en": "Run /compact with a focus at natural breaks, e.g. /compact keep the test commands.",
+          "es": "Usa /compact con un enfoque en pausas naturales, p. ej. /compact keep the test commands."
+        },
+        {
+          "en": "Use /rewind to drop a failed attempt instead of correcting it again and again.",
+          "es": "Usa /rewind para descartar un intento fallido en lugar de corregirlo una y otra vez."
+        }
+      ],
+      "docs": [
+        {
+          "title": "Explore the context window",
+          "url": "https://code.claude.com/docs/en/context-window"
+        },
+        {
+          "title": "Keep cost and context down",
+          "url": "https://code.claude.com/docs/en/best-practices#keep-cost-and-context-down"
+        }
+      ]
+    },
+    "user_messages": {
+      "label": {
+        "en": "Your messages",
+        "es": "Tus mensajes"
+      },
+      "what": {
+        "en": "The prompts you typed, plus anything pasted or added with ! shell mode.",
+        "es": "Los prompts que escribiste, más lo que pegaste o añadiste con el modo shell !."
+      },
+      "tips": [
+        {
+          "en": "Be specific: \"add validation to login in auth.ts\" needs far fewer file reads than \"improve this code\".",
+          "es": "Sé concreto: \"add validation to login in auth.ts\" necesita muchas menos lecturas que \"mejora este código\"."
+        },
+        {
+          "en": "Point to files with @path instead of pasting their contents.",
+          "es": "Señala archivos con @ruta en lugar de pegar su contenido."
+        },
+        {
+          "en": "Paste only the relevant part of long logs.",
+          "es": "Pega solo la parte relevante de los logs largos."
+        }
+      ],
+      "docs": [
+        {
+          "title": "Best practices for Claude Code",
+          "url": "https://code.claude.com/docs/en/best-practices"
+        },
+        {
+          "title": "Interactive mode",
+          "url": "https://code.claude.com/docs/en/interactive-mode"
+        }
+      ]
+    },
+    "assistant_text": {
+      "label": {
+        "en": "Claude's replies",
+        "es": "Respuestas de Claude"
+      },
+      "what": {
+        "en": "The visible text Claude wrote back to you. It stays in the conversation and is re-sent on later turns.",
+        "es": "El texto visible que Claude te respondió. Queda en la conversación y se reenvía en los turnos siguientes."
+      },
+      "tips": [
+        {
+          "en": "Ask for short answers, or pick a concise output style with /output-style.",
+          "es": "Pide respuestas cortas o elige un estilo de salida conciso con /output-style."
+        },
+        {
+          "en": "Use /btw for quick questions: the answer never enters the conversation.",
+          "es": "Usa /btw para preguntas rápidas: la respuesta nunca entra en la conversación."
+        }
+      ],
+      "docs": [
+        {
+          "title": "Output styles",
+          "url": "https://code.claude.com/docs/en/output-styles"
+        },
+        {
+          "title": "Side questions with /btw",
+          "url": "https://code.claude.com/docs/en/interactive-mode#side-questions-with-%2Fbtw"
+        }
+      ]
+    },
+    "thinking": {
+      "label": {
+        "en": "Thinking",
+        "es": "Razonamiento"
+      },
+      "what": {
+        "en": "The reasoning Claude does before answering. It is billed as output tokens, even when it is hidden or collapsed.",
+        "es": "El razonamiento que Claude hace antes de responder. Se cobra como tokens de salida, aunque esté oculto o plegado."
+      },
+      "tips": [
+        {
+          "en": "Lower the effort with /effort for simple tasks; raise it only for hard problems.",
+          "es": "Baja el esfuerzo con /effort en tareas simples; súbelo solo para problemas difíciles."
+        },
+        {
+          "en": "Write ultrathink in one prompt for extra depth on that turn only.",
+          "es": "Escribe ultrathink en un prompt para más profundidad solo en ese turno."
+        },
+        {
+          "en": "Some newer models can't turn thinking off; effort is the control there.",
+          "es": "En algunos modelos nuevos no se puede apagar el razonamiento; ahí el control es el esfuerzo."
+        }
+      ],
+      "docs": [
+        {
+          "title": "Adjust effort level",
+          "url": "https://code.claude.com/docs/en/model-config#adjust-effort-level"
+        },
+        {
+          "title": "Extended thinking",
+          "url": "https://code.claude.com/docs/en/model-config#extended-thinking"
+        }
+      ]
+    },
+    "tool_calls": {
+      "label": {
+        "en": "Tool calls",
+        "es": "Llamadas a herramientas"
+      },
+      "what": {
+        "en": "Requests Claude makes to its tools, like \"read this file\" or \"run this command\". The calls themselves are small; their results are usually what costs.",
+        "es": "Pedidos que Claude hace a sus herramientas, como \"lee este archivo\" o \"ejecuta este comando\". Las llamadas son pequeñas; lo que suele costar son los resultados."
+      },
+      "tips": [
+        {
+          "en": "Many calls usually mean a vague task. Name the files and the goal.",
+          "es": "Muchas llamadas suelen indicar una tarea vaga. Indica los archivos y el objetivo."
+        },
+        {
+          "en": "Send broad research to a subagent; only its summary returns.",
+          "es": "Manda la investigación amplia a un subagente; solo vuelve su resumen."
+        }
+      ],
+      "docs": [
+        {
+          "title": "Tools reference",
+          "url": "https://code.claude.com/docs/en/tools-reference"
+        },
+        {
+          "title": "Create custom subagents",
+          "url": "https://code.claude.com/docs/en/sub-agents"
+        }
+      ]
+    },
+    "tool_results": {
+      "label": {
+        "en": "Tool results",
+        "es": "Resultados de herramientas"
+      },
+      "what": {
+        "en": "What tools sent back: file contents, command output, search results, MCP data. This is often the biggest part of a long session.",
+        "es": "Lo que devolvieron las herramientas: contenido de archivos, salida de comandos, búsquedas, datos MCP. Suele ser la mayor parte de una sesión larga."
+      },
+      "tips": [
+        {
+          "en": "Ask a subagent to run tests or read logs and report only the failures.",
+          "es": "Pide a un subagente que ejecute tests o lea logs y reporte solo los fallos."
+        },
+        {
+          "en": "Filter output in the command itself, e.g. tail or grep, before it reaches Claude.",
+          "es": "Filtra la salida en el propio comando, p. ej. con tail o grep, antes de que llegue a Claude."
+        },
+        {
+          "en": "Very large outputs are saved to a file and Claude gets a path plus a preview.",
+          "es": "Las salidas muy grandes se guardan en un archivo y Claude recibe la ruta y una vista previa."
+        }
+      ],
+      "docs": [
+        {
+          "title": "Isolate high-volume operations",
+          "url": "https://code.claude.com/docs/en/sub-agents#isolate-high-volume-operations"
+        },
+        {
+          "title": "MCP output limits and warnings",
+          "url": "https://code.claude.com/docs/en/mcp#mcp-output-limits-and-warnings"
+        },
+        {
+          "title": "Tools reference",
+          "url": "https://code.claude.com/docs/en/tools-reference"
+        }
+      ]
+    },
+    "autocompact_buffer": {
+      "label": {
+        "en": "Auto-compact reserve",
+        "es": "Reserva para auto-compactar"
+      },
+      "what": {
+        "en": "Room kept free between the auto-compact point and the model's full window. When the conversation reaches that point, Claude Code summarizes it. On 1M-token models this happens at about 967K tokens by default.",
+        "es": "Espacio que queda libre entre el punto de auto-compactación y la ventana completa del modelo. Cuando la conversación llega ahí, Claude Code la resume. En modelos de 1M de tokens ocurre por defecto cerca de los 967K."
+      },
+      "tips": [
+        {
+          "en": "The exact point depends on your model and settings; it is not a fixed size.",
+          "es": "El punto exacto depende del modelo y la configuración; no es un tamaño fijo."
+        },
+        {
+          "en": "Use /autocompact 200k to compact earlier and keep each request smaller.",
+          "es": "Usa /autocompact 200k para compactar antes y que cada petición sea más pequeña."
+        },
+        {
+          "en": "Compact yourself at a natural break instead of waiting for it mid-task.",
+          "es": "Compacta tú en una pausa natural en lugar de esperar a que ocurra a mitad de tarea."
+        }
+      ],
+      "docs": [
+        {
+          "title": "Default auto-compact thresholds",
+          "url": "https://code.claude.com/docs/en/model-config#default-auto-compact-thresholds"
+        },
+        {
+          "title": "Set the auto-compact window",
+          "url": "https://code.claude.com/docs/en/model-config#set-the-auto-compact-window"
+        }
+      ]
+    },
+    "free_space": {
+      "label": {
+        "en": "Free space",
+        "es": "Espacio libre"
+      },
+      "what": {
+        "en": "The part of the context window that is still empty. More free space doesn't make Claude smarter, but a lean context is faster, cheaper and keeps Claude focused.",
+        "es": "La parte de la ventana de contexto que sigue vacía. Más espacio no hace a Claude más listo, pero un contexto ligero es más rápido, barato y enfocado."
+      },
+      "tips": [
+        {
+          "en": "You pay for what is used, not for what is free: every request re-sends the used part.",
+          "es": "Pagas por lo usado, no por lo libre: cada petición reenvía la parte usada."
+        },
+        {
+          "en": "Show context % in your status line with /statusline.",
+          "es": "Muestra el % de contexto en tu línea de estado con /statusline."
+        }
+      ],
+      "docs": [
+        {
+          "title": "Explore the context window",
+          "url": "https://code.claude.com/docs/en/context-window"
+        },
+        {
+          "title": "Context window fields",
+          "url": "https://code.claude.com/docs/en/statusline#context-window-fields"
+        }
+      ]
+    },
+    "compaction": {
+      "label": {
+        "en": "Compaction",
+        "es": "Compactación"
+      },
+      "what": {
+        "en": "Claude Code replaces the conversation with a summary to free space. CLAUDE.md, auto memory and skill descriptions reload, up to five recent files are re-read, and early details may be lost.",
+        "es": "Claude Code reemplaza la conversación por un resumen para liberar espacio. CLAUDE.md, la memoria y las descripciones de skills se recargan, se releen hasta cinco archivos recientes y pueden perderse detalles tempranos."
+      },
+      "tips": [
+        {
+          "en": "Put rules that must survive in CLAUDE.md, not in chat messages.",
+          "es": "Pon las reglas que deben sobrevivir en CLAUDE.md, no en mensajes del chat."
+        },
+        {
+          "en": "Add a \"Compact instructions\" section to CLAUDE.md to guide what the summary keeps.",
+          "es": "Añade una sección \"Compact instructions\" a CLAUDE.md para guiar qué guarda el resumen."
+        },
+        {
+          "en": "Compacting reads the whole conversation; it costs most after a break, when the cache has expired.",
+          "es": "Compactar lee toda la conversación; cuesta más tras una pausa, cuando la caché ya expiró."
+        },
+        {
+          "en": "Need a fresh start, not continuity? /clear is free.",
+          "es": "¿Quieres empezar de cero y no continuar? /clear es gratis."
+        }
+      ],
+      "docs": [
+        {
+          "title": "What survives compaction",
+          "url": "https://code.claude.com/docs/en/context-window#what-survives-compaction"
+        },
+        {
+          "title": "How Claude Code works",
+          "url": "https://code.claude.com/docs/en/how-claude-code-works"
+        },
+        {
+          "title": "How Claude Code uses prompt caching",
+          "url": "https://code.claude.com/docs/en/prompt-caching"
+        }
+      ]
+    },
+    "cache": {
+      "label": {
+        "en": "Prompt cache",
+        "es": "Caché de prompts"
+      },
+      "what": {
+        "en": "Each request re-sends the whole context. The cache lets the API reuse the unchanged start: cache reads are billed at a much lower rate and are faster, while cache writes store new content for next time.",
+        "es": "Cada petición reenvía todo el contexto. La caché permite reutilizar el inicio sin cambios: las lecturas de caché se cobran mucho más barato y son más rápidas; las escrituras guardan contenido nuevo para la próxima vez."
+      },
+      "tips": [
+        {
+          "en": "Pick your model and effort at the start; switching mid-session re-reads everything uncached.",
+          "es": "Elige modelo y esfuerzo al inicio; cambiarlos a mitad de sesión relee todo sin caché."
+        },
+        {
+          "en": "The cache expires after inactivity (5 minutes, or 1 hour on a subscription). The first turn after a long break is slower.",
+          "es": "La caché expira con la inactividad (5 minutos, o 1 hora con suscripción). El primer turno tras una pausa larga es más lento."
+        },
+        {
+          "en": "Check your hit rate in the \"Prompt cache (main)\" line of /usage.",
+          "es": "Revisa tu tasa de aciertos en la línea \"Prompt cache (main)\" de /usage."
+        },
+        {
+          "en": "Editing CLAUDE.md keeps the cache, but changes apply only after /clear, /compact or a restart.",
+          "es": "Editar CLAUDE.md mantiene la caché, pero los cambios se aplican tras /clear, /compact o reiniciar."
+        }
+      ],
+      "docs": [
+        {
+          "title": "How Claude Code uses prompt caching",
+          "url": "https://code.claude.com/docs/en/prompt-caching"
+        },
+        {
+          "title": "Actions that invalidate the cache",
+          "url": "https://code.claude.com/docs/en/prompt-caching#actions-that-invalidate-the-cache"
+        },
+        {
+          "title": "Prompt cache statistics",
+          "url": "https://code.claude.com/docs/en/costs#prompt-cache-statistics"
+        }
+      ]
+    }
+  },
+  "recommendations": [
+    {
+      "id": "high_usage",
+      "when": "latest request's input tokens (input + cache_creation + cache_read) > 70% of the model's context window",
+      "title": {
+        "en": "Your context is getting full",
+        "es": "Tu contexto se está llenando"
+      },
+      "text": {
+        "en": "Over 70% is used. If you're switching tasks, run /clear. If not, run /compact with a focus, like /compact keep the API changes.",
+        "es": "Llevas más del 70%. Si cambias de tarea, usa /clear. Si no, usa /compact con un enfoque, como /compact keep the API changes."
+      },
+      "doc": "https://code.claude.com/docs/en/context-window"
+    },
+    {
+      "id": "large_tool_results",
+      "when": "any single tool_result > 10,000 tokens, or tool_results > 50% of message tokens",
+      "title": {
+        "en": "Big tool outputs",
+        "es": "Salidas de herramientas grandes"
+      },
+      "text": {
+        "en": "Some tool results are very large. Ask a subagent to run tests or read logs and report only what matters, or filter output with grep or tail.",
+        "es": "Algunos resultados de herramientas son muy grandes. Pide a un subagente que ejecute tests o lea logs y reporte solo lo importante, o filtra con grep o tail."
+      },
+      "doc": "https://code.claude.com/docs/en/sub-agents#isolate-high-volume-operations"
+    },
+    {
+      "id": "many_mcp_tools",
+      "when": "MCP tool definitions loaded upfront > 10% of the context window, or > 5 MCP servers connected",
+      "title": {
+        "en": "Lots of MCP tools loaded",
+        "es": "Muchas herramientas MCP cargadas"
+      },
+      "text": {
+        "en": "MCP tools take a big share of your context. Disable servers you don't use with /mcp, and check that tool search isn't turned off.",
+        "es": "Las herramientas MCP ocupan buena parte del contexto. Desactiva con /mcp los servidores que no uses y revisa que la búsqueda de herramientas no esté apagada."
+      },
+      "doc": "https://code.claude.com/docs/en/mcp#configure-tool-search"
+    },
+    {
+      "id": "big_fixed_overhead",
+      "when": "system_prompt + system_tools + mcp_tools + mcp_instructions + skills + memory_files > 40,000 tokens (or > 20% of a 200K window) before the first user message",
+      "title": {
+        "en": "High starting cost",
+        "es": "Costo inicial alto"
+      },
+      "text": {
+        "en": "A lot loads before you type anything. Trim CLAUDE.md, hide unused skills in /skills, and disable unused MCP servers with /mcp.",
+        "es": "Se carga mucho antes de que escribas nada. Recorta CLAUDE.md, oculta skills que no uses en /skills y desactiva servidores MCP sin uso con /mcp."
+      },
+      "doc": "https://code.claude.com/docs/en/features-overview#understand-context-costs"
+    },
+    {
+      "id": "frequent_compaction",
+      "when": "2 or more compactions (compact boundary / summary entries) in one session",
+      "title": {
+        "en": "Compacting often",
+        "es": "Compactas a menudo"
+      },
+      "text": {
+        "en": "This session was summarized several times, and details get lost each time. Split work into smaller sessions with /clear, and keep key rules in CLAUDE.md.",
+        "es": "Esta sesión se resumió varias veces y en cada una se pierden detalles. Divide el trabajo en sesiones más cortas con /clear y guarda las reglas clave en CLAUDE.md."
+      },
+      "doc": "https://code.claude.com/docs/en/how-claude-code-works"
+    },
+    {
+      "id": "long_session_many_turns",
+      "when": "more than 80 user turns, or session spans more than 8 hours, without a /clear",
+      "title": {
+        "en": "Very long session",
+        "es": "Sesión muy larga"
+      },
+      "text": {
+        "en": "Every new message re-sends the whole history. If earlier tasks are done, name the session with /rename, then /clear and start fresh.",
+        "es": "Cada mensaje nuevo reenvía todo el historial. Si las tareas anteriores terminaron, nombra la sesión con /rename, luego usa /clear y empieza de nuevo."
+      },
+      "doc": "https://code.claude.com/docs/en/costs#why-usage-climbs-in-a-long-session"
+    },
+    {
+      "id": "low_cache_hit",
+      "when": "cache_read / (input + cache_creation + cache_read) < 70% across the session's main-conversation requests",
+      "title": {
+        "en": "Low cache reuse",
+        "es": "Poca reutilización de caché"
+      },
+      "text": {
+        "en": "Much of your context was processed at full price. Common causes: switching model or effort mid-task, toggling MCP servers, or long breaks.",
+        "es": "Gran parte del contexto se procesó a precio completo. Causas comunes: cambiar modelo o esfuerzo a mitad de tarea, activar o quitar servidores MCP o pausas largas."
+      },
+      "doc": "https://code.claude.com/docs/en/prompt-caching#actions-that-invalidate-the-cache"
+    },
+    {
+      "id": "big_memory_file",
+      "when": "any CLAUDE.md / rules file > 200 lines, or memory_files > 10,000 tokens",
+      "title": {
+        "en": "Large CLAUDE.md",
+        "es": "CLAUDE.md muy grande"
+      },
+      "text": {
+        "en": "Memory files load on every request. Keep each under about 200 lines and move task-specific steps into skills, which load only when used.",
+        "es": "Los archivos de memoria se cargan en cada petición. Mantén cada uno bajo unas 200 líneas y pasa los pasos específicos a skills, que solo se cargan al usarlas."
+      },
+      "doc": "https://code.claude.com/docs/en/memory"
+    },
+    {
+      "id": "heavy_thinking",
+      "when": "thinking tokens > 50% of output tokens (only when thinking size is measurable in the transcript)",
+      "title": {
+        "en": "Lots of thinking",
+        "es": "Mucho razonamiento"
+      },
+      "text": {
+        "en": "Claude spends many tokens reasoning. For simple tasks, lower the effort with /effort. Use ultrathink only on the turns that need it.",
+        "es": "Claude gasta muchos tokens razonando. En tareas simples, baja el esfuerzo con /effort. Usa ultrathink solo en los turnos que lo necesiten."
+      },
+      "doc": "https://code.claude.com/docs/en/costs#adjust-extended-thinking"
+    },
+    {
+      "id": "many_file_reads",
+      "when": "more than 30 Read/Grep/Glob tool calls in the session, or the same file read 3+ times",
+      "title": {
+        "en": "Many file reads",
+        "es": "Muchas lecturas de archivos"
+      },
+      "text": {
+        "en": "Claude read a lot of files. Name the exact files with @path, write specific prompts, or let a subagent explore and report back.",
+        "es": "Claude leyó muchos archivos. Indica los archivos exactos con @ruta, escribe prompts concretos o deja que un subagente explore y te informe."
+      },
+      "doc": "https://code.claude.com/docs/en/costs#write-specific-prompts"
+    },
+    {
+      "id": "model_switch_midsession",
+      "when": "assistant messages in one session use more than one model id",
+      "title": {
+        "en": "Model changed mid-session",
+        "es": "Cambio de modelo a mitad de sesión"
+      },
+      "text": {
+        "en": "Each model has its own cache, so the turn after a switch re-reads everything at full price. Choose the model at the start.",
+        "es": "Cada modelo tiene su propia caché, así que el turno tras el cambio relee todo a precio completo. Elige el modelo al inicio."
+      },
+      "doc": "https://code.claude.com/docs/en/prompt-caching#switching-models"
+    },
+    {
+      "id": "idle_cache_expired",
+      "when": "gap between consecutive main-conversation requests > 5 minutes (API key) or > 1 hour (subscription), followed by a large cache_creation",
+      "title": {
+        "en": "Cache expired after a break",
+        "es": "La caché expiró tras una pausa"
+      },
+      "text": {
+        "en": "After a long break the cache expires and the next turn is slower and costs more. If you no longer need the history, /clear is cheaper.",
+        "es": "Tras una pausa larga la caché expira y el siguiente turno es más lento y caro. Si ya no necesitas el historial, /clear sale más barato."
+      },
+      "doc": "https://code.claude.com/docs/en/prompt-caching#cache-lifetime"
+    },
+    {
+      "id": "many_skills",
+      "when": "skills listing > 1% of the context window",
+      "title": {
+        "en": "Big skills list",
+        "es": "Lista de skills grande"
+      },
+      "text": {
+        "en": "Your skill list is large and some descriptions may be dropped. Run /skill-doctor to see what each one costs, and remove or disable the ones you rarely use.",
+        "es": "Tu lista de skills es grande y algunas descripciones pueden quedar fuera. Ejecuta /skill-doctor para ver cuánto cuesta cada una, y quita o desactiva las que casi no usas."
+      },
+      "doc": "https://code.claude.com/docs/en/skills"
+    },
+    {
+      "id": "outdated_version",
+      "when": "session ran on an older Claude Code version than the latest on npm (last 7 days only)",
+      "title": {
+        "en": "Claude Code update available",
+        "es": "Hay una actualización de Claude Code"
+      },
+      "text": {
+        "en": "Newer versions often fix context and cache bugs and add features. Run claude update in your terminal, then check the News page for what changed.",
+        "es": "Las versiones nuevas suelen corregir fallos de contexto y caché y añadir funciones. Ejecuta claude update en tu terminal y mira en Novedades qué cambió."
+      },
+      "doc": "https://code.claude.com/docs/en/changelog"
+    }
+  ]
+}
