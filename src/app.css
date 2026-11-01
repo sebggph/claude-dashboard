@@ -93,6 +93,20 @@ button { font: inherit; color: inherit; }
   background: var(--surface); display: grid; place-items: center; cursor: pointer; color: var(--text-2);
 }
 .icon-btn:hover { color: var(--text); }
+.icon-btn.on { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); background: color-mix(in srgb, var(--accent) 10%, var(--surface)); }
+.settings-pop label.check { display: flex; gap: 8px; align-items: center; color: var(--text); font-size: 14px; }
+.health { display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; font-weight: 650; color: var(--text); padding: 2px 9px 2px 7px; border-radius: 999px;
+  background: color-mix(in srgb, var(--hc) 14%, var(--surface)); border: 1px solid color-mix(in srgb, var(--hc) 40%, var(--border)); }
+.health .icon { color: var(--hc); }
+.report { display: grid; grid-template-columns: 1fr 1.6fr; gap: 24px; border-left: 4px solid var(--hc); }
+.report-main { display: grid; gap: 8px; align-content: start; }
+.report-grade .health { font-size: 18px; padding: 5px 14px 5px 11px; }
+.report-grade .health .icon { width: 20px; height: 20px; }
+.report-main p { margin: 0; color: var(--text-2); }
+.report-fixes { display: grid; gap: 8px; align-content: start; justify-items: start; }
+.report-fixes ol { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
+.report-fixes p { margin: 0; }
+@media (max-width: 960px) { .report { grid-template-columns: 1fr; } }
 .icon { width: 18px; height: 18px; flex: none; }
 
 /* ---------- layout ---------- */

@@ -3,6 +3,15 @@
 
 export const STRINGS = {
   en: {
+    privacy: 'Privacy mode', privacy_on: 'Privacy mode is on: names, paths and prompts are hidden', privacy_off: 'Privacy mode: hide names, paths and prompts',
+    privacy_hint: 'Hides session titles, project names, branches, file paths and prompt text, so screenshots are safe to share.',
+    priv_session: 'Session {id}', priv_project: 'Project {id}',
+    col_health: 'Health', health_lean: 'Lean', health_okay: 'Okay', health_heavy: 'Heavy',
+    rc_title: 'Session report card', rc_fixes: 'Top fixes', rc_none: 'Nothing to fix. Keep it up.',
+    rc_lean: 'Lean: little wasted context and good cache use.', rc_okay: 'Okay: a few things to tidy up.', rc_heavy: 'Heavy: this session is carrying more than it needs.',
+    rc_copy: 'Copy for chat', rc_copied: 'Copied!',
+    rc_text_title: 'Claude session report', rc_text_context: 'Context', rc_text_of: 'of', rc_text_requests: 'requests', rc_text_compactions: 'compactions', rc_text_cache: 'cache hits',
+    rc_text_footer: '(Claude Context Dashboard)',
     row_mcp_tools: 'MCP tool definitions', row_memory_files: 'Memory files (CLAUDE.md…)', row_tools_other: 'Built-in tools & other',
     mem_title: 'Memory files', mem_total: '{t} loaded at start', mem_sub: 'CLAUDE.md, rules, imports and auto memory Claude Code loads for this project.',
     mem_file: 'File', mem_lines: 'Lines', mem_loads: 'Loads', mem_start: 'at start', mem_demand: 'on demand', mem_via: 'imported by {f}',
@@ -130,6 +139,15 @@ export const STRINGS = {
     ago_now: 'just now', ago_min: '{n} min ago', ago_h: '{n} h ago', ago_d: '{n} d ago',
   },
   es: {
+    privacy: 'Modo privado', privacy_on: 'Modo privado activo: nombres, rutas y mensajes ocultos', privacy_off: 'Modo privado: oculta nombres, rutas y mensajes',
+    privacy_hint: 'Oculta títulos de sesión, nombres de proyecto, ramas, rutas de archivos y el texto de los mensajes, para compartir capturas sin riesgo.',
+    priv_session: 'Sesión {id}', priv_project: 'Proyecto {id}',
+    col_health: 'Estado', health_lean: 'Ligera', health_okay: 'Aceptable', health_heavy: 'Pesada',
+    rc_title: 'Informe de la sesión', rc_fixes: 'Principales mejoras', rc_none: 'Nada que mejorar. ¡Sigue así!',
+    rc_lean: 'Ligera: poco contexto desperdiciado y buen uso de la caché.', rc_okay: 'Aceptable: hay un par de cosas que ordenar.', rc_heavy: 'Pesada: esta sesión carga más de lo que necesita.',
+    rc_copy: 'Copiar para el chat', rc_copied: '¡Copiado!',
+    rc_text_title: 'Informe de sesión de Claude', rc_text_context: 'Contexto', rc_text_of: 'de', rc_text_requests: 'peticiones', rc_text_compactions: 'compactaciones', rc_text_cache: 'aciertos de caché',
+    rc_text_footer: '(Claude Context Dashboard)',
     row_mcp_tools: 'Definiciones de herramientas MCP', row_memory_files: 'Archivos de memoria (CLAUDE.md…)', row_tools_other: 'Herramientas integradas y otros',
     mem_title: 'Archivos de memoria', mem_total: '{t} cargados al inicio', mem_sub: 'CLAUDE.md, reglas, imports y memoria automática que Claude Code carga para este proyecto.',
     mem_file: 'Archivo', mem_lines: 'Líneas', mem_loads: 'Carga', mem_start: 'al inicio', mem_demand: 'cuando hace falta', mem_via: 'importado por {f}',

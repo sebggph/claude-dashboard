@@ -2,6 +2,13 @@
 
 Content and feature updates to the dashboard. Newest first. The `/update-dashboard` skill adds an entry each time it runs.
 
+## 2026-11-01: v0.4
+
+- MIT license; CI on every pull request (tests, content check, build, Docker image build) plus a weekly link check.
+- Session view: **Memory files** card (CLAUDE.md, rules, imports, auto memory) and **MCP servers** card (tools, definition size, failed servers); fixed overhead split into system prompt, MCP tools, memory files and built-in tools.
+- **Session report card** with health grade (Lean / Okay / Heavy), top 3 fixes and *Copy for chat*; Health column in the sessions list.
+- **Privacy mode** hides titles, project names, branches, file paths and prompt text.
+
 ## 2026-11-01: v0.3.1
 
 - Docker uses the first free port from 3000 to 3010 when 3000 is taken. New `npm run docker` keeps the address stable and prints the link.

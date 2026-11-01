@@ -7,27 +7,29 @@
   import DemoBanner from '#lib/components/DemoBanner.svelte';
   import MemoryCard from '#lib/components/MemoryCard.svelte';
   import McpCard from '#lib/components/McpCard.svelte';
+  import ReportCard from '#lib/components/ReportCard.svelte';
   import { data as app, t } from '#lib/state.svelte.js';
-  import { breakdownOf, recommendationsFor, CAT_COLOR, fmtK, pct, shortModel, projectName, ago } from '#lib/rules.js';
+  import { breakdownOf, recommendationsFor, CAT_COLOR, fmtK, pct, shortModel, ago, sessionTitle, maskProject, maskBranch, maskText } from '#lib/rules.js';
 
   let { data } = $props();
   const s = $derived(data.session);
   const bd = $derived(breakdownOf(s));
   const recs = $derived(recommendationsFor(s, app.sessions?.memoryFiles));
-  const chips = $derived([projectName(s.project), s.gitBranch, shortModel(s.model), s.version && 'v' + s.version, ago(s.end)].filter(Boolean));
+  const chips = $derived([maskProject(s.project), maskBranch(s.gitBranch), shortModel(s.model), s.version && 'v' + s.version, ago(s.end)].filter(Boolean));
   const tok = $derived(s.totals);
   const toolName = (x) => (x.server ? x.name.split('__').slice(2).join('__') : x.name);
 </script>
 
-<svelte:head><title>{s.title || s.id} · Context Dashboard</title></svelte:head>
+<svelte:head><title>{sessionTitle(s)} · Context Dashboard</title></svelte:head>
 
 <DemoBanner />
 <a href="/sessions" class="small"><Icon name="back" /> {t('back')}</a>
 <div class="page-head" style="margin-top:10px">
-  <div><h1>{s.title || s.id}</h1><div class="chips">{#each chips as c (c)}<span class="chip">{c}</span>{/each}</div></div>
+  <div><h1>{sessionTitle(s)}</h1><div class="chips">{#each chips as c (c)}<span class="chip">{c}</span>{/each}</div></div>
 </div>
 
 <div class="stack">
+  <ReportCard session={s} />
   <div class="grid grid-2">
     <ContextCard session={s} />
     <div class="col-fill">
@@ -73,7 +75,7 @@
         {#each s.biggest || [] as b, i (i)}
           <div class="item">
             <span class="sw" style:background={CAT_COLOR[b.cat] || 'var(--buffer)'}></span>
-            <span class="t" title={b.label}>{b.tool || t('row_' + b.cat)}<small>{b.label}</small></span>
+            <span class="t" title={maskText(b.label)}>{b.tool || t('row_' + b.cat)}<small>{maskText(b.label)}</small></span>
             <span class="v">{fmtK(b.tokens)}</span>
           </div>
         {/each}
@@ -104,7 +106,7 @@
         <thead><tr><th>{t('col_agent')}</th><th class="r">{t('col_tools')}</th><th class="r">{t('col_peak')}</th></tr></thead>
         <tbody>
           {#each s.subagents as a (a.id)}
-            <tr><td><div class="cell-title">{a.description || a.id}</div><div class="cell-sub">{a.type}</div></td>
+            <tr><td><div class="cell-title">{maskText(a.description) || a.id}</div><div class="cell-sub">{a.type}</div></td>
               <td class="r num">{a.toolCalls}</td><td class="r num">{fmtK(a.peak)}</td></tr>
           {/each}
         </tbody>

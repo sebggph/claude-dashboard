@@ -3,7 +3,7 @@
   import Icon from './Icon.svelte';
   import Explain from './Explain.svelte';
   import { t } from '#lib/state.svelte.js';
-  import { fmtK } from '#lib/rules.js';
+  import { fmtK, maskPath } from '#lib/rules.js';
   let { memory } = $props();
   const files = $derived(memory?.files || []);
 </script>
@@ -17,7 +17,7 @@
       <tbody>
         {#each files as f (f.path)}
           <tr>
-            <td><div class="cell-title mono small" title={f.path}>{f.path}</div>
+            <td><div class="cell-title mono small" title={maskPath(f.path)}>{maskPath(f.path)}</div>
               <div class="cell-sub">{t('mem_scope_' + f.scope.replace(/[^a-z]/gi, '_'))}{f.via ? ' · ' + t('mem_via', { f: f.via.split('/').pop() }) : ''}</div></td>
             <td class="r num">{#if f.tooLong}<span class="status" style:color="var(--serious)" title={t('mem_too_long')}><Icon name="alert" small /> {f.lines}</span>{:else}{f.lines}{/if}</td>
             <td class="r num">{fmtK(f.tokens)}</td>
