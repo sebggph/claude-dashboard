@@ -16,6 +16,7 @@ Un panel pequeño y sencillo que muestra **cuánto contexto usan tus sesiones de
 - **Coste estimado y Tendencias**: coste por sesión con los precios oficiales de la API, cuánto ahorró la caché y gráficos diarios de peticiones, coste y aciertos de caché.
 - **Alertas de presupuesto**: presupuestos diario, semanal y por sesión en dólares o tokens, con línea de presupuesto en los gráficos, avisos al 80% y al 100% y notificaciones de escritorio opcionales.
 - **Recorrido guiado**: un paseo de 1 minuto en la primera visita (repítelo desde Inicio o Ajustes).
+- **Exportar**: descarga una sesión como informe Markdown, CSV (desglose, línea de tiempo, herramientas) o JSON, o imprímela / guárdala como PDF. Respeta el modo privado.
 - **Línea de tiempo de la sesión**: recorre una sesión petición a petición y mira qué hizo crecer el contexto (mayores saltos, compactaciones, tu mensaje, resultados de herramientas).
 - **Comparar sesiones**: dos sesiones lado a lado (coste de arranque, conversación, cifras clave, herramientas) con conclusiones en palabras sencillas, por ejemplo antes y después de quitar servidores MCP.
 - **Modo privado** (icono del ojo): oculta títulos, proyectos, ramas, rutas y el texto de los mensajes para compartir capturas sin riesgo.
