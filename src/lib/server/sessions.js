@@ -6,6 +6,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { parseSession, parseSubagents, est } from './parser.js';
 import { APP_ROOT } from './paths.js';
+import { memoryFor } from './memory.js';
 
 export const CLAUDE_DIR = process.env.CLAUDE_DIR || path.join(os.homedir(), '.claude');
 const DEMO_DIR = path.join(APP_ROOT, 'samples');
@@ -104,7 +105,23 @@ export function getSession(id) {
   const matches = files.filter((f) => path.basename(f.file, '.jsonl') === id).sort((a, b) => b.mtime - a.mtime);
   if (!matches.length) return null;
   const detail = cached(matches[0]);
-  return detail ? { ...detail, subagents: parseSubagents(matches[0].file) } : null;
+  if (!detail) return null;
+  // Memory files are read fresh each time (they change independently of the transcript).
+  const memory = memoryFor({ cwd: detail.project, projectDir: matches[0].projectDir, claudeDir: CLAUDE_DIR });
+  const fixed = { ...detail.breakdown.fixed };
+  const restKey = 'tools_other' in fixed ? 'tools_other' : 'fixed_overhead';
+  const mem = Math.min(memory.atStart, fixed[restKey] || 0);
+  if (mem > 0) {
+    fixed.memory_files = mem;
+    fixed[restKey] -= mem;
+    if (restKey === 'fixed_overhead') { fixed.tools_other = fixed.fixed_overhead; delete fixed.fixed_overhead; }
+  }
+  return {
+    ...detail,
+    breakdown: { ...detail.breakdown, fixed },
+    memory,
+    subagents: parseSubagents(matches[0].file),
+  };
 }
 
 export function describeSource() {

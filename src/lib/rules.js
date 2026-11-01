@@ -81,7 +81,7 @@ export const bufferFor = (win) => (win >= 1000000 ? 33000 : 0);
 // ---------- breakdown ----------
 // Six colored groups (fixed categorical order), each with detail rows.
 export const GROUPS = [
-  { id: 'fixed', color: 'var(--s1)', rows: ['system_prompt', 'tools_and_memory', 'fixed_overhead'] },
+  { id: 'fixed', color: 'var(--s1)', rows: ['system_prompt', 'mcp_tools', 'memory_files', 'tools_other', 'tools_and_memory', 'fixed_overhead'] },
   { id: 'listings', color: 'var(--s2)', rows: ['skills', 'mcp_instructions', 'deferred_tools', 'agents', 'reminders', 'hooks', 'compact_summary'] },
   { id: 'user', color: 'var(--s3)', rows: ['user'] },
   { id: 'assistant', color: 'var(--s4)', rows: ['assistant', 'thinking'] },
@@ -94,6 +94,7 @@ for (const g of GROUPS) for (const r of g.rows) CAT_COLOR[r] = g.color;
 // Which explanation (context-guide.json) belongs to each row.
 export const GUIDE_KEY = {
   system_prompt: 'system_prompt', tools_and_memory: 'system_tools', fixed_overhead: 'system_tools',
+  mcp_tools: 'mcp_tools', memory_files: 'memory_files', tools_other: 'system_tools',
   skills: 'skills', mcp_instructions: 'mcp_instructions', deferred_tools: 'deferred_tools', agents: 'messages',
   reminders: 'messages', hooks: 'messages', compact_summary: 'compaction', user: 'user_messages',
   assistant: 'assistant_text', thinking: 'thinking', tool_calls: 'tool_calls', tool_results: 'tool_results',
@@ -158,7 +159,9 @@ export function recommendationsFor(s, memoryFiles = []) {
   if (s.compactions >= 2) add('frequent_compaction', 'warning', t('why_frequent_compaction', { n: s.compactions }));
   if (s.userPrompts > 80) add('long_session_many_turns', 'info', t('why_long_session_many_turns', { n: s.userPrompts }));
   if (s.requests >= 5 && s.cacheHitRate < 0.7) add('low_cache_hit', 'info', t('why_low_cache_hit', { p: pct(s.cacheHitRate) }));
-  for (const f of memoryFiles) if (f.tokens > 10000 || f.lines > 200) { add('big_memory_file', 'info', t('why_big_memory_file', { f: f.path, t: fmtK(f.tokens) })); break; }
+  const memFiles = s.memory ? s.memory.files.filter((f) => f.loads === 'start') : memoryFiles;
+  for (const f of memFiles) if (f.tokens > 10000 || f.lines > 200) { add('big_memory_file', 'info', t('why_big_memory_file', { f: f.path, t: fmtK(f.tokens) })); break; }
+  if (s.mcp && s.mcp.loadedTokens > win * 0.1) add('many_mcp_tools', 'warning', t('why_mcp_defs', { t: fmtK(s.mcp.loadedTokens) }));
   if ((cats.thinking || 0) / msgs > 0.5 && s.totals.thinking > 0) add('heavy_thinking', 'info', t('why_heavy_thinking', { p: pct((cats.thinking || 0) / msgs) }));
   if (sig.fileReads > 30 || sig.mostReadFile) add('many_file_reads', 'info', t('why_many_file_reads', { n: sig.fileReads }));
   if (sig.models && sig.models.length > 1) add('model_switch_midsession', 'info', t('why_model_switch', { m: sig.models.map(shortModel).join(' → ') }));
