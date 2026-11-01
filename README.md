@@ -122,3 +122,7 @@ test/                  Parser tests (npm test)
 ## Contributing
 
 See [ROADMAP.md](ROADMAP.md) for ideas and where each one would go in the code. Keep texts short and plain, add both languages, and link claims to the official docs.
+
+## License
+
+[MIT](LICENSE): free to use, change and share, including commercially. Keep the copyright notice.

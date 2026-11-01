@@ -107,3 +107,7 @@ Este repositorio incluye una skill de Claude Code, **`/update-dashboard`** (`.cl
 ## Contribuir
 
 Mira [ROADMAP.md](ROADMAP.md) para ideas y en qué parte del código iría cada una. Textos cortos y claros, siempre en los dos idiomas, y enlaza las afirmaciones a la documentación oficial.
+
+## Licencia
+
+[MIT](LICENSE): libre para usar, modificar y compartir, también con fines comerciales. Mantén el aviso de copyright.
