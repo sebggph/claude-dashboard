@@ -2,6 +2,11 @@
 
 Content and feature updates to the dashboard. Newest first. The `/update-dashboard` skill adds an entry each time it runs.
 
+## 2026-11-01: v0.10
+
+- **Online demo** at https://sebggph.github.io/claude-dashboard/ (sample sessions, no install). `npm run build:demo` bakes the API answers into JSON and builds a static site; a workflow publishes it to GitHub Pages on every push to main.
+- All links and data paths work under a base path (`link()` / `file()` helpers in `src/lib/paths.js`).
+
 ## 2026-11-01: v0.9
 
 - **Guided tour**: 10 short steps on first launch (Home, latest session, context card, explanations, report card, timeline, sections, settings), with a highlight, Back/Next/Skip, arrow keys and Esc. Ends on the *Start a new project* tutorial. Restart from Home (*Take the tour*) or Settings.

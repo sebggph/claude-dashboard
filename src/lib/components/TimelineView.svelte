@@ -1,4 +1,5 @@
 <script>
+  import { link } from '#lib/paths.js';
   // Step through a session request by request: what was added, and how much
   // the context grew. Click the chart or use ← → to move.
   import Icon from './Icon.svelte';
@@ -72,7 +73,7 @@
 
       {#if step.compacted}
         <div class="banner tl-compact"><Icon name="layers" /><span>{t('tl_compacted', { a: fmtK(prev ? prev.total : 0), b: fmtK(step.total) })}</span>
-          <a href="/learn/compaction">{t('learn_more')} →</a></div>
+          <a href={link('/learn/compaction')}>{t('learn_more')} →</a></div>
       {/if}
 
       {#if step.prompt && !ui.privacy}

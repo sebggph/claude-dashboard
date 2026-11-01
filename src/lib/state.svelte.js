@@ -1,5 +1,6 @@
 // App-wide state (Svelte 5 runes): preferences, loaded data and translations.
 import { STRINGS } from './i18n.js';
+import { apiURL, file } from './paths.js';
 
 const store = {
   get(k, d) { try { const v = localStorage.getItem('ccd.' + k); return v == null ? d : v; } catch { return d; } },
@@ -47,7 +48,7 @@ export const data = $state({
 });
 
 async function getJSON(url) {
-  const r = await fetch(url, { cache: 'no-store' });
+  const r = await fetch(apiURL(url), { cache: 'no-store' });
   if (!r.ok) throw new Error(`${r.status} ${url}`);
   return r.json();
 }
@@ -64,7 +65,7 @@ export const load = {
   async live() { if (!data.live) { try { data.live = await getJSON('/api/live'); } catch { data.live = {}; } } return data.live; },
   session: (id) => getJSON(`/api/sessions/${encodeURIComponent(id)}`),
   guideText: async (lang, slug) => {
-    const r = await fetch(`/docs/${lang}/${encodeURIComponent(slug)}.md`);
+    const r = await fetch(file(`/docs/${lang}/${encodeURIComponent(slug)}.md`));
     if (!r.ok) throw new Error('Guide not found');
     return r.text();
   },

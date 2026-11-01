@@ -1,4 +1,5 @@
 <script>
+  import { link } from '#lib/paths.js';
   import { goto } from '$app/navigation';
   import MiniBar from '#lib/components/MiniBar.svelte';
   import DemoBanner from '#lib/components/DemoBanner.svelte';
@@ -32,7 +33,7 @@
   <div><h1>{t('ss_title')}</h1><p>{t('ss_sub')}</p></div>
   <div class="toolbar">
     <input class="input" type="search" placeholder={t('search_sessions')} aria-label={t('search_sessions')} bind:value={query} />
-    <a class="btn" href="/compare"><Icon name="layers" /> {t('cmp_title')}</a>
+    <a class="btn" href={link('/compare')}><Icon name="layers" /> {t('cmp_title')}</a>
   </div>
 </div>
 <section class="card">
@@ -44,8 +45,8 @@
     </tr></thead>
     <tbody>
       {#each list as s (s.id)}
-        <tr class="link" tabindex="0" onclick={() => goto(`/sessions/${s.id}`)} onkeydown={(e) => e.key === 'Enter' && goto(`/sessions/${s.id}`)}>
-          <td><div class="cell-title" title={sessionTitle(s)}><a href="/sessions/{s.id}" class="row-link">{sessionTitle(s)}</a></div>
+        <tr class="link" tabindex="0" onclick={() => goto(link(`/sessions/${s.id}`))} onkeydown={(e) => e.key === 'Enter' && goto(link(`/sessions/${s.id}`))}>
+          <td><div class="cell-title" title={sessionTitle(s)}><a href={link(`/sessions/${s.id}`)} class="row-link">{sessionTitle(s)}</a></div>
             <div class="cell-sub">{maskProject(s.project)}{s.gitBranch ? ' · ' + maskBranch(s.gitBranch) : ''}</div></td>
           <td><span class="badge">{shortModel(s.model)}</span></td>
           <td><MiniBar session={s} /></td>

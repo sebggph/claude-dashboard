@@ -263,6 +263,7 @@ tbody tr.link:hover td { background: var(--surface-2); }
 .bud-status { margin: 18px 0 8px; }
 .check-row { display: flex; gap: 8px; align-items: center; font-size: 14px; margin-top: 8px; cursor: pointer; }
 .budget-banner { align-items: center; }
+.demo-install { margin-left: auto; font-weight: 600; white-space: nowrap; }
 .budget-banner.near { background: color-mix(in srgb, var(--warning) 14%, var(--surface)); border-color: color-mix(in srgb, var(--warning) 45%, var(--border)); }
 .budget-banner.over { background: color-mix(in srgb, var(--critical) 10%, var(--surface)); border-color: color-mix(in srgb, var(--critical) 40%, var(--border)); }
 .budget-banner .icon { color: var(--critical); }

@@ -34,3 +34,4 @@ $RECYCLE.BIN/
 node_modules/
 build/
 .svelte-kit/
+static/demo-api/

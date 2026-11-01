@@ -4,22 +4,21 @@ Ideas to grow the dashboard, roughly in order of value. Each one says where it w
 
 ## Next up
 
-1. **Online demo page.** A static build with the sample sessions, so people can try the dashboard in the browser without installing anything.
-   *Where:* a `DEMO_STATIC` build that bakes `/api/*` responses into JSON files under `static/`, published with GitHub Pages.
+1. **More guides.** Hooks, plan mode, permissions, headless mode in CI, writing a good skill.
+2. **Export.** Download a session's breakdown as CSV / JSON, or a PDF report.
 
 ## Learning features
 
-5. **More guides.** Hooks, plan mode, permissions, headless mode in CI, writing a good skill. Files go in `static/docs/en` and `static/docs/es` plus their `index.json`.
 6. **Quiz mode for the cheatsheet.** "Which command frees context without losing the summary?" Good for workshops.
 
 ## Quality & sharing
 
-8. **Export.** Download a session's breakdown as CSV / JSON, or a PDF report.
 9. **Team mode.** Several people point the dashboard at a shared folder of exported transcripts. Needs auth before it's ever exposed beyond localhost.
 10. **More languages.** Add a key to `src/lib/i18n.js`, the `L()` objects in `static/data/*.json`, and a `static/docs/<lang>/` folder.
 
 ## Done
 
+- Online demo on GitHub Pages (v0.10)
 - Guided first-launch tour (v0.9)
 - Session timeline: request-by-request view with biggest jumps and compactions (v0.8)
 - Compare two sessions side by side with takeaways (v0.7)

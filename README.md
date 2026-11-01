@@ -2,6 +2,8 @@
 
 **English** · [Español](README.es.md)
 
+**[Try the online demo →](https://sebggph.github.io/claude-dashboard/)** (sample sessions; install it to see your own)
+
 A small, friendly dashboard that shows **how much context your Claude Code sessions use, what fills it, and how to keep it lean**. Built to help people learn to use Claude in an optimized way.
 
 - **Sessions overview**: every local Claude Code session, how full its context is, and when it was last active.

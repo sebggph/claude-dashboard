@@ -1,6 +1,6 @@
 {
   "name": "claude-context-dashboard",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "description": "See how much context your Claude Code sessions use, what fills it, and how to keep it lean.",
   "private": true,
   "license": "MIT",
@@ -19,7 +19,8 @@
     "check": "node scripts/check-content.js",
     "news-snapshot": "node scripts/news-snapshot.js",
     "make-demo": "node scripts/make-demo.js",
-    "docker": "node scripts/docker-up.js"
+    "docker": "node scripts/docker-up.js",
+    "build:demo": "node scripts/build-demo-data.js && VITE_STATIC_DEMO=1 BASE_PATH=/claude-dashboard vite build && node -e \"require('fs').copyFileSync('build/index.html','build/404.html')\""
   },
   "imports": {
     "#lib": "./src/lib/index.js",
@@ -27,6 +28,7 @@
   },
   "devDependencies": {
     "@sveltejs/adapter-node": "^6.0.1",
+    "@sveltejs/adapter-static": "^4.0.1",
     "@sveltejs/kit": "^3.1.1",
     "@sveltejs/vite-plugin-svelte": "^7.3.1",
     "svelte": "^5.57.3",

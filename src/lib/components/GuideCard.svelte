@@ -1,4 +1,5 @@
 <script>
+  import { link } from '#lib/paths.js';
   import Icon from './Icon.svelte';
   import { t, progress } from '#lib/state.svelte.js';
   import { slugOf } from '#lib/rules.js';
@@ -8,7 +9,7 @@
   const steps = $derived(Object.keys(progress.tasks(slug)).length);
 </script>
 
-<a class="card guide-card" class:big href="/learn/{slug}">
+<a class="card guide-card" class:big href={link(`/learn/${slug}`)}>
   <span class="gc-top">
     <span class="gi"><Icon name={guide.icon || 'book'} /></span>
     <span class="badge" class:accent={guide.type === 'tutorial'}>{t('type_' + (guide.type || 'guide'))}</span>
