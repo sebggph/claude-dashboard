@@ -6,10 +6,10 @@
   import Loading from '#lib/components/Loading.svelte';
   import FixPanel from '#lib/components/FixPanel.svelte';
   import { ui, data, load, t } from '#lib/state.svelte.js';
-  import { fmtK, pct, maskProject, sessionTitle, shortModel, LEVEL } from '#lib/rules.js';
+  import { fmtK, pct, maskProject, sessionTitle, shortModel, LEVEL, ago } from '#lib/rules.js';
   import { fmtUSD } from '#lib/cost.js';
   import { link } from '#lib/paths.js';
-  import { weekDays, summarize, findingsFor } from '#lib/usage.js';
+  import { weekDays, summarize, findingsFor, fixesIn, latestFix, checkFix, fixTagFor, MIN_REQUESTS, MIN_AGENTS } from '#lib/usage.js';
 
   let back = $state(2); // compare with 1 or 2 weeks ago
   let error = $state(null);
@@ -22,7 +22,23 @@
   const weeks = $derived(usage ? [0, 1, 2].map((k) => summarize(usage, weekDays(today, k), pricing)) : null);
   const cur = $derived(weeks?.[0]);
   const prev = $derived(weeks?.[back]);
-  const findings = $derived(cur ? findingsFor(cur, prev) : []);
+  // Fix sessions found in the transcripts, and how each one is doing.
+  const fixes = $derived(usage ? fixesIn(usage) : []);
+  const checks = $derived.by(() => {
+    const m = new Map();
+    for (const f of fixes) { const k = f.id + '|' + f.project; if (!m.has(k)) m.set(k, { fix: f, check: checkFix(usage, f, pricing) }); }
+    return m;
+  });
+  const checkOf = (f) => checks.get(f.id + '|' + f.project) || null;
+  // Findings that look fixed go last: they stay until older days leave the 7-day window.
+  const findings = $derived.by(() => {
+    if (!cur) return [];
+    const list = findingsFor(cur, prev);
+    const done = (f) => checkOf(f)?.check.status === 'fixed';
+    return [...list.filter((f) => !done(f)), ...list.filter(done)];
+  });
+  // Fix sessions whose finding no longer shows up: proof that it worked.
+  const pastFixes = $derived([...checks.values()].filter((c) => !findings.some((f) => f.id === c.fix.id && f.project === c.fix.project)));
   const costRatio = $derived(cur ? (pricing ? ratio(cur.usd, prev.usd) : ratio(cur.tokens, prev.tokens)) : null);
 
   // Cost per day for the last 3 weeks.
@@ -66,7 +82,7 @@
 
   function promptFor(f) {
     const v = vars(f);
-    const lines = [t('fx_intro', { usd: usd(cur.usd) }), '', t('fx_' + f.id, v)];
+    const lines = [fixTagFor(f.id) + ' ' + t('fx_intro', { usd: usd(cur.usd) }), '', t('fx_' + f.id, v)];
     if (f.evidence.length) {
       lines.push('', t('fx_evidence'));
       for (const e of f.evidence) lines.push(t('fx_evidence_line', { name: e.name, n: e.count, usd: usd(e.usd), p: fmtK(e.peak) }));
@@ -75,6 +91,24 @@
     return lines.join('\n');
   }
 </script>
+
+{#snippet status(c)}
+  {@const k = c.check}
+  <div class="fix-status {k.status}">
+    <p class="small">
+      {t('fs_ran', { ago: ago(c.fix.start) })}
+      <a href={link(`/sessions/${encodeURIComponent(c.fix.session)}`)}>{sessionTitle({ id: c.fix.session, title: c.fix.title })}</a>
+    </p>
+    <p class="small"><b>{t('fs_' + k.status + '_t')}</b>
+      {#if k.status === 'waiting'}
+        {k.needAgents && k.requests >= MIN_REQUESTS ? t('fs_waiting_agents', { n: k.agents, min: MIN_AGENTS }) : t('fs_waiting', { n: k.requests, min: MIN_REQUESTS })}
+      {:else}
+        {t('fs_compare', { before: pct(k.before), after: pct(k.after), limit: pct(k.limit) })}
+      {/if}
+    </p>
+    <p class="small muted">{t('fs_how')}</p>
+  </div>
+{/snippet}
 
 <svelte:head><title>{t('us_title')} · Context Dashboard</title></svelte:head>
 
@@ -104,7 +138,7 @@
       <div class="card-head"><h2>{t('us_findings')}</h2><span class="card-sub">{t('us_findings_sub')}</span></div>
       <div class="recs">
         {#each findings as f (f.id)}
-          <div class="rec">
+          <div class="rec" class:done={checkOf(f)?.check.status === 'fixed'}>
             <div class="rec-icon" style:color={LEVEL[f.level].color}><Icon name={LEVEL[f.level].icon} /></div>
             <div>
               <h3>{t('f_' + f.id + '_t', vars(f))}{#if f.project}<span class="muted small">&nbsp;· {maskProject(f.project)}</span>{/if}</h3>
@@ -112,11 +146,29 @@
               <div class="rec-links">
                 <a href={DOCS[f.id]} target="_blank" rel="noopener noreferrer">{t('official_docs')} ↗</a>
               </div>
-              {#if f.id !== 'growth'}<FixPanel prompt={promptFor(f)} project={f.project} />{/if}
+              {#if f.id !== 'growth'}
+                {@const c = checkOf(f)}
+                {#if c}{@render status(c)}{/if}
+                <FixPanel prompt={promptFor(f)} project={f.project} fixId={f.id} ranAt={c?.fix.start || null} />
+              {/if}
             </div>
           </div>
         {:else}<div class="empty small">{t('us_findings_none')}</div>{/each}
       </div>
+      {#if pastFixes.length}
+        <h3 class="fix-past-title">{t('fs_past')}</h3>
+        <div class="recs">
+          {#each pastFixes as c (c.fix.id + c.fix.project)}
+            <div class="rec">
+              <div class="rec-icon" style:color={c.check.status === 'still' ? 'var(--serious)' : 'var(--good)'}><Icon name={c.check.status === 'still' ? 'alert' : 'check'} /></div>
+              <div>
+                <h3>{t('fs_name_' + c.fix.id)}<span class="muted small">&nbsp;· {maskProject(c.fix.project)}</span></h3>
+                {@render status(c)}
+              </div>
+            </div>
+          {/each}
+        </div>
+      {/if}
     </section>
 
     <div class="grid grid-2">

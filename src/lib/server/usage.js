@@ -4,7 +4,7 @@
 //   <project>/<session-id>/subagents/workflows/<wf-id>/agent-*.jsonl
 // Each agent's file has a .meta.json with its type and description.
 //
-// Per day we keep: all usage, cache writes that rebuilt the cache after a
+// Per hour ('YYYY-MM-DDTHH', UTC) we keep: all usage, cache writes that rebuilt the cache after a
 // pause (the cache had expired), and requests with a very large context.
 
 import fs from 'node:fs';
@@ -30,7 +30,7 @@ function addTo(map, u, model, { cacheWriteOnly = false } = {}) {
   b.output += u.output_tokens || 0;
 }
 
-/** Usage of one transcript file (main session or one agent), per day. */
+/** Usage of one transcript file (main session or one agent), per hour. */
 export function scanFile(file, { sidechain = false } = {}) {
   const reqs = new Map(); // message id -> { time, model, usage }; later lines carry the final usage
   forEachLine(file, (line) => {
@@ -44,7 +44,7 @@ export function scanFile(file, { sidechain = false } = {}) {
     reqs.set(id, { time: (prev && prev.time) || d.timestamp, model: d.message.model, usage: d.message.usage });
   });
   const list = [...reqs.values()].filter((r) => r.time).sort((a, b) => String(a.time).localeCompare(String(b.time)));
-  const out = { requests: list.length, peak: 0, model: null, start: list[0]?.time || null, end: list.at(-1)?.time || null, days: {} };
+  const out = { requests: list.length, peak: 0, model: null, start: list[0]?.time || null, end: list.at(-1)?.time || null, hours: {} };
   let prevTime = null;
   for (const r of list) {
     const u = r.usage;
@@ -53,8 +53,8 @@ export function scanFile(file, { sidechain = false } = {}) {
     const t = Date.parse(r.time);
     out.peak = Math.max(out.peak, ctx);
     if (r.model) out.model = r.model;
-    const day = String(r.time).slice(0, 10);
-    const d = out.days[day] || (out.days[day] = { requests: 0, all: {}, idle: {}, big: {}, idleCount: 0, bigCount: 0 });
+    const hour = String(r.time).slice(0, 13);
+    const d = out.hours[hour] || (out.hours[hour] = { requests: 0, all: {}, idle: {}, big: {}, idleCount: 0, bigCount: 0 });
     d.requests++;
     addTo(d.all, u, r.model);
     // A pause, then most of the context written to the cache again: it had expired.
@@ -130,7 +130,8 @@ export function agentDays(agents) {
   for (const a of agents) {
     if (a.kind === 'main') continue;
     count++;
-    for (const [day, v] of Object.entries(a.days)) {
+    for (const [hour, v] of Object.entries(a.hours)) {
+      const day = hour.slice(0, 10);
       const d = out[day] || (out[day] = { requests: 0, input: 0, cacheWrite: 0, cacheRead: 0, output: 0, byModel: {} });
       d.requests += v.requests;
       for (const [k, b] of Object.entries(v.all)) {

@@ -8,6 +8,7 @@ import { parseSession, parseSubagents, est } from './parser.js';
 import { APP_ROOT } from './paths.js';
 import { memoryFor } from './memory.js';
 import { agentsOf, agentDays } from './usage.js';
+import { fixTag } from '../usage.js';
 
 export const CLAUDE_DIR = process.env.CLAUDE_DIR || path.join(os.homedir(), '.claude');
 const DEMO_DIR = path.join(APP_ROOT, 'samples');
@@ -139,9 +140,11 @@ export function getUsage(days = 42) {
     if (String(s.end).slice(0, 10) < since) continue;
     const agents = agentsOf(s.file).map((a) => ({
       ...a,
-      days: Object.fromEntries(Object.entries(a.days).filter(([d]) => d >= since)),
-    })).filter((a) => Object.keys(a.days).length);
-    if (agents.length) sessions.push({ id: s.id, title: s.title, project: s.project, start: s.start, end: s.end, agents });
+      hours: Object.fromEntries(Object.entries(a.hours).filter(([h]) => h.slice(0, 10) >= since)),
+    })).filter((a) => Object.keys(a.hours).length);
+    // Sessions started from a "Fix with Claude" prompt begin with a tag.
+    const fix = fixTag(s.firstPrompt);
+    if (agents.length) sessions.push({ id: s.id, title: s.title, project: s.project, start: s.start, end: s.end, fix, agents });
   }
   return { demo: list.demo, generated: list.generated, since, sessions };
 }

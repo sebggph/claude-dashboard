@@ -6,7 +6,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { forEachLine } from '../src/lib/server/parser.js';
 import { scanFile, agentsOf, agentDays } from '../src/lib/server/usage.js';
-import { summarize, findingsFor, familyOf, weekDays, fixCommand, shellQuote, deepLink } from '../src/lib/usage.js';
+import { summarize, findingsFor, familyOf, weekDays, fixCommand, shellQuote, deepLink, fixTag, fixTagFor, fixesIn, checkFix } from '../src/lib/usage.js';
 import { daysOf } from '../src/lib/budget.js';
 
 const PRICING = [{ id: 'claude-opus-5-5', tier: 'std', input: 4, cw5m: 5, cw1h: 8, read: 0.2, output: 20 }];
@@ -35,7 +35,7 @@ test('scanFile: each request once, idle cache rebuilds and very large contexts',
   ]);
   const s = scanFile(f);
   assert.strictEqual(s.requests, 4);
-  const d = s.days['2026-11-02'];
+  const d = s.hours['2026-11-02T10'];
   assert.strictEqual(d.idleCount, 1);
   assert.strictEqual(Object.values(d.idle)[0].cw5m, 31000);
   assert.strictEqual(Object.values(d.idle)[0].read, 0);
@@ -74,8 +74,8 @@ test('familyOf groups agents started the same way', () => {
 test('summarize and findings: agents, memory loads, growth', () => {
   const day = (all, extra = {}) => ({ requests: 10, all: { k: { model: 'claude-opus-5-5', large: false, input: 0, cw5m: 0, cw1h: 0, read: 0, output: 0, ...all } }, idle: {}, big: {}, idleCount: 0, bigCount: 0, ...extra });
   const usage = { sessions: [{ id: 's', project: '/p', agents: [
-    { kind: 'main', days: { '2026-11-08': day({ read: 1e6 }), '2026-10-25': day({ read: 1e6 }) } },
-    { kind: 'subagent', description: 'Designer agent restart', peak: 300000, days: { '2026-11-08': day({ cw5m: 1e6, read: 5e6 }, { idle: { k: { model: 'claude-opus-5-5', large: false, input: 0, cw5m: 500000, cw1h: 0, read: 0, output: 0 } }, idleCount: 3 }) } },
+    { kind: 'main', hours: { '2026-11-08T10': day({ read: 1e6 }), '2026-10-25T10': day({ read: 1e6 }) } },
+    { kind: 'subagent', description: 'Designer agent restart', peak: 300000, hours: { '2026-11-08T11': day({ cw5m: 1e6, read: 5e6 }, { idle: { k: { model: 'claude-opus-5-5', large: false, input: 0, cw5m: 500000, cw1h: 0, read: 0, output: 0 } }, idleCount: 3 }) } },
   ] }] };
   const today = new Date('2026-11-08T12:00:00Z');
   const cur = summarize(usage, weekDays(today, 0), PRICING);
@@ -104,4 +104,41 @@ test('deep link opens Claude Code in the project with the prompt typed in', () =
   assert.strictEqual(deepLink(null, 'hi'), null); // no folder: copy the command instead
   assert.strictEqual(deepLink('relative/path', 'hi'), null);
   assert.strictEqual(deepLink('/p', 'x'.repeat(5001)), null); // over the 5,000-character limit
+});
+
+test('fix sessions are found by the tag at the start of the prompt', () => {
+  assert.strictEqual(fixTag(fixTagFor('memory_loads') + ' The Claude Context Dashboard measured…'), 'memory_loads');
+  assert.strictEqual(fixTag('please fix [Dashboard fix: memory_loads]'), null); // only at the start
+  assert.strictEqual(fixTag('[Dashboard fix: rm_rf]'), null); // unknown ids are ignored
+  const fixes = fixesIn({ sessions: [{ id: 'a', fix: null }, { id: 'b', fix: 'idle_rebuilds', project: '/p', start: '2026-11-09T10:00:00Z' }] });
+  assert.deepStrictEqual(fixes.map((f) => [f.id, f.session]), [['idle_rebuilds', 'b']]);
+});
+
+test('checkFix compares the share before and after the fix session', () => {
+  const opus = (f) => ({ k: { model: 'claude-opus-5-5', large: false, input: 0, cw5m: 0, cw1h: 0, read: 0, output: 0, ...f } });
+  const hour = (all, requests = 30) => ({ requests, all: opus(all), idle: {}, big: {}, idleCount: 0, bigCount: 0 });
+  const loader = (h, n) => ({ kind: 'subagent', description: 'Tech agent restart', hours: { [h]: hour({ read: n }) } });
+  const worker = (h, n) => ({ kind: 'subagent', description: 'Port charts', hours: { [h]: hour({ read: n }) } });
+  const main = (hours) => ({ kind: 'main', hours });
+  const fix = { id: 'memory_loads', project: '/p', session: 'fix', start: '2026-11-09T10:30:00Z' };
+  const base = [
+    { id: 'old', project: '/p', agents: [main({ '2026-11-08T10': hour({ read: 1e6 }) }), loader('2026-11-08T11', 9e6)] },
+    // The fix session itself (its own agents) is left out.
+    { id: 'fix', project: '/p', agents: [main({ '2026-11-09T11': hour({ read: 1e6 }) }), loader('2026-11-09T11', 9e6)] },
+    // Another project never counts.
+    { id: 'other', project: '/q', agents: [loader('2026-11-09T12', 9e6)] },
+  ];
+  const now = new Date('2026-11-09T20:00:00Z');
+  // Too little since the fix: wait.
+  assert.strictEqual(checkFix({ sessions: base }, fix, PRICING, now).status, 'waiting');
+  // Work since the fix without memory reloads: fixed.
+  const good = [...base, { id: 'new', project: '/p', agents: [main({ '2026-11-09T12': hour({ read: 1e6 }) }), worker('2026-11-09T12', 2e6), worker('2026-11-09T13', 2e6), worker('2026-11-09T14', 2e6)] }];
+  const ok = checkFix({ sessions: good }, fix, PRICING, now);
+  assert.strictEqual(ok.status, 'fixed');
+  assert.ok(ok.before > 0.8 && ok.after === 0);
+  // Reloads still happening: still.
+  const bad = [...base, { id: 'new', project: '/p', agents: [main({ '2026-11-09T12': hour({ read: 1e6 }) }), loader('2026-11-09T12', 9e6), loader('2026-11-09T13', 9e6), worker('2026-11-09T14', 1e6)] }];
+  assert.strictEqual(checkFix({ sessions: bad }, fix, PRICING, now).status, 'still');
+  // Without prices nothing can be judged.
+  assert.strictEqual(checkFix({ sessions: good }, fix, null, now).status, 'waiting');
 });

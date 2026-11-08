@@ -31,13 +31,16 @@ export function familyOf(a) {
 const LOAD_RE = /\b(re-?start|start|load|reload|memory|warm[- ]?up|onboard)/i;
 
 /**
- * Totals for the given days.
- * @param usage answer of /api/usage
- * @param days  list of 'YYYY-MM-DD'
- * @param pricing price list (null → costs are null, tokens still work)
+ * Totals for the given days (or hours).
+ * @param usage   answer of /api/usage
+ * @param select  list of 'YYYY-MM-DD', or a function (hour 'YYYY-MM-DDTHH') => boolean
+ * @param pricing price list (null → costs are 0, tokens still work)
+ * @param opts    { project: only this project, skip: leave out this session id }
  */
-export function summarize(usage, days, pricing) {
-  const set = new Set(days);
+export function summarize(usage, select, pricing, { project = null, skip = null } = {}) {
+  const days = Array.isArray(select) ? select : null;
+  const set = new Set(days || []);
+  const want = days ? (h) => set.has(h.slice(0, 10)) : select;
   const price = (bs) => (pricing ? costOf(bs, pricing).usd : 0);
   const kinds = Object.fromEntries(KINDS.map((k) => [k, { usd: 0, tokens: 0, requests: 0, agents: 0 }]));
   const models = new Map(), projects = new Map(), families = new Map();
@@ -50,9 +53,10 @@ export function summarize(usage, days, pricing) {
   const addTo = (map, key, v) => map.set(key, (map.get(key) || 0) + v);
 
   for (const s of usage?.sessions || []) {
+    if ((project && s.project !== project) || s.id === skip) continue;
     const row = { id: s.id, title: s.title, project: s.project, usd: 0, tokens: 0, agentUsd: 0, agents: 0, requests: 0 };
     for (const a of s.agents || []) {
-      const ds = Object.entries(a.days || {}).filter(([d]) => set.has(d)).map(([, v]) => v);
+      const ds = Object.entries(a.hours || {}).filter(([h]) => want(h)).map(([, v]) => v);
       if (!ds.length) continue;
       const bs = sumBuckets(ds.map((d) => d.all));
       const req = ds.reduce((x, d) => x + d.requests, 0);
@@ -119,6 +123,21 @@ export const growth = (now, before) => (before > 0 ? now / before : null);
 const isTopModel = (m) => /opus|fable|mythos/i.test(m || '');
 
 /**
+ * What each finding measures, as a share of usage, and the share from which
+ * it shows up (`limit`) or counts as serious. Used to find issues and to
+ * check a fix afterwards with the same yardstick.
+ */
+export const METRICS = {
+  memory_loads: { value: (s) => (s.usd ? s.loads.usd / s.usd : 0), limit: 0.1, serious: 0.2, agents: true },
+  idle_rebuilds: { value: (s) => (s.usd ? s.idle.usd / s.usd : 0), limit: 0.08, serious: 0.15, agents: true },
+  agents_share: { value: (s) => s.agentShare, limit: 0.4, serious: 0.6, agents: true },
+  big_context: { value: (s) => (s.usd ? s.big.usd / s.usd : 0), limit: 0.15, serious: 0.3, agents: false },
+  one_model: { value: (s) => (s.usd && s.models[0] && isTopModel(s.models[0].model) ? s.models[0].usd / s.usd : 0), limit: 0.9, serious: 2, agents: true },
+  workflows: { value: (s) => (s.usd ? s.kinds.workflow.usd / s.usd : 0), limit: 0.1, serious: 2, agents: true },
+};
+const levelOf = (id, v) => (v >= METRICS[id].serious ? 'serious' : id === 'workflows' ? 'info' : 'warning');
+
+/**
  * What to improve, most important first. Each finding has an id (for texts),
  * a level, the numbers behind it, the project to fix it in, and evidence
  * lines for the fix prompt.
@@ -133,30 +152,31 @@ export function findingsFor(cur, prev) {
   const RANK = { serious: 0, warning: 1, info: 2 };
   const add = (id, level, vars, project, evidence) => out.push({ id, level, vars, project, evidence, score: RANK[level] * 10 + ORDER.indexOf(id) });
 
-  if (share(cur.loads.usd) >= 0.1) {
-    add('memory_loads', share(cur.loads.usd) >= 0.2 ? 'serious' : 'warning',
+  const hit = (id) => METRICS[id].value(cur) >= METRICS[id].limit;
+  if (hit('memory_loads')) {
+    add('memory_loads', levelOf('memory_loads', METRICS.memory_loads.value(cur)),
       { share: share(cur.loads.usd), usd: cur.loads.usd, n: cur.loads.count }, cur.loads.project,
       fams((f) => f.loads));
   }
-  if (share(cur.idle.usd) >= 0.08) {
-    add('idle_rebuilds', share(cur.idle.usd) >= 0.15 ? 'serious' : 'warning',
+  if (hit('idle_rebuilds')) {
+    add('idle_rebuilds', levelOf('idle_rebuilds', METRICS.idle_rebuilds.value(cur)),
       { share: share(cur.idle.usd), usd: cur.idle.usd, n: cur.idle.count }, cur.idle.project, fams());
   }
-  if (cur.agentShare >= 0.4) {
-    add('agents_share', cur.agentShare >= 0.6 ? 'serious' : 'warning',
+  if (hit('agents_share')) {
+    add('agents_share', levelOf('agents_share', cur.agentShare),
       { share: cur.agentShare, usd: cur.kinds.subagent.usd + cur.kinds.workflow.usd, n: cur.agents }, cur.families[0]?.project || cur.projects[0]?.project, fams(() => true, 5));
   }
   const topModel = cur.models[0];
-  if (topModel && isTopModel(topModel.model) && topModel.usd / cur.usd >= 0.9 && cur.agentShare >= 0.3) {
+  if (hit('one_model') && cur.agentShare >= 0.3) {
     add('one_model', 'warning', { share: topModel.usd / cur.usd, usd: topModel.usd, model: topModel.model, n: cur.agents },
       cur.families[0]?.project || cur.projects[0]?.project, fams((f) => /map|find|verify|search|research|check|explore|scan|read/i.test(f.name), 4));
   }
-  if (share(cur.kinds.workflow.usd) >= 0.1) {
+  if (hit('workflows')) {
     add('workflows', 'info', { share: share(cur.kinds.workflow.usd), usd: cur.kinds.workflow.usd, n: cur.workflows },
       cur.families.find((f) => f.kind === 'workflow')?.project || cur.projects[0]?.project, fams((f) => f.kind === 'workflow'));
   }
-  if (share(cur.big.usd) >= 0.15) {
-    add('big_context', share(cur.big.usd) >= 0.3 ? 'serious' : 'warning',
+  if (hit('big_context')) {
+    add('big_context', levelOf('big_context', METRICS.big_context.value(cur)),
       { share: share(cur.big.usd), usd: cur.big.usd, n: cur.big.count }, cur.big.project, []);
   }
   out.sort((a, b) => a.score - b.score);
@@ -189,4 +209,51 @@ export function deepLink(project, prompt) {
   if (!absolute) return null;
   if (!prompt || prompt.length > DEEP_LINK_MAX) return null;
   return `claude-cli://open?cwd=${encodeURIComponent(project)}&q=${encodeURIComponent(prompt)}`;
+}
+
+// ---------- fixes: tag, find, check ----------
+
+// Every fix prompt starts with this tag, so the dashboard can find the session
+// that ran it in the transcripts (and not offer the same fix twice).
+export const fixTagFor = (id) => `[Dashboard fix: ${id}]`;
+export function fixTag(firstPrompt) {
+  const m = /^\s*\[Dashboard fix: ([a-z_]+)\]/.exec(String(firstPrompt || ''));
+  return m && METRICS[m[1]] ? m[1] : null;
+}
+
+/** Sessions that ran a fix: [{ id, project, session, title, start }], newest first. */
+export function fixesIn(usage) {
+  return (usage?.sessions || []).filter((s) => s.fix)
+    .map((s) => ({ id: s.fix, project: s.project, session: s.id, title: String(s.title || '').replace(/^\s*\[Dashboard fix: [a-z_]+\]\s*/, '') || null, start: s.start }))
+    .sort((a, b) => String(b.start).localeCompare(String(a.start)));
+}
+
+/** The latest fix session for a finding in a project, or null. */
+export const latestFix = (fixes, id, project) => fixes.find((f) => f.id === id && f.project === project) || null;
+
+const hourOf = (t) => new Date(t).toISOString().slice(0, 13);
+export const MIN_REQUESTS = 50, MIN_AGENTS = 3, MAX_WAIT_HOURS = 72;
+
+/**
+ * Did the fix work? Compares the finding's share of usage in that project in
+ * the 7 days before the fix session with the time after it started (the fix
+ * session itself left out). Only reads measured usage; nothing is run.
+ * → { status: 'waiting' | 'fixed' | 'still', before, after, limit, requests, agents }
+ */
+export function checkFix(usage, fix, pricing, now = new Date()) {
+  const m = METRICS[fix.id];
+  const startHour = hourOf(fix.start);
+  const weekBefore = hourOf(new Date(fix.start).getTime() - 7 * DAY);
+  const opts = { project: fix.project, skip: fix.session };
+  const before = summarize(usage, (h) => h >= weekBefore && h < startHour, pricing, opts);
+  const after = summarize(usage, (h) => h > startHour, pricing, opts);
+  const hours = (now - new Date(fix.start)) / 3600000;
+  const enough = after.requests >= MIN_REQUESTS && (!m.agents || after.agents >= MIN_AGENTS || hours >= MAX_WAIT_HOURS);
+  const value = m.value(after);
+  return {
+    // Without prices every share is 0, so don't judge.
+    status: !enough || !pricing ? 'waiting' : value < m.limit ? 'fixed' : 'still',
+    before: m.value(before), after: value, limit: m.limit,
+    requests: after.requests, agents: after.agents, needAgents: m.agents,
+  };
 }
