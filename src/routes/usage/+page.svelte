@@ -5,11 +5,11 @@
   import DemoBanner from '#lib/components/DemoBanner.svelte';
   import Loading from '#lib/components/Loading.svelte';
   import FixPanel from '#lib/components/FixPanel.svelte';
-  import { ui, data, load, t } from '#lib/state.svelte.js';
+  import { ui, data, load, t, store } from '#lib/state.svelte.js';
   import { fmtK, pct, maskProject, sessionTitle, shortModel, LEVEL, ago } from '#lib/rules.js';
   import { fmtUSD } from '#lib/cost.js';
   import { link } from '#lib/paths.js';
-  import { weekDays, summarize, findingsFor, fixesIn, latestFix, checkFix, fixTagFor, MIN_REQUESTS, MIN_AGENTS } from '#lib/usage.js';
+  import { weekDays, summarize, findingsFor, fixesIn, markedFixes, latestFix, checkFix, fixTagFor, MIN_REQUESTS, MIN_AGENTS } from '#lib/usage.js';
 
   let back = $state(2); // compare with 1 or 2 weeks ago
   let error = $state(null);
@@ -23,10 +23,24 @@
   const cur = $derived(weeks?.[0]);
   const prev = $derived(weeks?.[back]);
   // Fix sessions found in the transcripts, and how each one is doing.
-  const fixes = $derived(usage ? fixesIn(usage) : []);
+  // Plus fixes marked by hand (made another way), kept in this browser.
+  const readMarks = () => { try { return JSON.parse(store.get('fixmarks', '{}')) || {}; } catch { return {}; } };
+  let marks = $state(readMarks());
+  function setMark(f, on) {
+    const k = f.id + '|' + f.project;
+    const next = { ...marks };
+    if (on) next[k] = new Date().toISOString(); else delete next[k];
+    marks = next;
+    store.set('fixmarks', JSON.stringify(next));
+  }
+  const fixes = $derived(usage ? [...fixesIn(usage), ...markedFixes(marks)] : []);
   const checks = $derived.by(() => {
     const m = new Map();
-    for (const f of fixes) { const k = f.id + '|' + f.project; if (!m.has(k)) m.set(k, { fix: f, check: checkFix(usage, f, pricing) }); }
+    for (const f of fixes) {
+      const k = f.id + '|' + f.project;
+      const latest = latestFix(fixes, f.id, f.project);
+      if (!m.has(k)) m.set(k, { fix: latest, check: checkFix(usage, latest, pricing) });
+    }
     return m;
   });
   const checkOf = (f) => checks.get(f.id + '|' + f.project) || null;
@@ -96,8 +110,13 @@
   {@const k = c.check}
   <div class="fix-status {k.status}">
     <p class="small">
-      {t('fs_ran', { ago: ago(c.fix.start) })}
-      <a href={link(`/sessions/${encodeURIComponent(c.fix.session)}`)}>{sessionTitle({ id: c.fix.session, title: c.fix.title })}</a>
+      {#if c.fix.manual}
+        {t('fs_marked', { ago: ago(c.fix.start) })}
+        <button class="link-btn" type="button" onclick={() => setMark(c.fix, false)}>{t('fs_undo')}</button>
+      {:else}
+        {t('fs_ran', { ago: ago(c.fix.start) })}
+        <a href={link(`/sessions/${encodeURIComponent(c.fix.session)}`)}>{sessionTitle({ id: c.fix.session, title: c.fix.title })}</a>
+      {/if}
     </p>
     <p class="small"><b>{t('fs_' + k.status + '_t')}</b>
       {#if k.status === 'waiting'}
@@ -149,7 +168,8 @@
               {#if f.id !== 'growth'}
                 {@const c = checkOf(f)}
                 {#if c}{@render status(c)}{/if}
-                <FixPanel prompt={promptFor(f)} project={f.project} fixId={f.id} ranAt={c?.fix.start || null} />
+                <FixPanel prompt={promptFor(f)} project={f.project} fixId={f.id} ranAt={c?.fix.start || null} manual={!!c?.fix.manual} />
+                {#if !c && f.project}<button class="link-btn small" type="button" onclick={() => setMark(f, true)}>{t('fs_mark')}</button>{/if}
               {/if}
             </div>
           </div>

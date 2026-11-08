@@ -6,7 +6,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { forEachLine } from '../src/lib/server/parser.js';
 import { scanFile, agentsOf, agentDays } from '../src/lib/server/usage.js';
-import { summarize, findingsFor, familyOf, weekDays, fixCommand, shellQuote, deepLink, fixTag, fixTagFor, fixesIn, checkFix } from '../src/lib/usage.js';
+import { summarize, findingsFor, familyOf, weekDays, fixCommand, shellQuote, deepLink, fixTag, fixTagFor, fixesIn, checkFix, markedFixes, latestFix } from '../src/lib/usage.js';
 import { daysOf } from '../src/lib/budget.js';
 
 const PRICING = [{ id: 'claude-opus-5-5', tier: 'std', input: 4, cw5m: 5, cw1h: 8, read: 0.2, output: 20 }];
@@ -141,4 +141,20 @@ test('checkFix compares the share before and after the fix session', () => {
   assert.strictEqual(checkFix({ sessions: bad }, fix, PRICING, now).status, 'still');
   // Without prices nothing can be judged.
   assert.strictEqual(checkFix({ sessions: good }, fix, null, now).status, 'waiting');
+});
+
+test('fixes marked by hand join the fix list; the latest one counts', () => {
+  const marks = markedFixes({ 'memory_loads|/a b|c': '2026-11-09T12:00:00Z', 'nope|/p': '2026-11-09T12:00:00Z' });
+  assert.deepStrictEqual(marks.map((f) => [f.id, f.project, f.manual]), [['memory_loads', '/a b|c', true]]);
+  const tagged = { id: 'memory_loads', project: '/a b|c', session: 's', start: '2026-11-09T10:00:00Z' };
+  assert.strictEqual(latestFix([tagged, ...marks], 'memory_loads', '/a b|c').manual, true);
+});
+
+test('waiting agents only: main conversations do not count as idle rebuilds', () => {
+  const b = (cw) => ({ k: { model: 'claude-opus-5-5', large: false, input: 0, cw5m: cw, cw1h: 0, read: 0, output: 0 } });
+  const h = (idle) => ({ requests: 1, all: b(1e6), idle: b(idle), big: {}, idleCount: idle ? 1 : 0, bigCount: 0 });
+  const usage = { sessions: [{ id: 's', project: '/p', agents: [{ kind: 'main', hours: { '2026-11-08T10': h(1e6) } }, { kind: 'subagent', description: 'x', hours: { '2026-11-08T10': h(0) } }] }] };
+  const s = summarize(usage, ['2026-11-08'], PRICING);
+  assert.strictEqual(s.idle.count, 0);
+  assert.strictEqual(s.idle.usd, 0);
 });

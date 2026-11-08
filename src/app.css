@@ -593,3 +593,6 @@ footer { text-align: center; color: var(--text-3); font-size: 12.5px; padding: 2
 .fix-status.still { border-left-color: var(--serious); }
 .rec.done { opacity: .72; }
 .fix-past-title { font-size: 14px; margin: 20px 0 10px; color: var(--text-2); }
+.link-btn { background: none; border: 0; padding: 0; color: var(--link); font-weight: 600; cursor: pointer; }
+.link-btn:hover { text-decoration: underline; }
+.rec .link-btn.small { display: block; margin-top: 8px; font-size: 13px; }

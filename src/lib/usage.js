@@ -74,10 +74,13 @@ export function summarize(usage, select, pricing, { project = null, skip = null 
         models.set(b.model, m);
       }
 
-      const idleBs = sumBuckets(ds.map((d) => d.idle));
-      const idleUsd = price(idleBs);
-      idle.usd += idleUsd; idle.count += ds.reduce((x, d) => x + (d.idleCount || 0), 0);
-      addTo(idle.byProject, s.project, idleUsd);
+      // Waiting agents only: a main conversation also rewrites its cache after
+      // /compact or a model switch, which isn't what this finding is about.
+      if (a.kind !== 'main') {
+        const idleUsd = price(sumBuckets(ds.map((d) => d.idle)));
+        idle.usd += idleUsd; idle.count += ds.reduce((x, d) => x + (d.idleCount || 0), 0);
+        addTo(idle.byProject, s.project, idleUsd);
+      }
       if (a.kind === 'main') {
         const bigUsd = price(sumBuckets(ds.map((d) => d.big)));
         big.usd += bigUsd; big.count += ds.reduce((x, d) => x + (d.bigCount || 0), 0);
@@ -228,8 +231,17 @@ export function fixesIn(usage) {
     .sort((a, b) => String(b.start).localeCompare(String(a.start)));
 }
 
+/**
+ * Fixes made another way, marked by hand ({ 'id|project': iso time }), in the
+ * same shape as fix sessions. Checked from that moment on.
+ */
+export const markedFixes = (marks) => Object.entries(marks || {}).map(([k, start]) => {
+  const i = k.indexOf('|');
+  return { id: k.slice(0, i), project: k.slice(i + 1), session: null, title: null, start, manual: true };
+}).filter((f) => METRICS[f.id] && f.start);
+
 /** The latest fix session for a finding in a project, or null. */
-export const latestFix = (fixes, id, project) => fixes.find((f) => f.id === id && f.project === project) || null;
+export const latestFix = (fixes, id, project) => fixes.filter((f) => f.id === id && f.project === project).sort((a, b) => String(b.start).localeCompare(String(a.start)))[0] || null;
 
 const hourOf = (t) => new Date(t).toISOString().slice(0, 13);
 export const MIN_REQUESTS = 50, MIN_AGENTS = 3, MAX_WAIT_HOURS = 72;

@@ -12,7 +12,7 @@
   import { fixCommand, deepLink } from '#lib/usage.js';
   import { STATIC_DEMO } from '#lib/paths.js';
 
-  let { prompt, project = null, fixId, ranAt = null } = $props();
+  let { prompt, project = null, fixId, ranAt = null, manual = false } = $props();
   let open = $state(false);
   let copied = $state('');
   let armed = $state(''); // which button is waiting for its confirming click
@@ -58,7 +58,7 @@
   {#if open}
     <div class="fix-panel">
       {#if needsConfirm}
-        <p class="small fix-warn"><Icon name="alert" />{openedRecently ? t('fix_opened', { ago: ago(openedAt) }) : t('fix_ran', { ago: ago(ranAt) })}</p>
+        <p class="small fix-warn"><Icon name="alert" />{openedRecently ? t('fix_opened', { ago: ago(openedAt) }) : t(manual ? 'fix_marked' : 'fix_ran', { ago: ago(ranAt) })}</p>
       {/if}
       <p class="small">{link ? t('fix_open_intro', { p: maskProject(project) }) : project ? t('fix_intro', { p: maskProject(project) }) : t('fix_intro_any')}</p>
       {#if ui.privacy}
