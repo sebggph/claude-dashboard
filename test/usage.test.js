@@ -158,3 +158,11 @@ test('waiting agents only: main conversations do not count as idle rebuilds', ()
   assert.strictEqual(s.idle.count, 0);
   assert.strictEqual(s.idle.usd, 0);
 });
+
+test('demo data has no plan readings and no local paths', async () => {
+  const { execFileSync } = await import('node:child_process');
+  const code = "const { getUsage } = await import('./src/lib/server/sessions.js'); const u = getUsage(3650); console.log(JSON.stringify({ demo: u.demo, plan: u.plan, planScript: u.planScript, sessions: u.sessions.length }));";
+  const out = JSON.parse(execFileSync(process.execPath, ['--input-type=module', '-e', code], { cwd: path.join(import.meta.dirname, '..'), env: { ...process.env, DEMO: '1' } }).toString());
+  assert.deepStrictEqual(out, { demo: true, plan: [], planScript: null, sessions: out.sessions });
+  assert.ok(out.sessions > 0);
+});

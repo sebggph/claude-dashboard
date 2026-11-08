@@ -148,7 +148,10 @@ export function getUsage(days = 42) {
     const fix = fixTag(s.firstPrompt);
     if (agents.length) sessions.push({ id: s.id, title: s.title, project: s.project, start: s.start, end: s.end, fix, agents });
   }
-  return { demo: list.demo, generated: list.generated, since, sessions, plan: list.demo ? [] : planUsage(CLAUDE_DIR), planScript: path.join(APP_ROOT, 'scripts', 'statusline-plan-log.mjs') };
+  // Demo data (also the online demo, built on another machine) gets no plan
+  // readings and no local paths.
+  if (list.demo) return { demo: true, generated: list.generated, since, sessions, plan: [], planScript: null };
+  return { demo: false, generated: list.generated, since, sessions, plan: planUsage(CLAUDE_DIR), planScript: path.join(APP_ROOT, 'scripts', 'statusline-plan-log.mjs') };
 }
 
 /** Agents active in the last `minutes` minutes, per session, for the live monitor. */
