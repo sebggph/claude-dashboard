@@ -15,6 +15,11 @@ function loadBudget() {
   try { return { ...BUDGET_DEFAULT, ...JSON.parse(store.get('budget', '{}')) }; } catch { return { ...BUDGET_DEFAULT }; }
 }
 
+const MONITOR_DEFAULT = { restartAt: 200000, workflowUsd: 25, notify: false };
+function loadMonitor() {
+  try { return { ...MONITOR_DEFAULT, ...JSON.parse(store.get('monitor', '{}')) }; } catch { return { ...MONITOR_DEFAULT }; }
+}
+
 /** Preferences, saved per browser. */
 export const ui = $state({
   lang: store.get('lang', browserLang),
@@ -22,6 +27,7 @@ export const ui = $state({
   window: store.get('window', 'auto'), // auto | 200000 | 1000000
   privacy: store.get('privacy', 'off') === 'on', // hide titles, paths and prompt text
   budget: loadBudget(), // { unit: 'cost' | 'tokens', daily, weekly, session, notify }
+  monitor: loadMonitor(), // { restartAt (tokens), workflowUsd, notify }
   drawer: null, // { key, label } of the open explanation
   readVersion: 0, // bumps when learning progress changes
   tour: null, // index of the current guided-tour step, or null
@@ -31,6 +37,7 @@ export function setLang(l) { ui.lang = l; store.set('lang', l); }
 export function cycleTheme() { ui.theme = { auto: 'light', light: 'dark', dark: 'auto' }[ui.theme]; store.set('theme', ui.theme); }
 export function setWindow(w) { ui.window = w; store.set('window', w); }
 export function saveBudget(patch) { ui.budget = { ...ui.budget, ...patch }; store.set('budget', JSON.stringify(ui.budget)); }
+export function saveMonitor(patch) { ui.monitor = { ...ui.monitor, ...patch }; store.set('monitor', JSON.stringify(ui.monitor)); }
 export function startTour() { ui.tour = 0; }
 export function endTour() { ui.tour = null; store.set('tourDone', '1'); }
 export function togglePrivacy() { ui.privacy = !ui.privacy; store.set('privacy', ui.privacy ? 'on' : 'off'); }
@@ -39,6 +46,7 @@ export function togglePrivacy() { ui.privacy = !ui.privacy; store.set('privacy',
 export const data = $state({
   sessions: null, // /api/sessions
   usage: null, // /api/usage (main conversations, subagents, workflow agents)
+  agents: null, // /api/agents (agents active in the last 30 minutes)
   guide: null, // context-guide.json
   cheatsheet: null,
   docsIndex: {}, // per language
@@ -57,6 +65,7 @@ async function getJSON(url) {
 export const load = {
   async sessions(force = false) { if (force || !data.sessions) data.sessions = await getJSON('/api/sessions'); return data.sessions; },
   async usage(force = false) { if (force || !data.usage) data.usage = await getJSON('/api/usage'); return data.usage; },
+  async agents() { data.agents = await getJSON('/api/agents'); return data.agents; },
   async guide() { if (!data.guide) data.guide = await getJSON('/data/context-guide.json'); return data.guide; },
   async cheatsheet() { if (!data.cheatsheet) data.cheatsheet = await getJSON('/data/cheatsheet.json'); return data.cheatsheet; },
   async docs(lang = ui.lang) { if (!data.docsIndex[lang]) data.docsIndex[lang] = await getJSON(`/docs/${lang}/index.json`); return data.docsIndex[lang]; },

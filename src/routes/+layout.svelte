@@ -13,6 +13,7 @@
   import { budgetReport, todayUTC } from '#lib/budget.js';
   import { fmtK } from '#lib/rules.js';
   import { fmtUSD } from '#lib/cost.js';
+  import { monitorView, monitorAlerts, planReading, planForecast } from '#lib/usage.js';
 
   let { children } = $props();
 
@@ -39,6 +40,42 @@
       store.set(key, '1');
       new Notification(t('bud_notify_title_' + st.level), { body: `${t('bud_banner_' + scope)} ${fmt(st.value)} / ${fmt(st.limit)} (${Math.round(st.pct * 100)}%)`, tag: 'ccd-budget-' + scope });
     }
+  });
+
+  // Monitor alerts: agents past the restart size, workflow runs past the cost
+  // limit. Checked every 20 seconds while any dashboard tab is open.
+  $effect(() => {
+    if (STATIC_DEMO || !ui.monitor.notify || typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
+    const check = async () => {
+      try {
+        const live = page.route.id === '/monitor' ? data.agents : await load.agents();
+        if (!live) return;
+        for (const a of monitorAlerts(monitorView(live, data.live?.pricing?.list, Date.now(), ui.monitor))) {
+          const key = 'notified.monitor.' + a.key;
+          if (store.get(key, '')) continue;
+          store.set(key, '1');
+          if (a.kind === 'restart') new Notification(t('mon_notify_restart', { k: fmtK(ui.monitor.restartAt) }), { body: t('mon_notify_restart_body', { name: a.name }), tag: 'ccd-' + a.key });
+          else new Notification(t('mon_notify_wf', { x: fmtUSD(ui.monitor.workflowUsd, ui.lang) }), { body: t('mon_notify_wf_body', { name: a.name }), tag: 'ccd-' + a.key });
+        }
+      } catch { /* server busy; try again next time */ }
+    };
+    check();
+    const id = setInterval(check, 20000);
+    return () => clearInterval(id);
+  });
+
+  // Weekly plan alerts: at 80%, and when the pace reaches 100% before the
+  // reset. Once per week each. Uses the Usage page's data once it's loaded.
+  $effect(() => {
+    if (!data.usage || !ui.monitor.notify || typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
+    let manual = null;
+    try { manual = JSON.parse(store.get('plan', 'null')); } catch { /* none */ }
+    const f = planForecast(data.usage, planReading(data.usage.plan, manual), data.live?.pricing?.list);
+    if (!f || !f.resetsAt) return;
+    const when = (ms) => new Date(ms).toLocaleString(ui.lang, { weekday: 'short', hour: '2-digit', minute: '2-digit' });
+    const once = (k, title, body) => { const key = `notified.plan.${k}.${f.resetsAt}`; if (store.get(key, '')) return; store.set(key, '1'); new Notification(title, { body, tag: 'ccd-plan-' + k }); };
+    if (f.pct >= 80) once('80', t('pl_notify_80', { p: Math.round(f.pct) }), t('pl_notify_80_body', { when: when(f.resetsAt) }));
+    if (f.hitAt) once('hit', t('pl_notify_hit'), t('pl_notify_hit_body', { when: when(f.hitAt) }));
   });
 
   // Live updates: the server pushes an event when a transcript changes.

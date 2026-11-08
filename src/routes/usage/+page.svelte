@@ -5,11 +5,12 @@
   import DemoBanner from '#lib/components/DemoBanner.svelte';
   import Loading from '#lib/components/Loading.svelte';
   import FixPanel from '#lib/components/FixPanel.svelte';
+  import PlanCard from '#lib/components/PlanCard.svelte';
   import { ui, data, load, t, store } from '#lib/state.svelte.js';
   import { fmtK, pct, maskProject, sessionTitle, shortModel, LEVEL, ago } from '#lib/rules.js';
   import { fmtUSD } from '#lib/cost.js';
   import { link } from '#lib/paths.js';
-  import { weekDays, summarize, findingsFor, fixesIn, markedFixes, latestFix, checkFix, fixTagFor, MIN_REQUESTS, MIN_AGENTS } from '#lib/usage.js';
+  import { weekDays, summarize, findingsFor, fixesIn, markedFixes, latestFix, checkFix, workflowRuns, planReading, planForecast, fixTagFor, MIN_REQUESTS, MIN_AGENTS } from '#lib/usage.js';
 
   let back = $state(2); // compare with 1 or 2 weeks ago
   let error = $state(null);
@@ -45,6 +46,30 @@
   });
   const checkOf = (f) => checks.get(f.id + '|' + f.project) || null;
   // Findings that look fixed go last: they stay until older days leave the 7-day window.
+  const runs = $derived(usage ? workflowRuns(usage, weekDays(today, 0), pricing) : []);
+  const maxRun = $derived(Math.max(1e-9, ...runs.slice(0, 6).map((w) => w.usd || w.tokens)));
+  const when = (iso) => new Date(iso).toLocaleString(ui.lang, { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+
+  // A plain-text summary of the week to paste in a note or chat.
+  let reported = $state(false);
+  async function copyReport() {
+    const L = [`# ${t('us_title')} · ${cur.days[0]} – ${cur.days[6]}`, ''];
+    L.push(`- ${t('us_kpi_cost')}: ${val(cur.usd, cur.tokens)} (${weekLabel(back)}: ${val(prev.usd, prev.tokens)})`);
+    L.push(`- ${t('us_kpi_req')}: ${cur.requests.toLocaleString(ui.lang)} · ${t('us_kpi_agents')}: ${cur.agents} · ${t('us_kpi_share')}: ${pct(cur.agentShare)}`);
+    let manualPlan = null; try { manualPlan = JSON.parse(store.get('plan', 'null')); } catch { /* none */ }
+    const fc = planForecast(usage, planReading(usage.plan, manualPlan), pricing);
+    if (fc) L.push(`- ${t('pl_title')}: ≈${Math.round(fc.pct)}% · ${fc.hitAt ? t('pl_hit', { when: when(fc.hitAt) }) : fc.atReset != null ? t('pl_ok', { p: Math.round(fc.atReset) }) : ''}`);
+    L.push('', `## ${t('us_where')}`);
+    for (const k of ['main', 'subagent', 'workflow']) L.push(`- ${t('us_kind_' + k)}: ${val(cur.kinds[k].usd, cur.kinds[k].tokens)}`);
+    L.push('', `## ${t('us_findings')}`);
+    for (const f of findings) L.push(`- ${t('f_' + f.id + '_t', vars(f))}${f.project ? ` (${maskProject(f.project)})` : ''}: ${t('f_' + f.id, vars(f))}${checkOf(f) ? ` [${t('fs_' + checkOf(f).check.status + '_t')}]` : ''}`);
+    L.push('', `## ${t('us_agents')}`);
+    cur.families.slice(0, 5).forEach((f, i) => L.push(`- ${agentName(f, i)}: ${f.count}× · ${val(f.usd, 0)}`));
+    L.push('', `## ${t('us_sessions')}`);
+    for (const s of cur.sessions.slice(0, 5)) L.push(`- ${sessionTitle(s)} (${maskProject(s.project)}): ${val(s.usd, s.tokens)}`);
+    try { await navigator.clipboard.writeText(L.join('\n')); reported = true; setTimeout(() => (reported = false), 1500); } catch { /* blocked */ }
+  }
+
   const findings = $derived.by(() => {
     if (!cur) return [];
     const list = findingsFor(cur, prev);
@@ -134,8 +159,11 @@
 <DemoBanner />
 <div class="page-head">
   <div><h1>{t('us_title')}</h1><p>{t('us_sub')}</p></div>
-  <div class="seg range" role="group" aria-label={t('us_vs')}>
-    {#each [1, 2] as k (k)}<button type="button" aria-pressed={back === k} onclick={() => (back = k)}>{weekLabel(k)}</button>{/each}
+  <div class="head-tools">
+    {#if cur}<button class="btn" type="button" onclick={copyReport}><Icon name="sheet" />{reported ? t('rep_copied') : t('rep_copy')}</button>{/if}
+    <div class="seg range" role="group" aria-label={t('us_vs')}>
+      {#each [1, 2] as k (k)}<button type="button" aria-pressed={back === k} onclick={() => (back = k)}>{weekLabel(k)}</button>{/each}
+    </div>
   </div>
 </div>
 
@@ -151,6 +179,22 @@
       <Kpi label={t('us_kpi_req')} value={cur.requests.toLocaleString(ui.lang)} note={t('us_before', { x: prev.requests.toLocaleString(ui.lang) })} />
       <Kpi label={t('us_kpi_agents')} value={cur.agents.toLocaleString(ui.lang)} note={t('us_kpi_agents_note', { n: cur.workflows })} />
       <Kpi label={t('us_kpi_share')} value={pct(cur.agentShare)} note={t('us_before', { x: pct(prev.agentShare) })} />
+    </div>
+
+    <div class="grid grid-2">
+      <PlanCard {usage} {pricing} />
+      <section class="card">
+        <div class="card-head"><h2>{t('wr_title')}</h2><span class="card-sub">{t('wr_sub')}</span></div>
+        <div class="hbars tall">
+          {#each runs.slice(0, 6) as w (w.session + w.id)}
+            <a class="hbar" href={link(`/sessions/${encodeURIComponent(w.session)}`)}>
+              <span class="name" title={ui.privacy ? '' : w.top.join(', ')}>{sessionTitle({ id: w.session, title: w.title })}<br /><span class="muted small">{t('wr_agents', { n: w.agents, when: when(w.start) })}</span></span>
+              <span class="bar"><span style:width="{((w.usd || w.tokens) / maxRun) * 100}%" style:background={KIND_COLOR.workflow}></span></span>
+              <span class="val">{val(w.usd, w.tokens)}</span>
+            </a>
+          {:else}<div class="empty small">{t('wr_none')}</div>{/each}
+        </div>
+      </section>
     </div>
 
     <section class="card">

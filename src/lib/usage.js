@@ -269,3 +269,138 @@ export function checkFix(usage, fix, pricing, now = new Date()) {
     requests: after.requests, agents: after.agents, needAgents: m.agents,
   };
 }
+
+// ---------- live monitor ----------
+
+export const CACHE_TTL_MS = 5 * 60 * 1000; // subagents
+export const MONITOR_DEFAULTS = { restartAt: 200000, workflowUsd: 25, notify: false };
+
+/**
+ * Status of one agent right now:
+ * finished · working (a request in the last minute) · idle (cache still warm,
+ * `expiresIn` ms left) · expired (the next message writes the whole context again).
+ */
+export function agentStatus(a, now = Date.now()) {
+  if (a.finished) return { state: 'finished' };
+  const since = now - new Date(a.last?.time || a.end).getTime();
+  if (a.kind === 'main') return { state: since < 60000 ? 'working' : 'waiting', since };
+  if (since < 60000) return { state: 'working', since };
+  if (since < CACHE_TTL_MS) return { state: 'idle', since, expiresIn: CACHE_TTL_MS - since };
+  return { state: 'expired', since };
+}
+
+/**
+ * Rows for the monitor: one per agent with its cost and flags, grouped per
+ * session, plus workflow runs and totals.
+ */
+export function monitorView(live, pricing, now = Date.now(), opts = MONITOR_DEFAULTS) {
+  const price = (total) => (pricing ? costOf(Object.values(total || {}), pricing).usd : 0);
+  const sessions = [], workflows = new Map();
+  const totals = { running: 0, idle: 0, expired: 0, context: 0, usd: 0, restart: 0 };
+  for (const s of live?.sessions || []) {
+    const rows = (s.agents || []).map((a) => {
+      const st = agentStatus(a, now);
+      const ctx = a.last?.ctx || 0;
+      const usd = price(a.total);
+      const restart = a.kind !== 'main' && !a.finished && ctx >= opts.restartAt;
+      // What the next message costs to rebuild the cache once it expired.
+      const rewriteUsd = pricing && st.state !== 'finished' ? price({ k: { model: a.model, large: ctx > 100000, input: 0, cw5m: ctx, cw1h: 0, read: 0, output: 0 } }) : 0;
+      if (st.state !== 'finished' && a.kind !== 'main') {
+        totals.running++; totals.context += ctx;
+        if (st.state === 'idle') totals.idle++;
+        if (st.state === 'expired') totals.expired++;
+        if (restart) totals.restart++;
+      }
+      totals.usd += usd;
+      if (a.workflow) {
+        const w = workflows.get(s.id + a.workflow) || { id: a.workflow, session: s.id, title: s.title, project: s.project, agents: 0, active: 0, usd: 0, start: a.start };
+        w.agents++; w.usd += usd;
+        if (st.state === 'working' || st.state === 'idle') w.active++;
+        if (String(a.start) < String(w.start)) w.start = a.start;
+        workflows.set(s.id + a.workflow, w);
+      }
+      return { ...a, status: st, ctx, usd, restart, rewriteUsd, family: familyOf(a) };
+    });
+    const order = { working: 0, idle: 1, waiting: 2, expired: 3, finished: 4 };
+    rows.sort((x, y) => (x.kind === 'main' ? -1 : y.kind === 'main' ? 1 : order[x.status.state] - order[y.status.state] || y.ctx - x.ctx));
+    sessions.push({ ...s, rows, active: rows.some((r) => r.status.state === 'working' || r.status.state === 'idle') });
+  }
+  sessions.sort((a, b) => Number(b.active) - Number(a.active) || String(b.rows[0]?.last?.time).localeCompare(String(a.rows[0]?.last?.time)));
+  const wf = [...workflows.values()].map((w) => ({ ...w, over: w.usd >= opts.workflowUsd })).sort((a, b) => b.usd - a.usd);
+  return { sessions, workflows: wf, totals };
+}
+
+/**
+ * Notifications to send for the current view (each once): agents that passed
+ * the restart size, workflow runs that passed the cost limit.
+ */
+export function monitorAlerts(view) {
+  const out = [];
+  for (const s of view.sessions) for (const r of s.rows) if (r.restart) out.push({ key: `restart.${r.id}`, kind: 'restart', name: r.description || r.type || r.id, ctx: r.ctx });
+  for (const w of view.workflows) if (w.over) out.push({ key: `wf.${w.session}.${w.id}`, kind: 'workflow', name: w.title || w.id, usd: w.usd });
+  return out;
+}
+
+// ---------- weekly plan forecast ----------
+
+const hourKey = (ms) => new Date(ms).toISOString().slice(0, 13);
+const usdBetween = (usage, from, to, pricing) => summarize(usage, (h) => h >= hourKey(from) && h < hourKey(to), pricing).usd;
+
+/**
+ * The latest weekly reading: from the status line log when recent (≤ 6 h),
+ * else the one typed in by hand. → { pct, at (ms), resetsAt (ms), source } or null
+ */
+export function planReading(points, manual, now = Date.now()) {
+  const p = [...(points || [])].reverse().find((x) => x.week && x.week.resets);
+  if (p && now - Date.parse(p.t) <= 6 * 3600000 && p.week.resets * 1000 > now) {
+    return { pct: p.week.pct, at: Date.parse(p.t), resetsAt: p.week.resets * 1000, source: 'statusline' };
+  }
+  if (manual && manual.pct != null && manual.at && manual.resetsAt) {
+    let resetsAt = Date.parse(manual.resetsAt);
+    // The week starts again every 7 days after the reset you typed in.
+    while (resetsAt <= now) resetsAt += 7 * DAY;
+    const at = Date.parse(manual.at);
+    if (at > resetsAt - 7 * DAY) return { pct: Number(manual.pct), at, resetsAt, source: 'manual' };
+    return { pct: 0, at: resetsAt - 7 * DAY, resetsAt, source: 'manual', reset: true, ratioFrom: { pct: Number(manual.pct), at, resetsAt: resetsAt - 7 * DAY } };
+  }
+  return p && p.week.resets * 1000 > now ? { pct: p.week.pct, at: Date.parse(p.t), resetsAt: p.week.resets * 1000, source: 'statusline', stale: true } : null;
+}
+
+/**
+ * Estimated weekly % now and when you'd reach 100% at the pace of the last
+ * 24 hours. Uses the reading to learn how much usage (at API prices) is 1% of
+ * your week, then adds what happened since the reading.
+ */
+export function planForecast(usage, reading, pricing, now = Date.now()) {
+  if (!reading || !pricing) return null;
+  const ref = reading.ratioFrom || reading;
+  const windowStart = ref.resetsAt - 7 * DAY;
+  const usedAtRef = usdBetween(usage, windowStart, ref.at, pricing);
+  const perPct = ref.pct >= 1 && usedAtRef > 0 ? usedAtRef / ref.pct : null; // $ per 1% of the week
+  if (!perPct) return { reading, perPct: null, pct: reading.pct, resetsAt: reading.resetsAt };
+  const pct = Math.min(100, reading.pct + usdBetween(usage, reading.at, now, pricing) / perPct);
+  const perHour = usdBetween(usage, now - DAY, now, pricing) / 24 / perPct; // % per hour, last 24 h
+  const hoursLeft = (reading.resetsAt - now) / 3600000;
+  const atReset = Math.min(100, pct + perHour * hoursLeft);
+  const hitAt = perHour > 0 && pct < 100 ? now + ((100 - pct) / perHour) * 3600000 : null;
+  return { reading, perPct, pct, perHour, resetsAt: reading.resetsAt, atReset, hitAt: hitAt && hitAt < reading.resetsAt ? hitAt : null };
+}
+
+/** Cost per workflow run in the given days: [{ id, session, title, project, agents, usd, start }]. */
+export function workflowRuns(usage, days, pricing) {
+  const set = new Set(days);
+  const runs = new Map();
+  for (const s of usage?.sessions || []) for (const a of s.agents || []) {
+    if (!a.workflow) continue;
+    const bs = sumBuckets(Object.entries(a.hours || {}).filter(([h]) => set.has(h.slice(0, 10))).map(([, v]) => v.all));
+    if (!bs.length) continue;
+    const k = s.id + a.workflow;
+    const w = runs.get(k) || { id: a.workflow, session: s.id, title: s.title, project: s.project, agents: 0, usd: 0, tokens: 0, start: a.start, families: new Map() };
+    w.agents++; w.usd += pricing ? costOf(bs, pricing).usd : 0; w.tokens += tokensOf(bs);
+    if (String(a.start) < String(w.start)) w.start = a.start;
+    const f = familyOf(a); w.families.set(f, (w.families.get(f) || 0) + 1);
+    runs.set(k, w);
+  }
+  return [...runs.values()].map(({ families, ...w }) => ({ ...w, top: [...families.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3).map(([n, c]) => `${n} ×${c}`) }))
+    .sort((a, b) => b.usd - a.usd || b.tokens - a.tokens);
+}

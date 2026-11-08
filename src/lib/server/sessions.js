@@ -7,7 +7,8 @@ import path from 'node:path';
 import { parseSession, parseSubagents, est } from './parser.js';
 import { APP_ROOT } from './paths.js';
 import { memoryFor } from './memory.js';
-import { agentsOf, agentDays } from './usage.js';
+import { agentsOf, agentDays, recentAgentsOf } from './usage.js';
+import { planUsage } from './plan.js';
 import { fixTag } from '../usage.js';
 
 export const CLAUDE_DIR = process.env.CLAUDE_DIR || path.join(os.homedir(), '.claude');
@@ -125,6 +126,7 @@ export function getSession(id) {
     breakdown: { ...detail.breakdown, fixed },
     memory,
     subagents: parseSubagents(matches[0].file),
+    agentUsage: agentDays(agentsOf(matches[0].file)),
   };
 }
 
@@ -146,7 +148,22 @@ export function getUsage(days = 42) {
     const fix = fixTag(s.firstPrompt);
     if (agents.length) sessions.push({ id: s.id, title: s.title, project: s.project, start: s.start, end: s.end, fix, agents });
   }
-  return { demo: list.demo, generated: list.generated, since, sessions };
+  return { demo: list.demo, generated: list.generated, since, sessions, plan: list.demo ? [] : planUsage(CLAUDE_DIR), planScript: path.join(APP_ROOT, 'scripts', 'statusline-plan-log.mjs') };
+}
+
+/** Agents active in the last `minutes` minutes, per session, for the live monitor. */
+export function liveAgents(minutes = 30) {
+  const { demo, files } = sources();
+  const since = Date.now() - minutes * 60000;
+  const titles = new Map(listSessions().sessions.map((s) => [s.file, s]));
+  const sessions = [];
+  for (const f of files) {
+    const agents = recentAgentsOf(f.file, since);
+    if (!agents.length) continue;
+    const s = titles.get(f.file);
+    sessions.push({ id: path.basename(f.file, '.jsonl'), title: s?.title || null, project: s?.project || null, agents });
+  }
+  return { demo, now: new Date().toISOString(), minutes, sessions };
 }
 
 export function describeSource() {
