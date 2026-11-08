@@ -24,7 +24,7 @@
     const bd = breakdownOf(session);
     const h = healthOf(session, data.sessions?.memoryFiles);
     const pricing = data.live?.pricing?.list;
-    const c = pricing ? costOf(session.byModel, pricing) : null;
+    const c = pricing ? costOf([...session.byModel, ...(session.agentUsage?.byModel || [])], pricing) : null; // agents included
     return reportMarkdown(session, {
       t, fmt: fmtK, mask, win: bd.win,
       health: { grade: h.grade, recs: h.recs.map((r) => ({ title: L(r.def.title), why: r.why })) },

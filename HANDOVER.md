@@ -14,6 +14,7 @@ Claude Context Dashboard: a local, read-only dashboard for Claude Code sessions 
 
 | Area | Where |
 |---|---|
+| Live agents monitor (`/monitor`, `/api/agents`), weekly plan forecast (`PlanCard.svelte`, `src/lib/server/plan.js`, `scripts/statusline-plan-log.mjs` → `~/.claude/plan-usage.jsonl`) | `src/lib/usage.js` (monitor + plan sections) |
 | Usage per agent (main, subagents, workflow agents; idle cache rebuilds, >400K requests) | `src/lib/server/usage.js`, `src/lib/usage.js`, `src/routes/usage`, `FixPanel.svelte` |
 | Transcript parser (measured totals, calibrated split, MCP, steps, per-model/day usage) | `src/lib/server/parser.js` |
 | Session discovery, memory files (CLAUDE.md, rules, imports, auto memory) | `src/lib/server/sessions.js`, `memory.js` |

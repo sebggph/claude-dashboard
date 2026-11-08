@@ -119,7 +119,7 @@
   </div>
 
   <div class="grid grid-2">
-  <CostCard buckets={s.byModel} />
+  <CostCard buckets={s.byModel} agentBuckets={s.agentUsage?.byModel || []} agentCount={s.agentUsage?.count || 0} />
   <section class="card">
     <div class="card-head"><h2>{t('sub_title')}</h2></div>
     <p class="card-sub sub-lead">{t('sub_sub')}</p>

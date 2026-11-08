@@ -10,6 +10,7 @@
     { id: 'sessions', href: '/sessions', icon: 'sessions' },
     { id: 'trends', href: '/trends', icon: 'chart' },
     { id: 'usage', href: '/usage', icon: 'gauge' },
+    { id: 'monitor', href: '/monitor', icon: 'bolt' },
     { id: 'guides', href: '/learn', icon: 'book' },
     { id: 'cheatsheet', href: '/cheatsheet', icon: 'sheet' },
     { id: 'news', href: '/news', icon: 'news' },

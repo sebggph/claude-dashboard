@@ -44,7 +44,7 @@ export function scanFile(file, { sidechain = false } = {}) {
     reqs.set(id, { time: (prev && prev.time) || d.timestamp, model: d.message.model, usage: d.message.usage });
   });
   const list = [...reqs.values()].filter((r) => r.time).sort((a, b) => String(a.time).localeCompare(String(b.time)));
-  const out = { requests: list.length, peak: 0, model: null, start: list[0]?.time || null, end: list.at(-1)?.time || null, hours: {} };
+  const out = { requests: list.length, peak: 0, model: null, start: list[0]?.time || null, end: list.at(-1)?.time || null, last: null, total: {}, hours: {} };
   let prevTime = null;
   for (const r of list) {
     const u = r.usage;
@@ -57,6 +57,8 @@ export function scanFile(file, { sidechain = false } = {}) {
     const d = out.hours[hour] || (out.hours[hour] = { requests: 0, all: {}, idle: {}, big: {}, idleCount: 0, bigCount: 0 });
     d.requests++;
     addTo(d.all, u, r.model);
+    addTo(out.total, u, r.model);
+    out.last = { time: r.time, ctx, cacheWrite: cw };
     // A pause, then most of the context written to the cache again: it had expired.
     if (prevTime != null && t - prevTime > IDLE_GAP_MS && ctx > 20000 && cw >= ctx * 0.5) {
       d.idleCount++;
@@ -82,6 +84,8 @@ function cachedScan(file, opts) {
   cache.set(file, { mtime: st.mtimeMs, size: st.size, value });
   return value;
 }
+
+function mtimeOf(file) { try { return fs.statSync(file).mtimeMs; } catch { return 0; } }
 
 function readMeta(file) {
   try { return JSON.parse(fs.readFileSync(file.replace(/\.jsonl$/, '.meta.json'), 'utf8')); } catch { return {}; }
@@ -123,13 +127,21 @@ export function agentsOf(sessionFile) {
   return agents;
 }
 
-/** Subagent + workflow usage of a session, per day, in the same shape as the parser's byDay. */
+/**
+ * Subagent + workflow usage of a session: per day (same shape as the parser's
+ * byDay), plus totals per model (`byModel`, like the parser's) and tokens.
+ */
 export function agentDays(agents) {
   const out = {};
-  let count = 0;
+  const total = {};
+  let count = 0, tokens = 0;
   for (const a of agents) {
     if (a.kind === 'main') continue;
     count++;
+    for (const [k, b] of Object.entries(a.total || {})) {
+      const m = total[k] || (total[k] = emptyBucket(b.model, b.large));
+      for (const f of ['input', 'cw5m', 'cw1h', 'read', 'output']) { m[f] += b[f]; tokens += b[f]; }
+    }
     for (const [hour, v] of Object.entries(a.hours)) {
       const day = hour.slice(0, 10);
       const d = out[day] || (out[day] = { requests: 0, input: 0, cacheWrite: 0, cacheRead: 0, output: 0, byModel: {} });
@@ -141,5 +153,36 @@ export function agentDays(agents) {
       }
     }
   }
-  return { count, byDay: out };
+  return { count, tokens, byModel: Object.values(total), byDay: out };
 }
+
+/**
+ * Agents active in the last `minutes`: the main conversation and each
+ * subagent / workflow agent whose transcript changed since then. For the
+ * live monitor: last request time, current context, cost so far, finished.
+ */
+export function recentAgentsOf(sessionFile, since) {
+  const out = [];
+  if (mtimeOf(sessionFile) >= since) {
+    const main = cachedScan(sessionFile);
+    // The file can change without a new request (titles, summaries): go by the last request.
+    if (main && main.requests && Date.parse(main.last?.time || 0) >= since) out.push({ id: 'main', kind: 'main', type: null, description: null, workflow: null, finished: false, ...strip(main) });
+  }
+  const subDir = path.join(path.dirname(sessionFile), path.basename(sessionFile, '.jsonl'), 'subagents');
+  for (const f of agentFiles(subDir)) {
+    if (mtimeOf(f) < since) continue;
+    const v = cachedScan(f, { sidechain: true });
+    if (!v || !v.requests || Date.parse(v.last?.time || 0) < since) continue;
+    const rel = path.relative(subDir, f).split(path.sep);
+    const workflow = rel[0] === 'workflows' && rel.length > 2 ? rel[1] : null;
+    const meta = readMeta(f);
+    out.push({
+      id: path.basename(f, '.jsonl'), kind: workflow ? 'workflow' : 'subagent',
+      type: meta.agentType || null, description: meta.description || null, workflow,
+      finished: meta.finished === true, ...strip(v),
+    });
+  }
+  return out;
+}
+// The monitor needs totals, not the per-hour detail.
+const strip = ({ hours, ...rest }) => rest;

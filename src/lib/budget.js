@@ -47,10 +47,12 @@ export function usageOn(sessions, days, unit, pricing) {
   return pricing ? costOf(buckets, pricing).usd : null;
 }
 
-/** One session's usage in the budget's unit. */
+/** One session's usage in the budget's unit, agents included. */
 export function sessionUsage(s, unit, pricing) {
-  if (unit === 'tokens') return s.totals.input + s.totals.cacheWrite + s.totals.cacheRead + s.totals.output;
-  return pricing ? costOf(s.byModel, pricing).usd : null;
+  // Its subagents and workflow agents count too.
+  const agents = s.agentUsage || { tokens: 0, byModel: [] };
+  if (unit === 'tokens') return s.totals.input + s.totals.cacheWrite + s.totals.cacheRead + s.totals.output + (agents.tokens || 0);
+  return pricing ? costOf([...s.byModel, ...(agents.byModel || [])], pricing).usd : null;
 }
 
 /** { value, limit, pct, level: 'none' | 'ok' | 'near' | 'over' } */

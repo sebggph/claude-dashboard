@@ -4,9 +4,11 @@
   import Explain from './Explain.svelte';
   import { ui, data, t } from '#lib/state.svelte.js';
   import { costOf, fmtUSD } from '#lib/cost.js';
-  let { buckets } = $props();
+  // agentBuckets: the session's subagents and workflow agents, counted in the total.
+  let { buckets, agentBuckets = [], agentCount = 0 } = $props();
   const pricing = $derived(data.live?.pricing?.list);
-  const c = $derived(pricing ? costOf(buckets, pricing) : null);
+  const c = $derived(pricing ? costOf([...buckets, ...agentBuckets], pricing) : null);
+  const agentUsd = $derived(pricing && agentBuckets.length ? costOf(agentBuckets, pricing).usd : 0);
   const savedPct = $derived(c && c.withoutCache ? c.saved / c.withoutCache : 0);
 </script>
 
@@ -19,6 +21,7 @@
       <div class="kpi"><span class="kpi-label"><Explain key="cache" label={t('cost_saved')} /></span><span class="kpi-value saved">{fmtUSD(c.saved, ui.lang)}</span>
         <span class="kpi-note">{t('cost_saved_note', { p: Math.round(savedPct * 100) + '%', x: fmtUSD(c.withoutCache, ui.lang) })}</span></div>
     </div>
+    {#if agentCount}<p class="small muted">{t('cost_agents', { n: agentCount, x: fmtUSD(agentUsd, ui.lang) })}</p>{/if}
     <div class="legend-rows" style="margin-top:8px">
       {#each [['tok_input', c.parts.input], ['tok_write', c.parts.cacheWrite], ['tok_read', c.parts.cacheRead], ['tok_output', c.parts.output]] as [k, v] (k)}
         <div class="lrow"><span></span><span>{t(k)}</span><span class="v">{fmtUSD(v, ui.lang)}</span><span class="p">{c.usd ? Math.round((v / c.usd) * 100) + '%' : ''}</span></div>

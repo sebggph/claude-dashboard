@@ -26,6 +26,8 @@ for (const s of list.sessions) {
 }
 const { getUsage } = await import('../src/lib/server/sessions.js');
 write('usage.json', getUsage(3650));
+const { liveAgents } = await import('../src/lib/server/sessions.js');
+write('agents.json', liveAgents(0));
 write('news.json', { ...(await getNews()), disabled: true });
 write('live.json', getLive());
 console.log(`Demo data: ${list.sessions.length} sessions → ${path.relative(process.cwd(), out)}`);
