@@ -52,6 +52,7 @@
       let evt = {};
       try { evt = JSON.parse(e.data); } catch { /* ignore */ }
       if (data.sessions) load.sessions(true).catch(() => {});
+      if (data.usage) load.usage(true).catch(() => {});
       const m = appPath(page.url.pathname).match(/^\/sessions\/([^/]+)$/);
       if (m && (evt.changed || []).includes(decodeURIComponent(m[1]))) invalidateAll();
     });

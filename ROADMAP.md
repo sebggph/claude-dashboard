@@ -13,6 +13,7 @@ Ideas to grow the dashboard, roughly in order of value. Each one says where it w
 
 ## Done
 
+- Usage page: what uses your tokens (subagents, workflows, idle cache rebuilds) with *Fix with Claude* prompts; subagent usage counted in Trends and budgets; very large transcripts (>512 MB) read in chunks (v0.13)
 - Cheatsheet quiz mode (v0.12)
 - Session export: Markdown report, CSV, JSON, print/PDF (v0.11)
 - Guides: plan mode, hooks, write a skill, headless/CI (v0.11)

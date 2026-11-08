@@ -569,3 +569,30 @@ footer { text-align: center; color: var(--text-3); font-size: 12.5px; padding: 2
   .page-head h1 { font-size: 18pt; }
   a { color: inherit; }
 }
+
+/* ---------- usage page: fix with Claude ---------- */
+.fix { margin-top: 10px; }
+.fix > .btn { padding: 6px 12px; font-size: 13px; }
+.fix-panel { margin-top: 10px; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); display: grid; gap: 10px; }
+.fix-panel p { margin: 0; }
+.fix-cmd { margin: 0; font-family: var(--mono); font-size: 12.5px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; white-space: pre-wrap; word-break: break-word; max-height: 220px; overflow: auto; }
+.fix-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.fix-actions .btn { padding: 6px 12px; font-size: 13px; }
+.nowrap { white-space: nowrap; }
+.hbars.tall .hbar { grid-template-columns: minmax(0, 1.4fr) 1.6fr 56px; }
+@media (max-width: 600px) {
+  /* Name on its own line, bar and value below it. */
+  .hbars.tall .hbar { grid-template-columns: minmax(0, 1fr) auto; row-gap: 4px; }
+  .hbars.tall .hbar .name { grid-column: 1 / -1; white-space: normal; }
+}
+.fix-warn { display: flex; gap: 6px; align-items: flex-start; color: var(--text); }
+.fix-warn .icon { color: var(--warning); flex: none; margin-top: 2px; }
+.fix-status { margin-top: 10px; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); border-left: 4px solid var(--s1); background: var(--surface); display: grid; gap: 4px; }
+.fix-status p { margin: 0; }
+.fix-status.fixed { border-left-color: var(--good); }
+.fix-status.still { border-left-color: var(--serious); }
+.rec.done { opacity: .72; }
+.fix-past-title { font-size: 14px; margin: 20px 0 10px; color: var(--text-2); }
+.link-btn { background: none; border: 0; padding: 0; color: var(--link); font-weight: 600; cursor: pointer; }
+.link-btn:hover { text-decoration: underline; }
+.rec .link-btn.small { display: block; margin-top: 8px; font-size: 13px; }

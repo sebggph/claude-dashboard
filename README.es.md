@@ -13,6 +13,7 @@ Un panel pequeño y sencillo que muestra **cuánto contexto usan tus sesiones de
 - **Informe de sesión**: cada sesión recibe un estado (Ligera, Aceptable, Pesada) con sus 3 mejoras principales y un resumen para *copiar al chat*.
 - **Memoria y MCP**: qué CLAUDE.md, reglas e imports se cargan, y cuánto cuestan las herramientas de cada servidor MCP.
 - **Actualización en vivo**: el panel se actualiza en cuanto cambia una sesión (punto verde *En vivo*).
+- **Uso: qué usa tus tokens**: los últimos 7 días frente a semanas anteriores, separados en conversaciones principales, subagentes y agentes de workflows, con las sesiones y grupos de agentes más grandes. Detecta agentes que recargan una memoria grande, agentes cuya caché caducó mientras esperaban, conversaciones muy largas y un único modelo caro para todo. Cada hallazgo tiene *Arreglar con Claude*: **Abrir en terminal** inicia Claude Code en el proyecto correcto con un prompt listo (con el [enlace profundo](https://code.claude.com/docs/en/deep-links) de Claude Code), o copia el comando. Tras una sesión de arreglo, el hallazgo muestra si funcionó (su parte del uso en ese proyecto antes y después, solo con las transcripciones), y repetir el mismo arreglo pide confirmar con otro clic.
 - **Coste estimado y Tendencias**: coste por sesión con los precios oficiales de la API, cuánto ahorró la caché y gráficos diarios de peticiones, coste y aciertos de caché.
 - **Alertas de presupuesto**: presupuestos diario, semanal y por sesión en dólares o tokens, con línea de presupuesto en los gráficos, avisos al 80% y al 100% y notificaciones de escritorio opcionales.
 - **Recorrido guiado**: un paseo de 1 minuto en la primera visita (repítelo desde Inicio o Ajustes).
@@ -95,6 +96,7 @@ Claude Code guarda cada sesión como un archivo `.jsonl` en `~/.claude/projects/
 | Respuestas y razonamiento de Claude | `output_tokens` de cada respuesta | Medido |
 | Tus mensajes, resultados de herramientas, listas | Longitud del texto, calibrada por sesión según cuánto creció el contexto entre peticiones | Estimado |
 | Prompt del sistema, herramientas y memoria | Lo que queda: total menos todos los mensajes | Estimado |
+| Subagentes y agentes de workflows | Sus propias transcripciones en `<sesión>/subagents/` (también cuentan en Tendencias y presupuestos) | Medido |
 | Tamaño de la ventana | Según el modelo, como dice la [documentación oficial](https://code.claude.com/docs/en/model-config) (cámbialo en ⚙ Ajustes) | Por reglas |
 
 Para cifras exactas dentro de una sesión, usa `/context` en Claude Code.

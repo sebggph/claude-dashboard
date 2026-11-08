@@ -24,6 +24,8 @@ for (const s of list.sessions) {
   delete d.file;
   write(`sessions/${s.id}.json`, d);
 }
+const { getUsage } = await import('../src/lib/server/sessions.js');
+write('usage.json', getUsage(3650));
 write('news.json', { ...(await getNews()), disabled: true });
 write('live.json', getLive());
 console.log(`Demo data: ${list.sessions.length} sessions → ${path.relative(process.cwd(), out)}`);
