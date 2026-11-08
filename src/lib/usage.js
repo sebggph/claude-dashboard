@@ -177,3 +177,16 @@ export function fixCommand(project, prompt) {
   const run = `claude ${shellQuote(prompt)}`;
   return project ? `cd ${shellQuote(project)} && ${run}` : run;
 }
+
+// Claude Code's deep link opens a terminal with Claude Code in a folder and the
+// prompt typed in (not sent). The prompt may be up to 5,000 characters.
+// https://code.claude.com/docs/en/deep-links
+export const DEEP_LINK_MAX = 5000;
+
+/** claude-cli://open link for the project and prompt, or null when it can't be used. */
+export function deepLink(project, prompt) {
+  const absolute = String(project || '').startsWith('/') || /^[A-Za-z]:\\/.test(project || '');
+  if (!absolute) return null;
+  if (!prompt || prompt.length > DEEP_LINK_MAX) return null;
+  return `claude-cli://open?cwd=${encodeURIComponent(project)}&q=${encodeURIComponent(prompt)}`;
+}

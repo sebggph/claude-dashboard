@@ -6,7 +6,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { forEachLine } from '../src/lib/server/parser.js';
 import { scanFile, agentsOf, agentDays } from '../src/lib/server/usage.js';
-import { summarize, findingsFor, familyOf, weekDays, fixCommand, shellQuote } from '../src/lib/usage.js';
+import { summarize, findingsFor, familyOf, weekDays, fixCommand, shellQuote, deepLink } from '../src/lib/usage.js';
 import { daysOf } from '../src/lib/budget.js';
 
 const PRICING = [{ id: 'claude-opus-5-5', tier: 'std', input: 4, cw5m: 5, cw1h: 8, read: 0.2, output: 20 }];
@@ -95,4 +95,13 @@ test('fix command quotes the project and the prompt for the shell', () => {
   assert.strictEqual(shellQuote("it's"), `'it'\\''s'`);
   assert.strictEqual(fixCommand('/a b', 'hi'), `cd '/a b' && claude 'hi'`);
   assert.strictEqual(fixCommand(null, 'hi'), `claude 'hi'`);
+});
+
+test('deep link opens Claude Code in the project with the prompt typed in', () => {
+  const l = deepLink('/Users/me/my app', 'fix this\nplease & thanks');
+  assert.strictEqual(l, 'claude-cli://open?cwd=%2FUsers%2Fme%2Fmy%20app&q=fix%20this%0Aplease%20%26%20thanks');
+  assert.ok(deepLink('C:\\code\\app', 'hi'));
+  assert.strictEqual(deepLink(null, 'hi'), null); // no folder: copy the command instead
+  assert.strictEqual(deepLink('relative/path', 'hi'), null);
+  assert.strictEqual(deepLink('/p', 'x'.repeat(5001)), null); // over the 5,000-character limit
 });
