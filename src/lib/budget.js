@@ -15,13 +15,29 @@ export function lastDays(n, now = new Date()) {
 
 const tokensOf = (v) => v.input + v.cacheWrite + v.cacheRead + v.output;
 
-/** Usage on the given days across sessions, in the budget's unit. */
+/**
+ * A session's usage per day, including its subagents and workflow agents
+ * (they use tokens too). Returns [day, { requests, input, cacheWrite, cacheRead, output, byModel }].
+ */
+export function daysOf(s) {
+  const out = new Map(Object.entries(s.byDay || {}).map(([d, v]) => [d, { ...v, byModel: { ...v.byModel } }]));
+  for (const [day, v] of Object.entries((s.agentUsage && s.agentUsage.byDay) || {})) {
+    const d = out.get(day);
+    if (!d) { out.set(day, v); continue; }
+    d.requests += v.requests; d.input += v.input; d.cacheWrite += v.cacheWrite; d.cacheRead += v.cacheRead; d.output += v.output;
+    // Agent buckets get their own keys so costOf sees each one.
+    for (const [k, b] of Object.entries(v.byModel || {})) d.byModel['agents|' + k] = b;
+  }
+  return [...out.entries()];
+}
+
+/** Usage on the given days across sessions (agents included), in the budget's unit. */
 export function usageOn(sessions, days, unit, pricing) {
   const set = new Set(days);
   let tokens = 0;
   const buckets = [];
   for (const s of sessions || []) {
-    for (const [day, v] of Object.entries(s.byDay || {})) {
+    for (const [day, v] of daysOf(s)) {
       if (!set.has(day)) continue;
       tokens += tokensOf(v);
       buckets.push(...Object.values(v.byModel || {}));

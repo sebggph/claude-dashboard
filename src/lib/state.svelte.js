@@ -38,6 +38,7 @@ export function togglePrivacy() { ui.privacy = !ui.privacy; store.set('privacy',
 /** Data loaded from the server and static files. */
 export const data = $state({
   sessions: null, // /api/sessions
+  usage: null, // /api/usage (main conversations, subagents, workflow agents)
   guide: null, // context-guide.json
   cheatsheet: null,
   docsIndex: {}, // per language
@@ -55,6 +56,7 @@ async function getJSON(url) {
 
 export const load = {
   async sessions(force = false) { if (force || !data.sessions) data.sessions = await getJSON('/api/sessions'); return data.sessions; },
+  async usage(force = false) { if (force || !data.usage) data.usage = await getJSON('/api/usage'); return data.usage; },
   async guide() { if (!data.guide) data.guide = await getJSON('/data/context-guide.json'); return data.guide; },
   async cheatsheet() { if (!data.cheatsheet) data.cheatsheet = await getJSON('/data/cheatsheet.json'); return data.cheatsheet; },
   async docs(lang = ui.lang) { if (!data.docsIndex[lang]) data.docsIndex[lang] = await getJSON(`/docs/${lang}/index.json`); return data.docsIndex[lang]; },

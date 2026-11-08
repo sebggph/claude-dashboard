@@ -7,6 +7,7 @@ import path from 'node:path';
 import { parseSession, parseSubagents, est } from './parser.js';
 import { APP_ROOT } from './paths.js';
 import { memoryFor } from './memory.js';
+import { agentsOf, agentDays } from './usage.js';
 
 export const CLAUDE_DIR = process.env.CLAUDE_DIR || path.join(os.homedir(), '.claude');
 const DEMO_DIR = path.join(APP_ROOT, 'samples');
@@ -88,6 +89,8 @@ export function listSessions() {
     if (!prev || prev.mtime < s.mtime) byId.set(s.id, s);
   }
   const sessions = [...byId.values()].sort((a, b) => String(b.end).localeCompare(String(a.end)));
+  // Subagents and workflow agents use tokens too: count them in trends and budgets.
+  for (const s of sessions) s.agentUsage = agentDays(agentsOf(s.file));
   return {
     demo,
     demoReason: demo ? reason : null,
@@ -122,6 +125,25 @@ export function getSession(id) {
     memory,
     subagents: parseSubagents(matches[0].file),
   };
+}
+
+/**
+ * Usage per agent (main conversation, subagents, workflow agents) for the
+ * Usage page. Only the last `days` days are kept, to keep the answer small.
+ */
+export function getUsage(days = 42) {
+  const list = listSessions();
+  const since = new Date(Date.now() - days * 86400000).toISOString().slice(0, 10);
+  const sessions = [];
+  for (const s of list.sessions) {
+    if (String(s.end).slice(0, 10) < since) continue;
+    const agents = agentsOf(s.file).map((a) => ({
+      ...a,
+      days: Object.fromEntries(Object.entries(a.days).filter(([d]) => d >= since)),
+    })).filter((a) => Object.keys(a.days).length);
+    if (agents.length) sessions.push({ id: s.id, title: s.title, project: s.project, start: s.start, end: s.end, agents });
+  }
+  return { demo: list.demo, generated: list.generated, since, sessions };
 }
 
 export function describeSource() {

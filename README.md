@@ -14,6 +14,7 @@ A small, friendly dashboard that shows **how much context your Claude Code sessi
 - **Memory & MCP**: which CLAUDE.md, rules and imports load, and what each MCP server's tools cost.
 - **Live updates**: the dashboard refreshes the moment a session changes (green *Live* dot).
 - **Estimated cost & Trends**: cost per session at official API prices, how much prompt caching saved, and daily charts for requests, cost and cache hit rate.
+- **Usage: what uses your tokens**: the last 7 days compared with earlier weeks, split into main conversations, subagents and workflow agents, with the biggest sessions and agent groups. Findings spot agents that reload a big memory, agents whose cache expired while they waited, very long conversations and one expensive model for everything. Each finding has a *Fix with Claude* command that opens Claude Code in the right project with a ready prompt.
 - **Budget alerts**: daily, weekly and per-session budgets in dollars or tokens, with a budget line in the charts, warnings at 80% and 100%, and optional desktop notifications.
 - **Guided tour**: a 1-minute walkthrough on first launch (restart it from Home or Settings).
 - **Export**: download a session as a Markdown report, CSV (breakdown, timeline, tools) or JSON, or print it / save as PDF. Privacy mode applies.
@@ -95,6 +96,7 @@ Claude Code saves every session as a `.jsonl` file under `~/.claude/projects/`. 
 | Claude's replies & thinking | `output_tokens` per reply | Measured |
 | Your messages, tool results, listings | Text length, calibrated per session from how much context grew between requests | Estimated |
 | System prompt, tools & memory | Whatever is left: total minus all messages | Estimated |
+| Subagents & workflow agents | Their own transcripts in `<session>/subagents/` (also counted in Trends and budgets) | Measured |
 | Window size | From the model name, per the [official docs](https://code.claude.com/docs/en/model-config) (change it in ⚙ Settings) | Rule-based |
 
 For exact numbers inside a session, run `/context` in Claude Code.

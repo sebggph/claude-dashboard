@@ -7,6 +7,7 @@
   import { ui, data, t } from '#lib/state.svelte.js';
   import { fmtK, pct, maskProject } from '#lib/rules.js';
   import { costOf, fmtUSD } from '#lib/cost.js';
+  import { daysOf } from '#lib/budget.js';
 
   let range = $state(30);
   const pricing = $derived(data.live?.pricing?.list);
@@ -23,7 +24,7 @@
   const perDay = $derived.by(() => {
     const map = new Map(dayList.map((d) => [d, { day: d, requests: 0, tokens: 0, read: 0, inputAll: 0, buckets: [], sessions: new Set() }]));
     for (const s of sessions) {
-      for (const [day, v] of Object.entries(s.byDay || {})) {
+      for (const [day, v] of daysOf(s)) {
         const d = map.get(day);
         if (!d) continue;
         d.requests += v.requests;
@@ -46,7 +47,7 @@
   const projects = $derived.by(() => {
     const m = new Map();
     for (const s of sessions) {
-      const days = Object.entries(s.byDay || {}).filter(([d]) => dayList.includes(d));
+      const days = daysOf(s).filter(([d]) => dayList.includes(d));
       if (!days.length) continue;
       const key = s.project || '–';
       const p = m.get(key) || { project: key, requests: 0, buckets: [], sessions: 0 };

@@ -89,13 +89,37 @@ function mcpServer(name) {
   return name.split('__')[1] || 'mcp';
 }
 
-function readLines(file) {
-  const raw = fs.readFileSync(file, 'utf8');
-  const out = [];
-  for (const line of raw.split('\n')) {
-    if (!line.trim()) continue;
-    try { out.push(JSON.parse(line)); } catch { /* last line may still be writing */ }
+/**
+ * Calls fn(line) for each line of a file. Reads in chunks, so files larger
+ * than the biggest possible string (~512 MB) still work.
+ */
+function forEachLine(file, fn, chunkSize = 16 * 1024 * 1024) {
+  const fd = fs.openSync(file, 'r');
+  try {
+    const buf = Buffer.alloc(chunkSize);
+    let rest = Buffer.alloc(0);
+    let n;
+    while ((n = fs.readSync(fd, buf, 0, chunkSize, null)) > 0) {
+      let data = rest.length ? Buffer.concat([rest, buf.subarray(0, n)]) : buf.subarray(0, n);
+      let start = 0, nl;
+      while ((nl = data.indexOf(10, start)) !== -1) {
+        if (nl > start) fn(data.toString('utf8', start, nl));
+        start = nl + 1;
+      }
+      rest = Buffer.from(data.subarray(start)); // copy: buf is reused
+    }
+    if (rest.length) fn(rest.toString('utf8'));
+  } finally {
+    fs.closeSync(fd);
   }
+}
+
+function readLines(file) {
+  const out = [];
+  forEachLine(file, (line) => {
+    if (!line.trim()) return;
+    try { out.push(JSON.parse(line)); } catch { /* last line may still be writing */ }
+  });
   return out;
 }
 
@@ -568,4 +592,4 @@ function parseSubagents(sessionFile) {
 }
 
 
-export { parseSession, parseSubagents, est };
+export { parseSession, parseSubagents, est, forEachLine, usageTotal };
